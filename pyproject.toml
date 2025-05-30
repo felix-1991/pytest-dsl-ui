@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pytest-dsl-ui"
+version = "0.1.0"
+description = "Playwright-based UI automation keywords for pytest-dsl framework"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "Chen Shuanglin"}
+]
+classifiers = [
+    "Framework :: Pytest",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pytest-dsl>=0.7.0",
+    "playwright>=1.40.0",
+    "allure-pytest>=2.9.0",
+    "Pillow>=9.0.0",  # 用于截图处理
+]
+
+# 声明entry_points，让pytest-dsl自动发现这个插件
+[project.entry-points."pytest_dsl.keywords"]
+ui_keywords = "pytest_dsl_ui"
+
+[project.urls]
+"Homepage" = "https://github.com/felix-1991/pytest-dsl-ui"
+"Bug Tracker" = "https://github.com/felix-1991/pytest-dsl-ui/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=22.0.0",
+    "flake8>=5.0.0",
+]
