@@ -5,10 +5,11 @@
 """
 
 import asyncio
-import json
 import logging
-from typing import Dict, Any, Optional, Union
-from playwright.async_api import async_playwright, Browser, BrowserContext, Page, Playwright
+from typing import Dict, Any, Optional
+from playwright.async_api import (
+    async_playwright, Browser, BrowserContext, Page, Playwright
+)
 
 logger = logging.getLogger(__name__)
 
@@ -165,7 +166,18 @@ class BrowserManager:
         if "permissions" in config:
             context_config["permissions"] = config["permissions"]
             
-        return self._run_async(self._create_context_async(browser_id, context_config))
+        # SSL证书忽略配置
+        ignore_https_errors = config.get("ignore_https_errors", False)
+        if ignore_https_errors:
+            context_config["ignore_https_errors"] = True
+            
+        context_id = self._run_async(self._create_context_async(browser_id, context_config))
+        
+        # 在上下文对象上保存ignore_https_errors标志，方便后续检查
+        if context_id in self.contexts:
+            self.contexts[context_id]._ignore_https_errors = ignore_https_errors
+            
+        return context_id
     
     async def _create_page_async(self, context_id: str) -> str:
         """异步创建页面"""

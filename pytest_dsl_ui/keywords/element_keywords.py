@@ -25,6 +25,8 @@ def _get_current_locator() -> ElementLocator:
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器（CSS选择器、XPath、文本等）'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
     {'name': '强制点击', 'mapping': 'force', 'description': '是否强制点击（忽略元素状态检查）'},
+    {'name': '索引', 'mapping': 'index', 'description': '元素索引（当有多个匹配元素时）'},
+    {'name': '可见性', 'mapping': 'visible_only', 'description': '是否只点击可见元素'},
 ])
 def click_element(**kwargs):
     """点击元素
@@ -33,6 +35,8 @@ def click_element(**kwargs):
         selector: 元素定位器
         timeout: 超时时间
         force: 是否强制点击
+        index: 元素索引（当有多个匹配元素时）
+        visible_only: 是否只点击可见元素
 
     Returns:
         dict: 操作结果
@@ -40,6 +44,8 @@ def click_element(**kwargs):
     selector = kwargs.get('selector')
     timeout = kwargs.get('timeout')
     force = kwargs.get('force', False)
+    index = kwargs.get('index')
+    visible_only = kwargs.get('visible_only', False)
 
     if not selector:
         raise ValueError("定位器参数不能为空")
@@ -47,7 +53,16 @@ def click_element(**kwargs):
     with allure.step(f"点击元素: {selector}"):
         try:
             locator = _get_current_locator()
-            element = locator.locate(selector)
+
+            # 根据参数选择合适的定位方式
+            if visible_only:
+                element = locator.locate_by_visible(selector)
+            else:
+                element = locator.locate(selector)
+
+            # 如果指定了索引，使用nth定位
+            if index is not None:
+                element = element.nth(index)
 
             # Playwright会自动等待元素可交互，无需显式等待
             # 使用优化的异步执行方式
@@ -60,12 +75,14 @@ def click_element(**kwargs):
             allure.attach(
                 f"定位器: {selector}\n"
                 f"强制点击: {force}\n"
+                f"索引: {index if index is not None else '无'}\n"
+                f"仅可见元素: {visible_only}\n"
                 f"超时时间: {timeout or '默认'}秒",
                 name="元素点击信息",
                 attachment_type=allure.attachment_type.TEXT
             )
 
-            logger.info(f"元素点击成功: {selector}")
+            logger.info(f"元素点击成功: {selector} (索引: {index}, 可见性: {visible_only})")
 
             # 统一返回格式 - 支持远程关键字模式
             return {
@@ -74,6 +91,8 @@ def click_element(**kwargs):
                 "session_state": {},
                 "metadata": {
                     "selector": selector,
+                    "index": index,
+                    "visible_only": visible_only,
                     "operation": "click_element"
                 }
             }

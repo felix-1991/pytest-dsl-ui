@@ -5,7 +5,6 @@
 
 import logging
 import allure
-from typing import Optional
 
 from pytest_dsl.core.keyword_manager import keyword_manager
 from ..core.browser_manager import browser_manager
@@ -16,8 +15,11 @@ logger = logging.getLogger(__name__)
 
 @keyword_manager.register('打开页面', [
     {'name': '地址', 'mapping': 'url', 'description': '要打开的页面URL'},
-    {'name': '等待条件', 'mapping': 'wait_until', 'description': '等待条件：load, domcontentloaded, networkidle'},
+    {'name': '等待条件', 'mapping': 'wait_until', 
+     'description': '等待条件：load, domcontentloaded, networkidle'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '忽略证书错误', 'mapping': 'ignore_https_errors', 
+     'description': '是否忽略HTTPS证书错误，默认为true'},
 ])
 def open_page(**kwargs):
     """打开页面
@@ -26,6 +28,7 @@ def open_page(**kwargs):
         url: 页面URL
         wait_until: 等待条件
         timeout: 超时时间
+        ignore_https_errors: 是否忽略HTTPS证书错误
         
     Returns:
         dict: 操作结果
@@ -33,12 +36,31 @@ def open_page(**kwargs):
     url = kwargs.get('url')
     wait_until = kwargs.get('wait_until', 'load')
     timeout = kwargs.get('timeout')
+    ignore_https_errors = kwargs.get('ignore_https_errors', True)
     
     if not url:
         raise ValueError("URL参数不能为空")
     
     with allure.step(f"打开页面: {url}"):
         try:
+            # 如果需要忽略HTTPS证书错误，且当前上下文不支持，需要创建新上下文
+            if ignore_https_errors and url.startswith('https://'):
+                # 检查当前上下文是否支持忽略HTTPS错误
+                current_page = browser_manager.get_current_page()
+                current_context = current_page.context
+                
+                # 如果当前上下文没有设置ignore_https_errors，创建新上下文
+                if not getattr(current_context, '_ignore_https_errors', False):
+                    # 创建支持忽略HTTPS错误的新上下文
+                    browser_id = browser_manager.current_browser
+                    if browser_id:
+                        context_id = browser_manager.create_context(
+                            browser_id, 
+                            ignore_https_errors=True
+                        )
+                        page_id = browser_manager.create_page(context_id)
+                        browser_manager.switch_page(page_id)
+            
             page = browser_manager.get_current_page()
             page_context = PageContext(page)
             
@@ -47,7 +69,8 @@ def open_page(**kwargs):
             allure.attach(
                 f"URL: {url}\n"
                 f"等待条件: {wait_until}\n"
-                f"超时时间: {timeout or '默认'}秒",
+                f"超时时间: {timeout or '默认'}秒\n"
+                f"忽略HTTPS证书错误: {ignore_https_errors}",
                 name="页面导航信息",
                 attachment_type=allure.attachment_type.TEXT
             )
@@ -62,6 +85,7 @@ def open_page(**kwargs):
                 "metadata": {
                     "url": url,
                     "wait_until": wait_until,
+                    "ignore_https_errors": ignore_https_errors,
                     "operation": "open_page"
                 }
             }
@@ -77,7 +101,8 @@ def open_page(**kwargs):
 
 
 @keyword_manager.register('刷新页面', [
-    {'name': '等待条件', 'mapping': 'wait_until', 'description': '等待条件：load, domcontentloaded, networkidle'},
+    {'name': '等待条件', 'mapping': 'wait_until', 
+     'description': '等待条件：load, domcontentloaded, networkidle'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
 ])
 def refresh_page(**kwargs):
@@ -131,7 +156,8 @@ def refresh_page(**kwargs):
 
 
 @keyword_manager.register('后退', [
-    {'name': '等待条件', 'mapping': 'wait_until', 'description': '等待条件：load, domcontentloaded, networkidle'},
+    {'name': '等待条件', 'mapping': 'wait_until', 
+     'description': '等待条件：load, domcontentloaded, networkidle'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
 ])
 def go_back(**kwargs):
@@ -185,7 +211,8 @@ def go_back(**kwargs):
 
 
 @keyword_manager.register('前进', [
-    {'name': '等待条件', 'mapping': 'wait_until', 'description': '等待条件：load, domcontentloaded, networkidle'},
+    {'name': '等待条件', 'mapping': 'wait_until', 
+     'description': '等待条件：load, domcontentloaded, networkidle'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
 ])
 def go_forward(**kwargs):

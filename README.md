@@ -22,7 +22,7 @@ pip install pytest-dsl-ui
 playwright install
 ```
 
-## 🎯 快速开始
+## 🎯 快速入门
 
 ### 1. 创建测试文件
 
@@ -56,7 +56,115 @@ playwright install
 pytest-dsl test_ui.dsl
 ```
 
-## 📚 关键字文档
+## 🔍 元素定位详解
+
+pytest-dsl-ui 提供了多种强大的元素定位策略，让您能够灵活地定位页面元素。
+
+### 基础定位策略
+
+1. **CSS选择器**
+   ```dsl
+   [点击元素], 定位器: "button.submit"
+   [点击元素], 定位器: "#login-button"
+   [点击元素], 定位器: "div.container > p.text"
+   ```
+
+2. **XPath**
+   ```dsl
+   [点击元素], 定位器: "//button[@type='submit']"
+   [点击元素], 定位器: "//div[contains(@class, 'container')]//p"
+   ```
+
+3. **文本定位**
+   ```dsl
+   [点击元素], 定位器: "text=提交"
+   [点击元素], 定位器: "text=提交,exact=true"  # 精确匹配
+   ```
+
+4. **角色定位**
+   ```dsl
+   [点击元素], 定位器: "role=button"
+   [点击元素], 定位器: "role=button:提交"  # 带名称的角色定位
+   [点击元素], 定位器: "role=button,name=提交"  # 完整格式
+   ```
+
+5. **其他定位方式**
+   ```dsl
+   # 标签定位
+   [点击元素], 定位器: "label=用户名"
+   
+   # 占位符定位
+   [点击元素], 定位器: "placeholder=请输入用户名"
+   
+   # 测试ID定位
+   [点击元素], 定位器: "testid=submit-btn"
+   
+   # 标题定位
+   [点击元素], 定位器: "title=关闭"
+   
+   # Alt文本定位
+   [点击元素], 定位器: "alt=logo"
+   ```
+
+### 高级定位策略
+
+1. **过滤定位**
+   ```dsl
+   # 文本过滤
+   [点击元素], 定位器: "role=listitem,filter_text=Product 2"
+   [点击元素], 定位器: "role=listitem,filter_not_text=Product 1"
+   
+   # 组合定位
+   [点击元素], 定位器: "role=button,and_title=Subscribe"
+   [点击元素], 定位器: "role=button,and_text=确认"
+   ```
+
+2. **元素索引**
+   ```dsl
+   # 定位第一个元素
+   [点击元素], 定位器: "button >> nth=0"
+   
+   # 定位最后一个元素
+   [点击元素], 定位器: "button >> nth=-1"
+   
+   # 定位特定索引的元素
+   [点击元素], 定位器: "button >> nth=2"
+   ```
+
+3. **可见性过滤**
+   ```dsl
+   # 只定位可见元素
+   [点击元素], 定位器: "button >> visible=true"
+   ```
+
+4. **组合条件**
+   ```dsl
+   # 同时满足多个条件
+   [点击元素], 定位器: "button.submit >> has=span.icon >> has_text=提交"
+   
+   # 满足任一条件
+   [点击元素], 定位器: "button.submit >> or=text=取消"
+   ```
+
+### 智能等待
+
+框架内置智能等待机制，可以等待元素达到特定状态：
+
+```dsl
+# 等待元素可见
+[等待元素出现], 定位器: ".loading", 超时时间: 10
+
+# 等待元素消失
+[等待元素消失], 定位器: ".loading"
+
+# 等待文本出现
+[等待文本出现], 文本: "加载完成"
+
+# 设置全局等待超时
+[设置等待超时], 超时时间: 30
+```
+
+## 📚 关键字参考
 
 ### 浏览器管理
 
@@ -123,24 +231,6 @@ pytest-dsl test_ui.dsl
 '''
 ```
 
-### 元素定位策略
-
-支持多种定位策略：
-- CSS选择器：`"button.submit"`
-- XPath：`"//button[@type='submit']"`
-- 文本定位：`"text=提交"`
-- 角色定位：`"role=button[name='提交']"`
-
-### 智能等待配置
-
-```dsl
-# 设置全局等待超时
-[设置等待超时], 超时时间: 30
-
-# 等待元素时使用自定义超时
-[等待元素出现], 定位器: ".loading", 超时时间: 10
-```
-
 ## 🌐 远程执行支持
 
 pytest-dsl-ui完全支持pytest-dsl的远程关键字模式：
@@ -159,6 +249,6 @@ pytest-dsl-server --host 0.0.0.0 --port 8270
 
 欢迎提交Issue和Pull Request来改进这个项目！
 
-## 📄 许可证
+## �� 许可证
 
 MIT License

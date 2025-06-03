@@ -21,6 +21,8 @@ logger = logging.getLogger(__name__)
     {'name': '配置', 'mapping': 'config', 'description': '浏览器启动配置（YAML格式）'},
     {'name': '视口宽度', 'mapping': 'width', 'description': '浏览器视口宽度'},
     {'name': '视口高度', 'mapping': 'height', 'description': '浏览器视口高度'},
+    {'name': '忽略证书错误', 'mapping': 'ignore_https_errors', 
+     'description': '是否忽略HTTPS证书错误，默认为true'},
 ])
 def launch_browser(**kwargs):
     """启动浏览器
@@ -32,6 +34,7 @@ def launch_browser(**kwargs):
         config: 配置字符串
         width: 视口宽度
         height: 视口高度
+        ignore_https_errors: 是否忽略HTTPS证书错误
         
     Returns:
         dict: 包含浏览器ID和相关信息的字典
@@ -42,6 +45,7 @@ def launch_browser(**kwargs):
     config_str = kwargs.get('config', '{}')
     width = kwargs.get('width')
     height = kwargs.get('height')
+    ignore_https_errors = kwargs.get('ignore_https_errors', True)
     context = kwargs.get('context')
     
     with allure.step(f"启动浏览器: {browser_type}"):
@@ -74,6 +78,10 @@ def launch_browser(**kwargs):
             elif 'viewport' in config:
                 context_config['viewport'] = config['viewport']
             
+            # 添加忽略HTTPS证书错误的配置
+            if ignore_https_errors:
+                context_config['ignore_https_errors'] = True
+            
             context_id = browser_manager.create_context(browser_id, **context_config)
             
             # 创建默认页面
@@ -96,7 +104,8 @@ def launch_browser(**kwargs):
                 f"浏览器ID: {browser_id}\n"
                 f"上下文ID: {context_id}\n"
                 f"页面ID: {page_id}\n"
-                f"无头模式: {headless}",
+                f"无头模式: {headless}\n"
+                f"忽略HTTPS证书错误: {ignore_https_errors}",
                 name="浏览器启动信息",
                 attachment_type=allure.attachment_type.TEXT
             )
@@ -115,6 +124,7 @@ def launch_browser(**kwargs):
                 "metadata": {
                     "browser_type": browser_type,
                     "browser_id": browser_id,
+                    "ignore_https_errors": ignore_https_errors,
                     "operation": "launch_browser"
                 }
             }

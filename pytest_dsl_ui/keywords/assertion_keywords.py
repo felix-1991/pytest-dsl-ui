@@ -7,7 +7,6 @@
 import asyncio
 import logging
 import allure
-from typing import Optional
 
 from pytest_dsl.core.keyword_manager import keyword_manager
 from ..core.browser_manager import browser_manager
@@ -16,10 +15,10 @@ from ..core.element_locator import ElementLocator
 # 导入Playwright的expect API
 try:
     from playwright.sync_api import expect
-except ImportError:
-    # 如果同步API不可用，使用异步API
     from playwright.async_api import expect as async_expect
+except ImportError:
     expect = None
+    async_expect = None
 
 logger = logging.getLogger(__name__)
 
@@ -52,309 +51,6 @@ def _run_async_assertion(coro):
             loop.close()
 
 
-@keyword_manager.register('断言元素可见_新', [
-    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
-    {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
-])
-def assert_element_visible_new(**kwargs):
-    """使用Playwright expect API断言元素可见
-
-    Args:
-        selector: 元素定位器
-        timeout: 超时时间（秒）
-        message: 自定义错误消息
-
-    Returns:
-        dict: 操作结果
-    """
-    selector = kwargs.get('selector')
-    timeout = kwargs.get('timeout', 5.0)  # 默认5秒超时
-    message = kwargs.get('message', f'元素 {selector} 应该可见')
-
-    if not selector:
-        raise ValueError("定位器参数不能为空")
-
-    with allure.step(f"断言元素可见(新): {selector}"):
-        try:
-            locator = _get_current_locator()
-            element = locator.locate(selector)
-
-            # 使用Playwright的expect API进行断言
-            async def _assert_visible():
-                from playwright.async_api import expect as async_expect
-                await async_expect(element).to_be_visible(timeout=int(timeout * 1000))
-
-            _run_async_assertion(_assert_visible())
-
-            allure.attach(
-                f"定位器: {selector}\n"
-                f"超时时间: {timeout}秒\n"
-                f"断言结果: 通过",
-                name="元素可见断言(新)",
-                attachment_type=allure.attachment_type.TEXT
-            )
-
-            logger.info(f"元素可见断言通过(新): {selector}")
-
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "assertion": "element_visible_new",
-                    "operation": "assert_element_visible_new"
-                }
-            }
-
-        except Exception as e:
-            logger.error(f"元素可见断言失败(新): {selector} - {str(e)}")
-            allure.attach(
-                f"定位器: {selector}\n"
-                f"超时时间: {timeout}秒\n"
-                f"断言结果: 失败\n"
-                f"错误消息: {message}\n"
-                f"实际错误: {str(e)}",
-                name="元素可见断言失败(新)",
-                attachment_type=allure.attachment_type.TEXT
-            )
-            raise AssertionError(f"{message}: {str(e)}")
-
-
-@keyword_manager.register('断言文本内容_新', [
-    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
-    {'name': '期望文本', 'mapping': 'expected_text', 'description': '期望的文本内容'},
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
-    {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
-])
-def assert_text_content_new(**kwargs):
-    """使用Playwright expect API断言文本内容
-
-    Args:
-        selector: 元素定位器
-        expected_text: 期望的文本内容
-        timeout: 超时时间（秒）
-        message: 自定义错误消息
-
-    Returns:
-        dict: 操作结果
-    """
-    selector = kwargs.get('selector')
-    expected_text = kwargs.get('expected_text')
-    timeout = kwargs.get('timeout', 5.0)  # 默认5秒超时
-    message = kwargs.get('message', f'元素 {selector} 应该包含文本 {expected_text}')
-
-    if not selector:
-        raise ValueError("定位器参数不能为空")
-    if expected_text is None:
-        raise ValueError("期望文本参数不能为空")
-
-    with allure.step(f"断言文本内容(新): {selector} -> {expected_text}"):
-        try:
-            locator = _get_current_locator()
-            element = locator.locate(selector)
-
-            # 使用Playwright的expect API进行断言
-            async def _assert_text():
-                from playwright.async_api import expect as async_expect
-                await async_expect(element).to_contain_text(expected_text, timeout=int(timeout * 1000))
-
-            _run_async_assertion(_assert_text())
-
-            allure.attach(
-                f"定位器: {selector}\n"
-                f"期望文本: {expected_text}\n"
-                f"超时时间: {timeout}秒\n"
-                f"断言结果: 通过",
-                name="文本内容断言(新)",
-                attachment_type=allure.attachment_type.TEXT
-            )
-
-            logger.info(f"文本内容断言通过(新): {selector} -> {expected_text}")
-
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "expected_text": expected_text,
-                    "assertion": "text_content_new",
-                    "operation": "assert_text_content_new"
-                }
-            }
-
-        except Exception as e:
-            logger.error(f"文本内容断言失败(新): {selector} -> {expected_text} - {str(e)}")
-            allure.attach(
-                f"定位器: {selector}\n"
-                f"期望文本: {expected_text}\n"
-                f"超时时间: {timeout}秒\n"
-                f"断言结果: 失败\n"
-                f"错误消息: {message}\n"
-                f"实际错误: {str(e)}",
-                name="文本内容断言失败(新)",
-                attachment_type=allure.attachment_type.TEXT
-            )
-            raise AssertionError(f"{message}: {str(e)}")
-
-
-@keyword_manager.register('断言元素存在', [
-    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
-    {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
-])
-def assert_element_exists(**kwargs):
-    """断言元素存在
-
-    Args:
-        selector: 元素定位器
-        timeout: 超时时间
-        message: 错误消息
-
-    Returns:
-        dict: 断言结果
-    """
-    selector = kwargs.get('selector')
-    timeout = kwargs.get('timeout', 10)
-    message = kwargs.get('message', f'元素不存在: {selector}')
-
-    if not selector:
-        raise ValueError("定位器参数不能为空")
-
-    with allure.step(f"断言元素存在: {selector}"):
-        try:
-            locator = _get_current_locator()
-
-            # 等待元素出现
-            exists = locator.wait_for_element(selector, "attached", timeout)
-
-            if not exists:
-                raise AssertionError(message)
-
-            allure.attach(
-                f"定位器: {selector}\n"
-                f"超时时间: {timeout}秒\n"
-                f"断言结果: 通过",
-                name="元素存在断言",
-                attachment_type=allure.attachment_type.TEXT
-            )
-
-            logger.info(f"元素存在断言通过: {selector}")
-
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "assertion": "element_exists",
-                    "operation": "assert_element_exists"
-                }
-            }
-
-        except AssertionError:
-            logger.error(f"元素存在断言失败: {selector}")
-            allure.attach(
-                f"定位器: {selector}\n"
-                f"超时时间: {timeout}秒\n"
-                f"断言结果: 失败\n"
-                f"错误消息: {message}",
-                name="元素存在断言失败",
-                attachment_type=allure.attachment_type.TEXT
-            )
-            raise
-        except Exception as e:
-            logger.error(f"元素存在断言出错: {str(e)}")
-            allure.attach(
-                f"错误信息: {str(e)}",
-                name="元素存在断言出错",
-                attachment_type=allure.attachment_type.TEXT
-            )
-            raise
-
-
-@keyword_manager.register('断言元素不存在', [
-    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
-    {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
-])
-def assert_element_not_exists(**kwargs):
-    """断言元素不存在
-
-    Args:
-        selector: 元素定位器
-        timeout: 超时时间
-        message: 错误消息
-
-    Returns:
-        dict: 断言结果
-    """
-    selector = kwargs.get('selector')
-    timeout = kwargs.get('timeout', 10)
-    message = kwargs.get('message', f'元素仍然存在: {selector}')
-
-    if not selector:
-        raise ValueError("定位器参数不能为空")
-
-    with allure.step(f"断言元素不存在: {selector}"):
-        try:
-            locator = _get_current_locator()
-
-            # 等待元素消失
-            not_exists = locator.wait_for_element(selector, "detached", timeout)
-
-            if not not_exists:
-                # 检查元素是否仍然存在
-                count = locator.get_element_count(selector)
-                if count > 0:
-                    raise AssertionError(message)
-
-            allure.attach(
-                f"定位器: {selector}\n"
-                f"超时时间: {timeout}秒\n"
-                f"断言结果: 通过",
-                name="元素不存在断言",
-                attachment_type=allure.attachment_type.TEXT
-            )
-
-            logger.info(f"元素不存在断言通过: {selector}")
-
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "assertion": "element_not_exists",
-                    "operation": "assert_element_not_exists"
-                }
-            }
-
-        except AssertionError:
-            logger.error(f"元素不存在断言失败: {selector}")
-            allure.attach(
-                f"定位器: {selector}\n"
-                f"超时时间: {timeout}秒\n"
-                f"断言结果: 失败\n"
-                f"错误消息: {message}",
-                name="元素不存在断言失败",
-                attachment_type=allure.attachment_type.TEXT
-            )
-            raise
-        except Exception as e:
-            logger.error(f"元素不存在断言出错: {str(e)}")
-            allure.attach(
-                f"错误信息: {str(e)}",
-                name="元素不存在断言出错",
-                attachment_type=allure.attachment_type.TEXT
-            )
-            raise
-
-
 @keyword_manager.register('断言元素可见', [
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
@@ -365,15 +61,15 @@ def assert_element_visible(**kwargs):
 
     Args:
         selector: 元素定位器
-        timeout: 超时时间
-        message: 错误消息
+        timeout: 超时时间（秒）
+        message: 自定义错误消息
 
     Returns:
-        dict: 断言结果
+        dict: 操作结果
     """
     selector = kwargs.get('selector')
-    timeout = kwargs.get('timeout', 10)
-    message = kwargs.get('message', f'元素不可见: {selector}')
+    timeout = kwargs.get('timeout', 5.0)
+    message = kwargs.get('message', f'元素 {selector} 应该可见')
 
     if not selector:
         raise ValueError("定位器参数不能为空")
@@ -381,12 +77,15 @@ def assert_element_visible(**kwargs):
     with allure.step(f"断言元素可见: {selector}"):
         try:
             locator = _get_current_locator()
+            element = locator.locate(selector)
 
-            # 等待元素可见
-            visible = locator.wait_for_element(selector, "visible", timeout)
+            # 使用Playwright的expect API进行断言
+            async def _assert_visible():
+                await async_expect(element).to_be_visible(
+                    timeout=int(timeout * 1000)
+                )
 
-            if not visible:
-                raise AssertionError(message)
+            _run_async_assertion(_assert_visible())
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -398,7 +97,6 @@ def assert_element_visible(**kwargs):
 
             logger.info(f"元素可见断言通过: {selector}")
 
-            # 统一返回格式 - 支持远程关键字模式
             return {
                 "result": True,
                 "captures": {},
@@ -410,29 +108,163 @@ def assert_element_visible(**kwargs):
                 }
             }
 
-        except AssertionError:
-            logger.error(f"元素可见断言失败: {selector}")
+        except Exception as e:
+            logger.error(f"元素可见断言失败: {selector} - {str(e)}")
             allure.attach(
                 f"定位器: {selector}\n"
                 f"超时时间: {timeout}秒\n"
                 f"断言结果: 失败\n"
-                f"错误消息: {message}",
+                f"错误消息: {message}\n"
+                f"实际错误: {str(e)}",
                 name="元素可见断言失败",
                 attachment_type=allure.attachment_type.TEXT
             )
-            raise
-        except Exception as e:
-            logger.error(f"元素可见断言出错: {str(e)}")
+            raise AssertionError(f"{message}: {str(e)}")
+
+
+@keyword_manager.register('断言元素隐藏', [
+    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
+])
+def assert_element_hidden(**kwargs):
+    """断言元素隐藏
+
+    Args:
+        selector: 元素定位器
+        timeout: 超时时间（秒）
+        message: 自定义错误消息
+
+    Returns:
+        dict: 操作结果
+    """
+    selector = kwargs.get('selector')
+    timeout = kwargs.get('timeout', 5.0)
+    message = kwargs.get('message', f'元素 {selector} 应该隐藏')
+
+    if not selector:
+        raise ValueError("定位器参数不能为空")
+
+    with allure.step(f"断言元素隐藏: {selector}"):
+        try:
+            locator = _get_current_locator()
+            element = locator.locate(selector)
+
+            async def _assert_hidden():
+                await async_expect(element).to_be_hidden(
+                    timeout=int(timeout * 1000)
+                )
+
+            _run_async_assertion(_assert_hidden())
+
             allure.attach(
-                f"错误信息: {str(e)}",
-                name="元素可见断言出错",
+                f"定位器: {selector}\n"
+                f"超时时间: {timeout}秒\n"
+                f"断言结果: 通过",
+                name="元素隐藏断言",
                 attachment_type=allure.attachment_type.TEXT
             )
-            raise
+
+            logger.info(f"元素隐藏断言通过: {selector}")
+
+            return {
+                "result": True,
+                "captures": {},
+                "session_state": {},
+                "metadata": {
+                    "selector": selector,
+                    "assertion": "element_hidden",
+                    "operation": "assert_element_hidden"
+                }
+            }
+
+        except Exception as e:
+            logger.error(f"元素隐藏断言失败: {selector} - {str(e)}")
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"超时时间: {timeout}秒\n"
+                f"断言结果: 失败\n"
+                f"错误消息: {message}\n"
+                f"实际错误: {str(e)}",
+                name="元素隐藏断言失败",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            raise AssertionError(f"{message}: {str(e)}")
+
+
+@keyword_manager.register('断言元素存在', [
+    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
+])
+def assert_element_exists(**kwargs):
+    """断言元素存在（附加到DOM）
+
+    Args:
+        selector: 元素定位器
+        timeout: 超时时间（秒）
+        message: 自定义错误消息
+
+    Returns:
+        dict: 操作结果
+    """
+    selector = kwargs.get('selector')
+    timeout = kwargs.get('timeout', 5.0)
+    message = kwargs.get('message', f'元素 {selector} 应该存在')
+
+    if not selector:
+        raise ValueError("定位器参数不能为空")
+
+    with allure.step(f"断言元素存在: {selector}"):
+        try:
+            locator = _get_current_locator()
+            element = locator.locate(selector)
+
+            async def _assert_attached():
+                await async_expect(element).to_be_attached(
+                    timeout=int(timeout * 1000)
+                )
+
+            _run_async_assertion(_assert_attached())
+
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"超时时间: {timeout}秒\n"
+                f"断言结果: 通过",
+                name="元素存在断言",
+                attachment_type=allure.attachment_type.TEXT
+            )
+
+            logger.info(f"元素存在断言通过: {selector}")
+
+            return {
+                "result": True,
+                "captures": {},
+                "session_state": {},
+                "metadata": {
+                    "selector": selector,
+                    "assertion": "element_exists",
+                    "operation": "assert_element_exists"
+                }
+            }
+
+        except Exception as e:
+            logger.error(f"元素存在断言失败: {selector} - {str(e)}")
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"超时时间: {timeout}秒\n"
+                f"断言结果: 失败\n"
+                f"错误消息: {message}\n"
+                f"实际错误: {str(e)}",
+                name="元素存在断言失败",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            raise AssertionError(f"{message}: {str(e)}")
 
 
 @keyword_manager.register('断言元素启用', [
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
 ])
 def assert_element_enabled(**kwargs):
@@ -440,13 +272,15 @@ def assert_element_enabled(**kwargs):
 
     Args:
         selector: 元素定位器
-        message: 错误消息
+        timeout: 超时时间（秒）
+        message: 自定义错误消息
 
     Returns:
-        dict: 断言结果
+        dict: 操作结果
     """
     selector = kwargs.get('selector')
-    message = kwargs.get('message', f'元素未启用: {selector}')
+    timeout = kwargs.get('timeout', 5.0)
+    message = kwargs.get('message', f'元素 {selector} 应该启用')
 
     if not selector:
         raise ValueError("定位器参数不能为空")
@@ -454,15 +288,18 @@ def assert_element_enabled(**kwargs):
     with allure.step(f"断言元素启用: {selector}"):
         try:
             locator = _get_current_locator()
+            element = locator.locate(selector)
 
-            # 检查元素是否启用
-            enabled = locator.is_element_enabled(selector)
+            async def _assert_enabled():
+                await async_expect(element).to_be_enabled(
+                    timeout=int(timeout * 1000)
+                )
 
-            if not enabled:
-                raise AssertionError(message)
+            _run_async_assertion(_assert_enabled())
 
             allure.attach(
                 f"定位器: {selector}\n"
+                f"超时时间: {timeout}秒\n"
                 f"断言结果: 通过",
                 name="元素启用断言",
                 attachment_type=allure.attachment_type.TEXT
@@ -470,7 +307,6 @@ def assert_element_enabled(**kwargs):
 
             logger.info(f"元素启用断言通过: {selector}")
 
-            # 统一返回格式 - 支持远程关键字模式
             return {
                 "result": True,
                 "captures": {},
@@ -482,86 +318,149 @@ def assert_element_enabled(**kwargs):
                 }
             }
 
-        except AssertionError:
-            logger.error(f"元素启用断言失败: {selector}")
+        except Exception as e:
+            logger.error(f"元素启用断言失败: {selector} - {str(e)}")
             allure.attach(
                 f"定位器: {selector}\n"
+                f"超时时间: {timeout}秒\n"
                 f"断言结果: 失败\n"
-                f"错误消息: {message}",
+                f"错误消息: {message}\n"
+                f"实际错误: {str(e)}",
                 name="元素启用断言失败",
                 attachment_type=allure.attachment_type.TEXT
             )
-            raise
-        except Exception as e:
-            logger.error(f"元素启用断言出错: {str(e)}")
+            raise AssertionError(f"{message}: {str(e)}")
+
+
+@keyword_manager.register('断言元素禁用', [
+    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
+])
+def assert_element_disabled(**kwargs):
+    """断言元素禁用
+
+    Args:
+        selector: 元素定位器
+        timeout: 超时时间（秒）
+        message: 自定义错误消息
+
+    Returns:
+        dict: 操作结果
+    """
+    selector = kwargs.get('selector')
+    timeout = kwargs.get('timeout', 5.0)
+    message = kwargs.get('message', f'元素 {selector} 应该禁用')
+
+    if not selector:
+        raise ValueError("定位器参数不能为空")
+
+    with allure.step(f"断言元素禁用: {selector}"):
+        try:
+            locator = _get_current_locator()
+            element = locator.locate(selector)
+
+            async def _assert_disabled():
+                await async_expect(element).to_be_disabled(
+                    timeout=int(timeout * 1000)
+                )
+
+            _run_async_assertion(_assert_disabled())
+
             allure.attach(
-                f"错误信息: {str(e)}",
-                name="元素启用断言出错",
+                f"定位器: {selector}\n"
+                f"超时时间: {timeout}秒\n"
+                f"断言结果: 通过",
+                name="元素禁用断言",
                 attachment_type=allure.attachment_type.TEXT
             )
-            raise
+
+            logger.info(f"元素禁用断言通过: {selector}")
+
+            return {
+                "result": True,
+                "captures": {},
+                "session_state": {},
+                "metadata": {
+                    "selector": selector,
+                    "assertion": "element_disabled",
+                    "operation": "assert_element_disabled"
+                }
+            }
+
+        except Exception as e:
+            logger.error(f"元素禁用断言失败: {selector} - {str(e)}")
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"超时时间: {timeout}秒\n"
+                f"断言结果: 失败\n"
+                f"错误消息: {message}\n"
+                f"实际错误: {str(e)}",
+                name="元素禁用断言失败",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            raise AssertionError(f"{message}: {str(e)}")
 
 
 @keyword_manager.register('断言文本内容', [
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
-    {'name': '预期文本', 'mapping': 'expected_text', 'description': '预期的文本内容'},
-    {'name': '匹配方式', 'mapping': 'match_type', 'description': '匹配方式：exact(完全匹配), contains(包含), starts_with(开头), ends_with(结尾)'},
+    {'name': '期望文本', 'mapping': 'expected_text', 'description': '期望的文本内容'},
+    {'name': '匹配方式', 'mapping': 'match_type', 'description': '完全匹配或包含匹配'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
 ])
 def assert_text_content(**kwargs):
-    """断言文本内容
+    """断言元素文本内容
 
     Args:
         selector: 元素定位器
-        expected_text: 预期文本
-        match_type: 匹配方式
-        message: 错误消息
+        expected_text: 期望的文本内容
+        match_type: 匹配方式 - exact(完全匹配) 或 contains(包含匹配)
+        timeout: 超时时间（秒）
+        message: 自定义错误消息
 
     Returns:
-        dict: 断言结果
+        dict: 操作结果
     """
     selector = kwargs.get('selector')
     expected_text = kwargs.get('expected_text')
     match_type = kwargs.get('match_type', 'exact')
+    timeout = kwargs.get('timeout', 5.0)
     message = kwargs.get('message')
 
     if not selector:
         raise ValueError("定位器参数不能为空")
     if expected_text is None:
-        raise ValueError("预期文本参数不能为空")
+        raise ValueError("期望文本参数不能为空")
 
-    with allure.step(f"断言文本内容: {selector}"):
+    default_message = (
+        f'元素 {selector} 文本应该{"完全匹配" if match_type == "exact" else "包含"} '
+        f'"{expected_text}"'
+    )
+    message = message or default_message
+
+    with allure.step(f"断言文本内容: {selector} -> {expected_text}"):
         try:
             locator = _get_current_locator()
+            element = locator.locate(selector)
 
-            # 获取实际文本
-            actual_text = locator.get_element_text(selector)
+            async def _assert_text():
+                if match_type == 'exact':
+                    await async_expect(element).to_have_text(
+                        expected_text, timeout=int(timeout * 1000)
+                    )
+                else:  # contains
+                    await async_expect(element).to_contain_text(
+                        expected_text, timeout=int(timeout * 1000)
+                    )
 
-            # 根据匹配方式进行比较
-            match_result = False
-            if match_type == 'exact':
-                match_result = actual_text == expected_text
-                default_message = f'文本不匹配。预期: "{expected_text}", 实际: "{actual_text}"'
-            elif match_type == 'contains':
-                match_result = expected_text in actual_text
-                default_message = f'文本不包含预期内容。预期包含: "{expected_text}", 实际: "{actual_text}"'
-            elif match_type == 'starts_with':
-                match_result = actual_text.startswith(expected_text)
-                default_message = f'文本开头不匹配。预期开头: "{expected_text}", 实际: "{actual_text}"'
-            elif match_type == 'ends_with':
-                match_result = actual_text.endswith(expected_text)
-                default_message = f'文本结尾不匹配。预期结尾: "{expected_text}", 实际: "{actual_text}"'
-            else:
-                raise ValueError(f"不支持的匹配方式: {match_type}")
-
-            if not match_result:
-                raise AssertionError(message or default_message)
+            _run_async_assertion(_assert_text())
 
             allure.attach(
                 f"定位器: {selector}\n"
-                f"预期文本: {expected_text}\n"
-                f"实际文本: {actual_text}\n"
+                f"期望文本: {expected_text}\n"
                 f"匹配方式: {match_type}\n"
+                f"超时时间: {timeout}秒\n"
                 f"断言结果: 通过",
                 name="文本内容断言",
                 attachment_type=allure.attachment_type.TEXT
@@ -569,7 +468,6 @@ def assert_text_content(**kwargs):
 
             logger.info(f"文本内容断言通过: {selector} -> {expected_text}")
 
-            # 统一返回格式 - 支持远程关键字模式
             return {
                 "result": True,
                 "captures": {},
@@ -577,31 +475,458 @@ def assert_text_content(**kwargs):
                 "metadata": {
                     "selector": selector,
                     "expected_text": expected_text,
-                    "actual_text": actual_text,
                     "match_type": match_type,
                     "assertion": "text_content",
                     "operation": "assert_text_content"
                 }
             }
 
-        except AssertionError:
-            logger.error(f"文本内容断言失败: {selector}")
+        except Exception as e:
+            logger.error(f"文本内容断言失败: {selector} -> {expected_text} - {str(e)}")
             allure.attach(
                 f"定位器: {selector}\n"
-                f"预期文本: {expected_text}\n"
-                f"实际文本: {actual_text}\n"
+                f"期望文本: {expected_text}\n"
                 f"匹配方式: {match_type}\n"
+                f"超时时间: {timeout}秒\n"
                 f"断言结果: 失败\n"
-                f"错误消息: {message or default_message}",
+                f"错误消息: {message}\n"
+                f"实际错误: {str(e)}",
                 name="文本内容断言失败",
                 attachment_type=allure.attachment_type.TEXT
             )
-            raise
-        except Exception as e:
-            logger.error(f"文本内容断言出错: {str(e)}")
+            raise AssertionError(f"{message}: {str(e)}")
+
+
+@keyword_manager.register('断言输入值', [
+    {'name': '定位器', 'mapping': 'selector', 'description': '输入元素定位器'},
+    {'name': '期望值', 'mapping': 'expected_value', 'description': '期望的输入值'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
+])
+def assert_input_value(**kwargs):
+    """断言输入元素的值
+
+    Args:
+        selector: 输入元素定位器
+        expected_value: 期望的输入值
+        timeout: 超时时间（秒）
+        message: 自定义错误消息
+
+    Returns:
+        dict: 操作结果
+    """
+    selector = kwargs.get('selector')
+    expected_value = kwargs.get('expected_value')
+    timeout = kwargs.get('timeout', 5.0)
+    message = kwargs.get('message', f'输入元素 {selector} 值应该为 "{expected_value}"')
+
+    if not selector:
+        raise ValueError("定位器参数不能为空")
+    if expected_value is None:
+        raise ValueError("期望值参数不能为空")
+
+    with allure.step(f"断言输入值: {selector} -> {expected_value}"):
+        try:
+            locator = _get_current_locator()
+            element = locator.locate(selector)
+
+            async def _assert_value():
+                await async_expect(element).to_have_value(
+                    expected_value, timeout=int(timeout * 1000)
+                )
+
+            _run_async_assertion(_assert_value())
+
             allure.attach(
-                f"错误信息: {str(e)}",
-                name="文本内容断言出错",
+                f"定位器: {selector}\n"
+                f"期望值: {expected_value}\n"
+                f"超时时间: {timeout}秒\n"
+                f"断言结果: 通过",
+                name="输入值断言",
                 attachment_type=allure.attachment_type.TEXT
             )
-            raise
+
+            logger.info(f"输入值断言通过: {selector} -> {expected_value}")
+
+            return {
+                "result": True,
+                "captures": {},
+                "session_state": {},
+                "metadata": {
+                    "selector": selector,
+                    "expected_value": expected_value,
+                    "assertion": "input_value",
+                    "operation": "assert_input_value"
+                }
+            }
+
+        except Exception as e:
+            logger.error(f"输入值断言失败: {selector} -> {expected_value} - {str(e)}")
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"期望值: {expected_value}\n"
+                f"超时时间: {timeout}秒\n"
+                f"断言结果: 失败\n"
+                f"错误消息: {message}\n"
+                f"实际错误: {str(e)}",
+                name="输入值断言失败",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            raise AssertionError(f"{message}: {str(e)}")
+
+
+@keyword_manager.register('断言属性值', [
+    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
+    {'name': '属性名', 'mapping': 'attribute_name', 'description': '属性名称'},
+    {'name': '期望值', 'mapping': 'expected_value', 'description': '期望的属性值'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
+])
+def assert_attribute_value(**kwargs):
+    """断言元素属性值
+
+    Args:
+        selector: 元素定位器
+        attribute_name: 属性名称
+        expected_value: 期望的属性值
+        timeout: 超时时间（秒）
+        message: 自定义错误消息
+
+    Returns:
+        dict: 操作结果
+    """
+    selector = kwargs.get('selector')
+    attribute_name = kwargs.get('attribute_name')
+    expected_value = kwargs.get('expected_value')
+    timeout = kwargs.get('timeout', 5.0)
+    message = kwargs.get(
+        'message',
+        f'元素 {selector} 属性 {attribute_name} 应该为 "{expected_value}"'
+    )
+
+    if not selector:
+        raise ValueError("定位器参数不能为空")
+    if not attribute_name:
+        raise ValueError("属性名参数不能为空")
+
+    with allure.step(
+        f"断言属性值: {selector}.{attribute_name} -> {expected_value}"
+    ):
+        try:
+            locator = _get_current_locator()
+            element = locator.locate(selector)
+
+            async def _assert_attribute():
+                await async_expect(element).to_have_attribute(
+                    attribute_name, expected_value, timeout=int(timeout * 1000)
+                )
+
+            _run_async_assertion(_assert_attribute())
+
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"属性名: {attribute_name}\n"
+                f"期望值: {expected_value}\n"
+                f"超时时间: {timeout}秒\n"
+                f"断言结果: 通过",
+                name="属性值断言",
+                attachment_type=allure.attachment_type.TEXT
+            )
+
+            logger.info(
+                f"属性值断言通过: {selector}.{attribute_name} -> {expected_value}"
+            )
+
+            return {
+                "result": True,
+                "captures": {},
+                "session_state": {},
+                "metadata": {
+                    "selector": selector,
+                    "attribute_name": attribute_name,
+                    "expected_value": expected_value,
+                    "assertion": "attribute_value",
+                    "operation": "assert_attribute_value"
+                }
+            }
+
+        except Exception as e:
+            error_msg = (
+                f"{selector}.{attribute_name} -> {expected_value} - {str(e)}"
+            )
+            logger.error(f"属性值断言失败: {error_msg}")
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"属性名: {attribute_name}\n"
+                f"期望值: {expected_value}\n"
+                f"超时时间: {timeout}秒\n"
+                f"断言结果: 失败\n"
+                f"错误消息: {message}\n"
+                f"实际错误: {str(e)}",
+                name="属性值断言失败",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            raise AssertionError(f"{message}: {str(e)}")
+
+
+@keyword_manager.register('断言元素数量', [
+    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
+    {'name': '期望数量', 'mapping': 'expected_count', 'description': '期望的元素数量'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
+])
+def assert_element_count(**kwargs):
+    """断言元素数量
+
+    Args:
+        selector: 元素定位器
+        expected_count: 期望的元素数量
+        timeout: 超时时间（秒）
+        message: 自定义错误消息
+
+    Returns:
+        dict: 操作结果
+    """
+    selector = kwargs.get('selector')
+    expected_count = kwargs.get('expected_count')
+    timeout = kwargs.get('timeout', 5.0)
+    message = kwargs.get('message', f'元素 {selector} 数量应该为 {expected_count}')
+
+    if not selector:
+        raise ValueError("定位器参数不能为空")
+    if expected_count is None:
+        raise ValueError("期望数量参数不能为空")
+
+    try:
+        expected_count = int(expected_count)
+    except (ValueError, TypeError):
+        raise ValueError("期望数量必须是数字")
+
+    with allure.step(f"断言元素数量: {selector} -> {expected_count}"):
+        try:
+            locator = _get_current_locator()
+            element = locator.locate(selector)
+
+            async def _assert_count():
+                await async_expect(element).to_have_count(
+                    expected_count, timeout=int(timeout * 1000)
+                )
+
+            _run_async_assertion(_assert_count())
+
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"期望数量: {expected_count}\n"
+                f"超时时间: {timeout}秒\n"
+                f"断言结果: 通过",
+                name="元素数量断言",
+                attachment_type=allure.attachment_type.TEXT
+            )
+
+            logger.info(f"元素数量断言通过: {selector} -> {expected_count}")
+
+            return {
+                "result": True,
+                "captures": {},
+                "session_state": {},
+                "metadata": {
+                    "selector": selector,
+                    "expected_count": expected_count,
+                    "assertion": "element_count",
+                    "operation": "assert_element_count"
+                }
+            }
+
+        except Exception as e:
+            logger.error(
+                f"元素数量断言失败: {selector} -> {expected_count} - {str(e)}"
+            )
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"期望数量: {expected_count}\n"
+                f"超时时间: {timeout}秒\n"
+                f"断言结果: 失败\n"
+                f"错误消息: {message}\n"
+                f"实际错误: {str(e)}",
+                name="元素数量断言失败",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            raise AssertionError(f"{message}: {str(e)}")
+
+
+@keyword_manager.register('断言页面标题', [
+    {'name': '期望标题', 'mapping': 'expected_title', 'description': '期望的页面标题'},
+    {'name': '匹配方式', 'mapping': 'match_type', 'description': '完全匹配或包含匹配'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
+])
+def assert_page_title(**kwargs):
+    """断言页面标题
+
+    Args:
+        expected_title: 期望的页面标题
+        match_type: 匹配方式 - exact(完全匹配) 或 contains(包含匹配)
+        timeout: 超时时间（秒）
+        message: 自定义错误消息
+
+    Returns:
+        dict: 操作结果
+    """
+    expected_title = kwargs.get('expected_title')
+    match_type = kwargs.get('match_type', 'exact')
+    timeout = kwargs.get('timeout', 5.0)
+    message = kwargs.get('message')
+
+    if expected_title is None:
+        raise ValueError("期望标题参数不能为空")
+
+    default_message = (
+        f'页面标题应该{"完全匹配" if match_type == "exact" else "包含"} '
+        f'"{expected_title}"'
+    )
+    message = message or default_message
+
+    with allure.step(f"断言页面标题: {expected_title}"):
+        try:
+            page = browser_manager.get_current_page()
+
+            async def _assert_title():
+                from playwright.async_api import expect as page_expect
+                if match_type == 'exact':
+                    await page_expect(page).to_have_title(
+                        expected_title, timeout=int(timeout * 1000)
+                    )
+                else:  # contains
+                    import re
+                    pattern = re.compile(f".*{re.escape(expected_title)}.*")
+                    await page_expect(page).to_have_title(
+                        pattern, timeout=int(timeout * 1000)
+                    )
+
+            _run_async_assertion(_assert_title())
+
+            allure.attach(
+                f"期望标题: {expected_title}\n"
+                f"匹配方式: {match_type}\n"
+                f"超时时间: {timeout}秒\n"
+                f"断言结果: 通过",
+                name="页面标题断言",
+                attachment_type=allure.attachment_type.TEXT
+            )
+
+            logger.info(f"页面标题断言通过: {expected_title}")
+
+            return {
+                "result": True,
+                "captures": {},
+                "session_state": {},
+                "metadata": {
+                    "expected_title": expected_title,
+                    "match_type": match_type,
+                    "assertion": "page_title",
+                    "operation": "assert_page_title"
+                }
+            }
+
+        except Exception as e:
+            logger.error(f"页面标题断言失败: {expected_title} - {str(e)}")
+            allure.attach(
+                f"期望标题: {expected_title}\n"
+                f"匹配方式: {match_type}\n"
+                f"超时时间: {timeout}秒\n"
+                f"断言结果: 失败\n"
+                f"错误消息: {message}\n"
+                f"实际错误: {str(e)}",
+                name="页面标题断言失败",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            raise AssertionError(f"{message}: {str(e)}")
+
+
+@keyword_manager.register('断言页面URL', [
+    {'name': '期望URL', 'mapping': 'expected_url', 'description': '期望的页面URL'},
+    {'name': '匹配方式', 'mapping': 'match_type', 'description': '完全匹配或包含匹配'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
+])
+def assert_page_url(**kwargs):
+    """断言页面URL
+
+    Args:
+        expected_url: 期望的页面URL
+        match_type: 匹配方式 - exact(完全匹配) 或 contains(包含匹配)
+        timeout: 超时时间（秒）
+        message: 自定义错误消息
+
+    Returns:
+        dict: 操作结果
+    """
+    expected_url = kwargs.get('expected_url')
+    match_type = kwargs.get('match_type', 'exact')
+    timeout = kwargs.get('timeout', 5.0)
+    message = kwargs.get('message')
+
+    if expected_url is None:
+        raise ValueError("期望URL参数不能为空")
+
+    default_message = (
+        f'页面URL应该{"完全匹配" if match_type == "exact" else "包含"} '
+        f'"{expected_url}"'
+    )
+    message = message or default_message
+
+    with allure.step(f"断言页面URL: {expected_url}"):
+        try:
+            page = browser_manager.get_current_page()
+
+            async def _assert_url():
+                from playwright.async_api import expect as page_expect
+                if match_type == 'exact':
+                    await page_expect(page).to_have_url(
+                        expected_url, timeout=int(timeout * 1000)
+                    )
+                else:  # contains
+                    import re
+                    pattern = re.compile(f".*{re.escape(expected_url)}.*")
+                    await page_expect(page).to_have_url(
+                        pattern, timeout=int(timeout * 1000)
+                    )
+
+            _run_async_assertion(_assert_url())
+
+            allure.attach(
+                f"期望URL: {expected_url}\n"
+                f"匹配方式: {match_type}\n"
+                f"超时时间: {timeout}秒\n"
+                f"断言结果: 通过",
+                name="页面URL断言",
+                attachment_type=allure.attachment_type.TEXT
+            )
+
+            logger.info(f"页面URL断言通过: {expected_url}")
+
+            return {
+                "result": True,
+                "captures": {},
+                "session_state": {},
+                "metadata": {
+                    "expected_url": expected_url,
+                    "match_type": match_type,
+                    "assertion": "page_url",
+                    "operation": "assert_page_url"
+                }
+            }
+
+        except Exception as e:
+            logger.error(f"页面URL断言失败: {expected_url} - {str(e)}")
+            allure.attach(
+                f"期望URL: {expected_url}\n"
+                f"匹配方式: {match_type}\n"
+                f"超时时间: {timeout}秒\n"
+                f"断言结果: 失败\n"
+                f"错误消息: {message}\n"
+                f"实际错误: {str(e)}",
+                name="页面URL断言失败",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            raise AssertionError(f"{message}: {str(e)}")
