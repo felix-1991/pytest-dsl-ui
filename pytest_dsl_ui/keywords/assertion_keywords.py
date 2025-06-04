@@ -4,7 +4,6 @@
 使用Playwright的expect API实现更可靠的断言。
 """
 
-import asyncio
 import logging
 import allure
 
@@ -15,10 +14,8 @@ from ..core.element_locator import ElementLocator
 # 导入Playwright的expect API
 try:
     from playwright.sync_api import expect
-    from playwright.async_api import expect as async_expect
 except ImportError:
     expect = None
-    async_expect = None
 
 logger = logging.getLogger(__name__)
 
@@ -27,28 +24,6 @@ def _get_current_locator() -> ElementLocator:
     """获取当前页面的元素定位器"""
     page = browser_manager.get_current_page()
     return ElementLocator(page)
-
-
-def _run_async_assertion(coro):
-    """运行异步断言"""
-    try:
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            # 如果循环正在运行，创建一个任务
-            import concurrent.futures
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                future = executor.submit(asyncio.run, coro)
-                return future.result()
-        else:
-            return loop.run_until_complete(coro)
-    except RuntimeError:
-        # 创建新的事件循环
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            return loop.run_until_complete(coro)
-        finally:
-            loop.close()
 
 
 @keyword_manager.register('断言元素可见', [
@@ -80,12 +55,7 @@ def assert_element_visible(**kwargs):
             element = locator.locate(selector)
 
             # 使用Playwright的expect API进行断言
-            async def _assert_visible():
-                await async_expect(element).to_be_visible(
-                    timeout=int(timeout * 1000)
-                )
-
-            _run_async_assertion(_assert_visible())
+            expect(element).to_be_visible(timeout=int(timeout * 1000))
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -150,12 +120,7 @@ def assert_element_hidden(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            async def _assert_hidden():
-                await async_expect(element).to_be_hidden(
-                    timeout=int(timeout * 1000)
-                )
-
-            _run_async_assertion(_assert_hidden())
+            expect(element).to_be_hidden(timeout=int(timeout * 1000))
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -198,7 +163,7 @@ def assert_element_hidden(**kwargs):
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
 ])
 def assert_element_exists(**kwargs):
-    """断言元素存在（附加到DOM）
+    """断言元素存在
 
     Args:
         selector: 元素定位器
@@ -220,12 +185,7 @@ def assert_element_exists(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            async def _assert_attached():
-                await async_expect(element).to_be_attached(
-                    timeout=int(timeout * 1000)
-                )
-
-            _run_async_assertion(_assert_attached())
+            expect(element).to_be_attached(timeout=int(timeout * 1000))
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -290,12 +250,7 @@ def assert_element_enabled(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            async def _assert_enabled():
-                await async_expect(element).to_be_enabled(
-                    timeout=int(timeout * 1000)
-                )
-
-            _run_async_assertion(_assert_enabled())
+            expect(element).to_be_enabled(timeout=int(timeout * 1000))
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -360,12 +315,7 @@ def assert_element_disabled(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            async def _assert_disabled():
-                await async_expect(element).to_be_disabled(
-                    timeout=int(timeout * 1000)
-                )
-
-            _run_async_assertion(_assert_disabled())
+            expect(element).to_be_disabled(timeout=int(timeout * 1000))
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -444,17 +394,9 @@ def assert_text_content(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            async def _assert_text():
-                if match_type == 'exact':
-                    await async_expect(element).to_have_text(
-                        expected_text, timeout=int(timeout * 1000)
-                    )
-                else:  # contains
-                    await async_expect(element).to_contain_text(
-                        expected_text, timeout=int(timeout * 1000)
-                    )
-
-            _run_async_assertion(_assert_text())
+            expect(element).to_have_text(
+                expected_text, timeout=int(timeout * 1000)
+            )
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -530,12 +472,9 @@ def assert_input_value(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            async def _assert_value():
-                await async_expect(element).to_have_value(
-                    expected_value, timeout=int(timeout * 1000)
-                )
-
-            _run_async_assertion(_assert_value())
+            expect(element).to_have_value(
+                expected_value, timeout=int(timeout * 1000)
+            )
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -616,12 +555,9 @@ def assert_attribute_value(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            async def _assert_attribute():
-                await async_expect(element).to_have_attribute(
-                    attribute_name, expected_value, timeout=int(timeout * 1000)
-                )
-
-            _run_async_assertion(_assert_attribute())
+            expect(element).to_have_attribute(
+                attribute_name, expected_value, timeout=int(timeout * 1000)
+            )
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -707,12 +643,9 @@ def assert_element_count(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            async def _assert_count():
-                await async_expect(element).to_have_count(
-                    expected_count, timeout=int(timeout * 1000)
-                )
-
-            _run_async_assertion(_assert_count())
+            expect(element).to_have_count(
+                expected_count, timeout=int(timeout * 1000)
+            )
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -790,20 +723,9 @@ def assert_page_title(**kwargs):
         try:
             page = browser_manager.get_current_page()
 
-            async def _assert_title():
-                from playwright.async_api import expect as page_expect
-                if match_type == 'exact':
-                    await page_expect(page).to_have_title(
-                        expected_title, timeout=int(timeout * 1000)
-                    )
-                else:  # contains
-                    import re
-                    pattern = re.compile(f".*{re.escape(expected_title)}.*")
-                    await page_expect(page).to_have_title(
-                        pattern, timeout=int(timeout * 1000)
-                    )
-
-            _run_async_assertion(_assert_title())
+            expect(page).to_have_title(
+                expected_title, timeout=int(timeout * 1000)
+            )
 
             allure.attach(
                 f"期望标题: {expected_title}\n"
@@ -879,20 +801,9 @@ def assert_page_url(**kwargs):
         try:
             page = browser_manager.get_current_page()
 
-            async def _assert_url():
-                from playwright.async_api import expect as page_expect
-                if match_type == 'exact':
-                    await page_expect(page).to_have_url(
-                        expected_url, timeout=int(timeout * 1000)
-                    )
-                else:  # contains
-                    import re
-                    pattern = re.compile(f".*{re.escape(expected_url)}.*")
-                    await page_expect(page).to_have_url(
-                        pattern, timeout=int(timeout * 1000)
-                    )
-
-            _run_async_assertion(_assert_url())
+            expect(page).to_have_url(
+                expected_url, timeout=int(timeout * 1000)
+            )
 
             allure.attach(
                 f"期望URL: {expected_url}\n"
@@ -930,3 +841,705 @@ def assert_page_url(**kwargs):
                 attachment_type=allure.attachment_type.TEXT
             )
             raise AssertionError(f"{message}: {str(e)}")
+
+
+# ===== Bool类型的元素检查方法 =====
+# 以下方法返回bool值，不会抛出异常，适合在条件判断中使用
+
+
+@keyword_manager.register('检查元素是否可见', [
+    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+])
+def check_element_visible(**kwargs):
+    """检查元素是否可见
+
+    Args:
+        selector: 元素定位器
+        timeout: 超时时间（秒）
+
+    Returns:
+        dict: 包含boolean结果的操作结果
+    """
+    selector = kwargs.get('selector')
+    timeout = kwargs.get('timeout', 3.0)
+
+    if not selector:
+        raise ValueError("定位器参数不能为空")
+
+    with allure.step(f"检查元素是否可见: {selector}"):
+        try:
+            locator = _get_current_locator()
+            element = locator.locate(selector)
+
+            # 使用is_visible()方法检查，不会抛出异常
+            is_visible = element.is_visible()
+            
+            if is_visible:
+                # 再次确认元素真的可见（有时需要等待）
+                try:
+                    expect(element).to_be_visible(timeout=int(timeout * 1000))
+                    result = True
+                except Exception:
+                    result = False
+            else:
+                result = False
+
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"超时时间: {timeout}秒\n"
+                f"检查结果: {'可见' if result else '不可见'}",
+                name="元素可见性检查",
+                attachment_type=allure.attachment_type.TEXT
+            )
+
+            logger.info(f"元素可见性检查: {selector} -> {'可见' if result else '不可见'}")
+
+            return {
+                "result": result,
+                "captures": {"is_visible": result},
+                "session_state": {},
+                "metadata": {
+                    "selector": selector,
+                    "check_type": "element_visible",
+                    "operation": "check_element_visible"
+                }
+            }
+
+        except Exception as e:
+            logger.error(f"元素可见性检查异常: {selector} - {str(e)}")
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"超时时间: {timeout}秒\n"
+                f"检查结果: 异常 - {str(e)}",
+                name="元素可见性检查异常",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            
+            return {
+                "result": False,
+                "captures": {"is_visible": False, "error": str(e)},
+                "session_state": {},
+                "metadata": {
+                    "selector": selector,
+                    "check_type": "element_visible",
+                    "operation": "check_element_visible"
+                }
+            }
+
+
+@keyword_manager.register('检查元素是否存在', [
+    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+])
+def check_element_exists(**kwargs):
+    """检查元素是否存在
+
+    Args:
+        selector: 元素定位器
+        timeout: 超时时间（秒）
+
+    Returns:
+        dict: 包含boolean结果的操作结果
+    """
+    selector = kwargs.get('selector')
+    timeout = kwargs.get('timeout', 3.0)
+
+    if not selector:
+        raise ValueError("定位器参数不能为空")
+
+    with allure.step(f"检查元素是否存在: {selector}"):
+        try:
+            locator = _get_current_locator()
+            element = locator.locate(selector)
+
+            # 使用count()方法检查元素数量
+            count = element.count()
+            result = count > 0
+
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"超时时间: {timeout}秒\n"
+                f"元素数量: {count}\n"
+                f"检查结果: {'存在' if result else '不存在'}",
+                name="元素存在性检查",
+                attachment_type=allure.attachment_type.TEXT
+            )
+
+            logger.info(f"元素存在性检查: {selector} -> {'存在' if result else '不存在'}")
+
+            return {
+                "result": result,
+                "captures": {"exists": result, "count": count},
+                "session_state": {},
+                "metadata": {
+                    "selector": selector,
+                    "check_type": "element_exists",
+                    "operation": "check_element_exists"
+                }
+            }
+
+        except Exception as e:
+            logger.error(f"元素存在性检查异常: {selector} - {str(e)}")
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"超时时间: {timeout}秒\n"
+                f"检查结果: 异常 - {str(e)}",
+                name="元素存在性检查异常",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            
+            return {
+                "result": False,
+                "captures": {"exists": False, "error": str(e)},
+                "session_state": {},
+                "metadata": {
+                    "selector": selector,
+                    "check_type": "element_exists",
+                    "operation": "check_element_exists"
+                }
+            }
+
+
+@keyword_manager.register('检查元素是否启用', [
+    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+])
+def check_element_enabled(**kwargs):
+    """检查元素是否启用
+
+    Args:
+        selector: 元素定位器
+        timeout: 超时时间（秒）
+
+    Returns:
+        dict: 包含boolean结果的操作结果
+    """
+    selector = kwargs.get('selector')
+    timeout = kwargs.get('timeout', 3.0)
+
+    if not selector:
+        raise ValueError("定位器参数不能为空")
+
+    with allure.step(f"检查元素是否启用: {selector}"):
+        try:
+            locator = _get_current_locator()
+            element = locator.locate(selector)
+
+            # 使用is_enabled()方法检查
+            result = element.is_enabled()
+
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"超时时间: {timeout}秒\n"
+                f"检查结果: {'启用' if result else '禁用'}",
+                name="元素启用状态检查",
+                attachment_type=allure.attachment_type.TEXT
+            )
+
+            logger.info(f"元素启用状态检查: {selector} -> {'启用' if result else '禁用'}")
+
+            return {
+                "result": result,
+                "captures": {"is_enabled": result},
+                "session_state": {},
+                "metadata": {
+                    "selector": selector,
+                    "check_type": "element_enabled",
+                    "operation": "check_element_enabled"
+                }
+            }
+
+        except Exception as e:
+            logger.error(f"元素启用状态检查异常: {selector} - {str(e)}")
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"超时时间: {timeout}秒\n"
+                f"检查结果: 异常 - {str(e)}",
+                name="元素启用状态检查异常",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            
+            return {
+                "result": False,
+                "captures": {"is_enabled": False, "error": str(e)},
+                "session_state": {},
+                "metadata": {
+                    "selector": selector,
+                    "check_type": "element_enabled",
+                    "operation": "check_element_enabled"
+                }
+            }
+
+
+@keyword_manager.register('检查文本是否包含', [
+    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
+    {'name': '期望文本', 'mapping': 'expected_text', 'description': '期望包含的文本'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+])
+def check_text_contains(**kwargs):
+    """检查元素文本是否包含指定内容
+
+    Args:
+        selector: 元素定位器
+        expected_text: 期望包含的文本
+        timeout: 超时时间（秒）
+
+    Returns:
+        dict: 包含boolean结果的操作结果
+    """
+    selector = kwargs.get('selector')
+    expected_text = kwargs.get('expected_text')
+    timeout = kwargs.get('timeout', 3.0)
+
+    if not selector:
+        raise ValueError("定位器参数不能为空")
+    if expected_text is None:
+        raise ValueError("期望文本参数不能为空")
+
+    with allure.step(f"检查文本是否包含: {selector} -> {expected_text}"):
+        try:
+            locator = _get_current_locator()
+            element = locator.locate(selector)
+
+            # 获取元素文本内容
+            actual_text = element.text_content()
+            result = expected_text in (actual_text or "")
+
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"期望文本: {expected_text}\n"
+                f"实际文本: {actual_text}\n"
+                f"超时时间: {timeout}秒\n"
+                f"检查结果: {'包含' if result else '不包含'}",
+                name="文本包含检查",
+                attachment_type=allure.attachment_type.TEXT
+            )
+
+            logger.info(f"文本包含检查: {selector} -> {'包含' if result else '不包含'}")
+
+            return {
+                "result": result,
+                "captures": {
+                    "contains_text": result,
+                    "actual_text": actual_text,
+                    "expected_text": expected_text
+                },
+                "session_state": {},
+                "metadata": {
+                    "selector": selector,
+                    "expected_text": expected_text,
+                    "check_type": "text_contains",
+                    "operation": "check_text_contains"
+                }
+            }
+
+        except Exception as e:
+            logger.error(f"文本包含检查异常: {selector} -> {expected_text} - {str(e)}")
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"期望文本: {expected_text}\n"
+                f"超时时间: {timeout}秒\n"
+                f"检查结果: 异常 - {str(e)}",
+                name="文本包含检查异常",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            
+            return {
+                "result": False,
+                "captures": {
+                    "contains_text": False,
+                    "expected_text": expected_text,
+                    "error": str(e)
+                },
+                "session_state": {},
+                "metadata": {
+                    "selector": selector,
+                    "expected_text": expected_text,
+                    "check_type": "text_contains",
+                    "operation": "check_text_contains"
+                }
+            }
+
+
+@keyword_manager.register('检查页面URL是否包含', [
+    {'name': '期望URL片段', 'mapping': 'url_fragment', 
+     'description': '期望包含的URL片段'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+])
+def check_url_contains(**kwargs):
+    """检查页面URL是否包含指定片段
+
+    Args:
+        url_fragment: 期望包含的URL片段
+        timeout: 超时时间（秒）
+
+    Returns:
+        dict: 包含boolean结果的操作结果
+    """
+    url_fragment = kwargs.get('url_fragment')
+    timeout = kwargs.get('timeout', 3.0)
+
+    if url_fragment is None:
+        raise ValueError("URL片段参数不能为空")
+
+    with allure.step(f"检查页面URL是否包含: {url_fragment}"):
+        try:
+            page = browser_manager.get_current_page()
+            current_url = page.url
+            result = url_fragment in current_url
+
+            allure.attach(
+                f"期望URL片段: {url_fragment}\n"
+                f"当前URL: {current_url}\n"
+                f"超时时间: {timeout}秒\n"
+                f"检查结果: {'包含' if result else '不包含'}",
+                name="URL包含检查",
+                attachment_type=allure.attachment_type.TEXT
+            )
+
+            logger.info(
+                f"URL包含检查: {url_fragment} -> "
+                f"{'包含' if result else '不包含'}"
+            )
+
+            return {
+                "result": result,
+                "captures": {
+                    "contains_url": result,
+                    "current_url": current_url,
+                    "url_fragment": url_fragment
+                },
+                "session_state": {},
+                "metadata": {
+                    "url_fragment": url_fragment,
+                    "check_type": "url_contains",
+                    "operation": "check_url_contains"
+                }
+            }
+
+        except Exception as e:
+            logger.error(f"URL包含检查异常: {url_fragment} - {str(e)}")
+            allure.attach(
+                f"期望URL片段: {url_fragment}\n"
+                f"超时时间: {timeout}秒\n"
+                f"检查结果: 异常 - {str(e)}",
+                name="URL包含检查异常",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            
+            return {
+                "result": False,
+                "captures": {
+                    "contains_url": False,
+                    "url_fragment": url_fragment,
+                    "error": str(e)
+                },
+                "session_state": {},
+                "metadata": {
+                    "url_fragment": url_fragment,
+                    "check_type": "url_contains",
+                    "operation": "check_url_contains"
+                }
+            }
+
+
+@keyword_manager.register('检查页面标题是否包含', [
+    {'name': '期望标题片段', 'mapping': 'title_fragment', 
+     'description': '期望包含的标题片段'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+])
+def check_title_contains(**kwargs):
+    """检查页面标题是否包含指定片段
+
+    Args:
+        title_fragment: 期望包含的标题片段
+        timeout: 超时时间（秒）
+
+    Returns:
+        dict: 包含boolean结果的操作结果
+    """
+    title_fragment = kwargs.get('title_fragment')
+    timeout = kwargs.get('timeout', 3.0)
+
+    if title_fragment is None:
+        raise ValueError("标题片段参数不能为空")
+
+    with allure.step(f"检查页面标题是否包含: {title_fragment}"):
+        try:
+            page = browser_manager.get_current_page()
+            current_title = page.title()
+            result = title_fragment in current_title
+
+            allure.attach(
+                f"期望标题片段: {title_fragment}\n"
+                f"当前标题: {current_title}\n"
+                f"超时时间: {timeout}秒\n"
+                f"检查结果: {'包含' if result else '不包含'}",
+                name="标题包含检查",
+                attachment_type=allure.attachment_type.TEXT
+            )
+
+            logger.info(
+                f"标题包含检查: {title_fragment} -> "
+                f"{'包含' if result else '不包含'}"
+            )
+
+            return {
+                "result": result,
+                "captures": {
+                    "contains_title": result,
+                    "current_title": current_title,
+                    "title_fragment": title_fragment
+                },
+                "session_state": {},
+                "metadata": {
+                    "title_fragment": title_fragment,
+                    "check_type": "title_contains",
+                    "operation": "check_title_contains"
+                }
+            }
+
+        except Exception as e:
+            logger.error(f"标题包含检查异常: {title_fragment} - {str(e)}")
+            allure.attach(
+                f"期望标题片段: {title_fragment}\n"
+                f"超时时间: {timeout}秒\n"
+                f"检查结果: 异常 - {str(e)}",
+                name="标题包含检查异常",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            
+            return {
+                "result": False,
+                "captures": {
+                    "contains_title": False,
+                    "title_fragment": title_fragment,
+                    "error": str(e)
+                },
+                "session_state": {},
+                "metadata": {
+                    "title_fragment": title_fragment,
+                    "check_type": "title_contains",
+                    "operation": "check_title_contains"
+                }
+            }
+
+
+@keyword_manager.register('检查元素属性值', [
+    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
+    {'name': '属性名', 'mapping': 'attribute_name', 'description': '属性名称'},
+    {'name': '期望值', 'mapping': 'expected_value', 'description': '期望的属性值'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+])
+def check_attribute_value(**kwargs):
+    """检查元素属性值是否匹配
+
+    Args:
+        selector: 元素定位器
+        attribute_name: 属性名称
+        expected_value: 期望的属性值
+        timeout: 超时时间（秒）
+
+    Returns:
+        dict: 包含boolean结果的操作结果
+    """
+    selector = kwargs.get('selector')
+    attribute_name = kwargs.get('attribute_name')
+    expected_value = kwargs.get('expected_value')
+    timeout = kwargs.get('timeout', 3.0)
+
+    if not selector:
+        raise ValueError("定位器参数不能为空")
+    if not attribute_name:
+        raise ValueError("属性名参数不能为空")
+
+    with allure.step(
+        f"检查元素属性值: {selector}.{attribute_name} -> {expected_value}"
+    ):
+        try:
+            locator = _get_current_locator()
+            element = locator.locate(selector)
+
+            # 获取属性值
+            actual_value = element.get_attribute(attribute_name)
+            result = (str(actual_value) == str(expected_value) 
+                      if actual_value is not None 
+                      else expected_value is None)
+
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"属性名: {attribute_name}\n"
+                f"期望值: {expected_value}\n"
+                f"实际值: {actual_value}\n"
+                f"超时时间: {timeout}秒\n"
+                f"检查结果: {'匹配' if result else '不匹配'}",
+                name="属性值检查",
+                attachment_type=allure.attachment_type.TEXT
+            )
+
+            logger.info(
+                f"属性值检查: {selector}.{attribute_name} -> "
+                f"{'匹配' if result else '不匹配'}"
+            )
+
+            return {
+                "result": result,
+                "captures": {
+                    "attribute_matches": result,
+                    "actual_value": actual_value,
+                    "expected_value": expected_value
+                },
+                "session_state": {},
+                "metadata": {
+                    "selector": selector,
+                    "attribute_name": attribute_name,
+                    "expected_value": expected_value,
+                    "check_type": "attribute_value",
+                    "operation": "check_attribute_value"
+                }
+            }
+
+        except Exception as e:
+            error_msg = (
+                f"{selector}.{attribute_name} -> {expected_value} - {str(e)}"
+            )
+            logger.error(f"属性值检查异常: {error_msg}")
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"属性名: {attribute_name}\n"
+                f"期望值: {expected_value}\n"
+                f"超时时间: {timeout}秒\n"
+                f"检查结果: 异常 - {str(e)}",
+                name="属性值检查异常",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            
+            return {
+                "result": False,
+                "captures": {
+                    "attribute_matches": False,
+                    "expected_value": expected_value,
+                    "error": str(e)
+                },
+                "session_state": {},
+                "metadata": {
+                    "selector": selector,
+                    "attribute_name": attribute_name,
+                    "expected_value": expected_value,
+                    "check_type": "attribute_value",
+                    "operation": "check_attribute_value"
+                }
+            }
+
+
+@keyword_manager.register('多条件检查', [
+    {'name': '检查条件列表', 'mapping': 'conditions', 'description': '包含多个检查条件的列表'},
+    {'name': '逻辑关系', 'mapping': 'logic', 'description': 'AND或OR逻辑关系'},
+])
+def check_multiple_conditions(**kwargs):
+    """执行多个条件检查并根据逻辑关系返回结果
+
+    Args:
+        conditions: 检查条件列表，每个条件包含type和参数
+        logic: 逻辑关系，'AND'或'OR'
+
+    Returns:
+        dict: 包含boolean结果的操作结果
+
+    示例:
+        conditions = [
+            {"type": "element_visible", "selector": "#login-button"},
+            {"type": "text_contains", "selector": "#message", 
+             "expected_text": "欢迎"}
+        ]
+    """
+    conditions = kwargs.get('conditions', [])
+    logic = kwargs.get('logic', 'AND').upper()
+
+    if not conditions:
+        raise ValueError("检查条件列表不能为空")
+    if logic not in ['AND', 'OR']:
+        raise ValueError("逻辑关系必须是AND或OR")
+
+    with allure.step(f"多条件检查 ({logic})"):
+        results = []
+        details = []
+
+        for i, condition in enumerate(conditions):
+            condition_type = condition.get('type')
+            try:
+                if condition_type == 'element_visible':
+                    result = check_element_visible(**condition)
+                elif condition_type == 'element_exists':
+                    result = check_element_exists(**condition)
+                elif condition_type == 'element_enabled':
+                    result = check_element_enabled(**condition)
+                elif condition_type == 'text_contains':
+                    result = check_text_contains(**condition)
+                elif condition_type == 'url_contains':
+                    result = check_url_contains(**condition)
+                elif condition_type == 'title_contains':
+                    result = check_title_contains(**condition)
+                elif condition_type == 'attribute_value':
+                    result = check_attribute_value(**condition)
+                else:
+                    raise ValueError(f"不支持的检查类型: {condition_type}")
+
+                condition_result = result.get('result', False)
+                results.append(condition_result)
+                details.append({
+                    "condition": condition,
+                    "result": condition_result,
+                    "details": result.get('captures', {})
+                })
+
+            except Exception as e:
+                logger.error(f"条件检查异常 {i}: {str(e)}")
+                results.append(False)
+                details.append({
+                    "condition": condition,
+                    "result": False,
+                    "error": str(e)
+                })
+
+        # 根据逻辑关系计算最终结果
+        if logic == 'AND':
+            final_result = all(results)
+        else:  # OR
+            final_result = any(results)
+
+        passed_count = sum(results)
+        total_count = len(results)
+
+        allure.attach(
+            f"逻辑关系: {logic}\n"
+            f"总条件数: {total_count}\n"
+            f"通过条件数: {passed_count}\n"
+            f"最终结果: {'通过' if final_result else '失败'}\n"
+            f"详细结果: {details}",
+            name="多条件检查",
+            attachment_type=allure.attachment_type.TEXT
+        )
+
+        logger.info(
+            f"多条件检查 ({logic}): {passed_count}/{total_count} -> "
+            f"{'通过' if final_result else '失败'}"
+        )
+
+        return {
+            "result": final_result,
+            "captures": {
+                "final_result": final_result,
+                "passed_count": passed_count,
+                "total_count": total_count,
+                "details": details
+            },
+            "session_state": {},
+            "metadata": {
+                "logic": logic,
+                "conditions_count": total_count,
+                "check_type": "multiple_conditions",
+                "operation": "check_multiple_conditions"
+            }
+        }

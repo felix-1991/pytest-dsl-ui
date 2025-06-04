@@ -1,14 +1,13 @@
 """元素定位器
 
-提供多种元素定位策略和智能等待机制。
+提供多种元素定位策略，充分利用Playwright的智能等待机制。
 """
 
-import asyncio
 import logging
 from typing import Optional, List
-from playwright.async_api import (
-    Page, 
-    Locator, 
+from playwright.sync_api import (
+    Page,
+    Locator,
     TimeoutError as PlaywrightTimeoutError
 )
 
@@ -18,7 +17,7 @@ logger = logging.getLogger(__name__)
 class ElementLocator:
     """元素定位器
 
-    提供统一的元素定位和等待接口。
+    提供统一的元素定位接口，充分利用Playwright的智能等待。
     """
 
     def __init__(self, page: Page):
@@ -53,23 +52,54 @@ class ElementLocator:
                      - 测试ID定位: "testid=submit-btn"
                      - 标题定位: "title=关闭"
                      - Alt文本定位: "alt=logo"
-                     - 过滤定位: "role=listitem,filter_text=Product 2"
-                     - 组合定位: "role=button,and_title=Subscribe"
+                     - 智能点击定位: "clickable=日志检索"
+                     - 元素类型定位: "span=日志检索" 或 "div=日志检索"
+                     - CSS类定位: "class=highlight-item-container:日志检索"
+                     - 复合定位器: "role=cell:外到内&locator=label&first=true"
 
         Returns:
             Locator: Playwright定位器对象
         """
+        # 检查是否是复合定位器（包含&符号）
+        if "&" in selector and not selector.startswith(("http", "ftp")):
+            return self._parse_compound_locator(selector)
+        
         # 根据选择器类型选择合适的定位方法
         if selector.startswith("//") or selector.startswith("(//"):
             # XPath选择器
             return self.page.locator(f"xpath={selector}")
         elif selector.startswith("text="):
-            # 文本定位 - 支持精确匹配和正则表达式
+            # 文本定位
             return self._parse_text_locator(selector)
         elif selector.startswith("role="):
-            # 角色定位 - 按照Playwright最佳实践优化
+            # 角色定位
             return self._parse_role_locator(selector)
-        elif selector.startswith("placeholder="):
+        elif selector.startswith("clickable="):
+            # 智能可点击元素定位
+            text = selector[10:]  # 移除"clickable="前缀
+            return self.locate_clickable_element(text)
+        elif selector.startswith("class="):
+            # CSS类和文本组合定位 class=类名:文本
+            class_part = selector[6:]  # 移除"class="前缀
+            if ":" in class_part:
+                css_class, text = class_part.split(":", 1)
+                return self.locate_by_css_class(
+                    text.strip(), css_class.strip())
+            else:
+                # 只有类名，没有文本
+                return self.page.locator(f".{class_part}")
+        elif "=" in selector and not selector.startswith(("http", "/")):
+            # 检查是否是元素类型定位 (span=, div=, button=等)
+            element_type, text = selector.split("=", 1)
+            allowed_types = [
+                "span", "div", "button", "a", "input", 
+                "p", "h1", "h2", "h3", "h4", "h5", "h6"
+            ]
+            if element_type in allowed_types:
+                return self.locate_by_element_type(text, element_type)
+        
+        # 处理其他标准定位器
+        if selector.startswith("placeholder="):
             # 占位符定位
             placeholder = selector[12:]  # 移除"placeholder="前缀
             return self.page.get_by_placeholder(placeholder)
@@ -128,13 +158,10 @@ class ElementLocator:
             role, name = role_part.split(":", 1)
             return self.page.get_by_role(role.strip(), name=name.strip())
         elif "," in role_part:
-            # 解析带参数的格式：role=button,name=百度一下,filter_text=Product 2
+            # 解析带参数的格式：role=button,name=百度一下
             parts = role_part.split(",")
             role = parts[0].strip()
             kwargs = {}
-            filter_options = {}
-            and_locator = None
-            or_locator = None
 
             for part in parts[1:]:
                 if "=" in part:
@@ -142,83 +169,82 @@ class ElementLocator:
                     key = key.strip()
                     value = value.strip()
 
-                    # 处理过滤选项
-                    if key == "filter_text":
-                        filter_options["has_text"] = value
-                    elif key == "filter_not_text":
-                        filter_options["has_not_text"] = value
-                    elif key == "filter_has":
-                        # 这里可以扩展支持子元素过滤
-                        pass
-                    elif key == "and_title":
-                        # 组合定位：同时匹配角色和标题
-                        and_locator = self.page.get_by_title(value)
-                    elif key == "and_text":
-                        # 组合定位：同时匹配角色和文本
-                        and_locator = self.page.get_by_text(value)
-                    elif key == "or_text":
-                        # 或定位：匹配角色或文本
-                        or_locator = self.page.get_by_text(value)
+                    # 转换布尔值
+                    if value.lower() in ('true', 'false'):
+                        kwargs[key] = value.lower() == 'true'
                     else:
-                        # 转换布尔值
-                        if value.lower() in ('true', 'false'):
-                            kwargs[key] = value.lower() == 'true'
-                        else:
-                            kwargs[key] = value
+                        kwargs[key] = value
 
-            # 创建基础定位器
-            base_locator = self.page.get_by_role(role, **kwargs)
-
-            # 应用过滤
-            if filter_options:
-                base_locator = base_locator.filter(**filter_options)
-
-            # 应用组合定位
-            if and_locator:
-                base_locator = base_locator.and_(and_locator)
-
-            if or_locator:
-                base_locator = base_locator.or_(or_locator)
-
-            return base_locator
+            return self.page.get_by_role(role, **kwargs)
         else:
             # 简单角色定位
             return self.page.get_by_role(role_part)
 
-    def _run_async(self, coro):
-        """运行异步协程 - 简化版本"""
-        try:
-            # 尝试获取当前事件循环
-            asyncio.get_running_loop()
-            # 如果循环正在运行，创建新线程
-            import concurrent.futures
+    def _parse_compound_locator(self, selector: str) -> Locator:
+        """解析复合定位器
+        
+        格式示例: "role=cell:外到内&locator=label&first=true"
+        
+        Args:
+            selector: 复合定位器字符串
             
-            def run_in_thread():
-                new_loop = asyncio.new_event_loop()
+        Returns:
+            Locator: 解析后的定位器
+        """
+        # 分解基础定位器和修饰符
+        parts = selector.split("&")
+        base_part = parts[0]
+        modifiers = parts[1:] if len(parts) > 1 else []
+        
+        # 解析基础定位器
+        base_locator = self.locate(base_part)
+        
+        # 应用修饰符
+        current_locator = base_locator
+        
+        for modifier in modifiers:
+            if "=" not in modifier:
+                continue
+                
+            key, value = modifier.split("=", 1)
+            key = key.strip()
+            value = value.strip()
+            
+            if key == "locator":
+                # 子定位器
+                current_locator = current_locator.locator(value)
+            elif key == "has_text":
+                # 文本过滤
+                current_locator = current_locator.filter(has_text=value)
+            elif key == "has_not_text":
+                # 排除文本过滤
+                current_locator = current_locator.filter(has_not_text=value)
+            elif key == "first" and value.lower() == "true":
+                # 第一个元素
+                current_locator = current_locator.first
+            elif key == "last" and value.lower() == "true":
+                # 最后一个元素
+                current_locator = current_locator.last
+            elif key == "nth":
+                # 第N个元素
                 try:
-                    return new_loop.run_until_complete(coro)
-                finally:
-                    new_loop.close()
-            
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                future = executor.submit(run_in_thread)
-                return future.result()
-        except RuntimeError:
-            # 没有运行中的事件循环，直接运行
-            return asyncio.run(coro)
+                    index = int(value)
+                    current_locator = current_locator.nth(index)
+                except ValueError:
+                    logger.warning(f"无效的nth索引: {value}")
+            elif key == "visible" and value.lower() == "true":
+                # 只选择可见元素
+                current_locator = current_locator.filter(visible=True)
+            elif key == "exact":
+                # exact参数已在基础定位器中处理
+                pass
+            else:
+                logger.warning(f"未知的修饰符: {key}={value}")
+        
+        return current_locator
 
-    async def _wait_for_element_async(self, selector: str, state: str = "visible", timeout: Optional[float] = None) -> bool:
-        """异步等待元素状态 - 利用 Playwright 智能等待"""
-        locator = self.locate(selector)
-        timeout_ms = int((timeout * 1000) if timeout else self.default_timeout)
-
-        try:
-            await locator.wait_for(state=state, timeout=timeout_ms)
-            return True
-        except PlaywrightTimeoutError:
-            return False
-
-    def wait_for_element(self, selector: str, state: str = "visible", timeout: Optional[float] = None) -> bool:
+    def wait_for_element(self, selector: str, state: str = "visible", 
+                         timeout: Optional[float] = None) -> bool:
         """等待元素达到指定状态
 
         Args:
@@ -229,10 +255,18 @@ class ElementLocator:
         Returns:
             bool: 是否在超时时间内达到指定状态
         """
-        return self._run_async(self._wait_for_element_async(selector, state, timeout))
+        locator = self.locate(selector)
+        timeout_ms = int((timeout * 1000) if timeout else self.default_timeout)
 
-    def wait_for_text(self, text: str, timeout: Optional[float] = None) -> bool:
-        """等待文本在页面中出现 - 利用 Playwright 智能等待
+        try:
+            locator.wait_for(state=state, timeout=timeout_ms)
+            return True
+        except PlaywrightTimeoutError:
+            return False
+
+    def wait_for_text(self, text: str, 
+                      timeout: Optional[float] = None) -> bool:
+        """等待文本在页面中出现
 
         Args:
             text: 要等待的文本
@@ -241,19 +275,16 @@ class ElementLocator:
         Returns:
             bool: 是否在超时时间内找到文本
         """
-        async def _wait_for_text_async():
-            timeout_ms = int((timeout * 1000) if timeout else self.default_timeout)
-            try:
-                locator = self.page.get_by_text(text)
-                await locator.wait_for(state="visible", timeout=timeout_ms)
-                return True
-            except PlaywrightTimeoutError:
-                return False
-        
-        return self._run_async(_wait_for_text_async())
+        timeout_ms = int((timeout * 1000) if timeout else self.default_timeout)
+        try:
+            locator = self.page.get_by_text(text)
+            locator.wait_for(state="visible", timeout=timeout_ms)
+            return True
+        except PlaywrightTimeoutError:
+            return False
 
     def is_element_visible(self, selector: str) -> bool:
-        """检查元素是否可见 - 利用 Playwright 智能等待检查
+        """检查元素是否可见
 
         Args:
             selector: 元素选择器
@@ -263,8 +294,7 @@ class ElementLocator:
         """
         try:
             locator = self.locate(selector)
-            # 先等待元素存在，然后检查可见性
-            return self._run_async(locator.is_visible())
+            return locator.is_visible()
         except Exception:
             return False
 
@@ -279,7 +309,7 @@ class ElementLocator:
         """
         try:
             locator = self.locate(selector)
-            return self._run_async(locator.is_enabled())
+            return locator.is_enabled()
         except Exception:
             return False
 
@@ -294,7 +324,7 @@ class ElementLocator:
         """
         try:
             locator = self.locate(selector)
-            return self._run_async(locator.is_checked())
+            return locator.is_checked()
         except Exception:
             return False
 
@@ -309,12 +339,12 @@ class ElementLocator:
         """
         try:
             locator = self.locate(selector)
-            return self._run_async(locator.count())
+            return locator.count()
         except Exception:
             return 0
 
     def get_element_text(self, selector: str) -> str:
-        """获取元素文本内容 - 利用 Playwright 智能等待
+        """获取元素文本内容
 
         Args:
             selector: 元素选择器
@@ -322,16 +352,18 @@ class ElementLocator:
         Returns:
             str: 元素文本内容
         """
-        async def _get_text_async():
+        try:
             locator = self.locate(selector)
-            # 等待元素可见后获取文本
-            await locator.wait_for(state="visible", timeout=self.default_timeout)
-            return await locator.text_content() or ""
-        
-        return self._run_async(_get_text_async())
+            # 先检查元素是否存在，避免超时
+            if locator.count() == 0:
+                return ""
+            return locator.text_content() or ""
+        except Exception:
+            return ""
 
-    def get_element_attribute(self, selector: str, attribute: str) -> Optional[str]:
-        """获取元素属性值 - 利用 Playwright 智能等待
+    def get_element_attribute(self, selector: str, 
+                              attribute: str) -> Optional[str]:
+        """获取元素属性值
 
         Args:
             selector: 元素选择器
@@ -340,16 +372,11 @@ class ElementLocator:
         Returns:
             Optional[str]: 属性值，如果属性不存在则返回None
         """
-        async def _get_attribute_async():
-            locator = self.locate(selector)
-            # 等待元素存在后获取属性
-            await locator.wait_for(state="attached", timeout=self.default_timeout)
-            return await locator.get_attribute(attribute)
-        
-        return self._run_async(_get_attribute_async())
+        locator = self.locate(selector)
+        return locator.get_attribute(attribute)
 
     def get_element_value(self, selector: str) -> str:
-        """获取输入元素的值 - 利用 Playwright 智能等待
+        """获取输入元素的值
 
         Args:
             selector: 元素选择器
@@ -357,13 +384,8 @@ class ElementLocator:
         Returns:
             str: 输入元素的值
         """
-        async def _get_value_async():
-            locator = self.locate(selector)
-            # 等待元素可见后获取值
-            await locator.wait_for(state="visible", timeout=self.default_timeout)
-            return await locator.input_value()
-        
-        return self._run_async(_get_value_async())
+        locator = self.locate(selector)
+        return locator.input_value()
 
     def get_all_elements_text(self, selector: str) -> List[str]:
         """获取所有匹配元素的文本内容
@@ -374,18 +396,13 @@ class ElementLocator:
         Returns:
             List[str]: 所有匹配元素的文本内容列表
         """
-        async def _get_all_text():
-            locator = self.locate(selector)
-            # 等待至少一个元素出现
-            await locator.first.wait_for(state="visible", timeout=self.default_timeout)
-            elements = await locator.all()
-            texts = []
-            for element in elements:
-                text = await element.text_content()
-                texts.append(text or "")
-            return texts
-
-        return self._run_async(_get_all_text())
+        locator = self.locate(selector)
+        elements = locator.all()
+        texts = []
+        for element in elements:
+            text = element.text_content()
+            texts.append(text or "")
+        return texts
 
     def locate_by_visible(self, selector: str) -> Locator:
         """定位可见元素（过滤掉不可见的元素）
@@ -437,9 +454,9 @@ class ElementLocator:
         return base_locator.nth(index)
 
     def locate_with_filter(self, selector: str, has_text: Optional[str] = None,
-                          has_not_text: Optional[str] = None,
-                          has: Optional[str] = None,
-                          has_not: Optional[str] = None) -> Locator:
+                           has_not_text: Optional[str] = None,
+                           has: Optional[str] = None,
+                           has_not: Optional[str] = None) -> Locator:
         """使用过滤条件定位元素
 
         Args:
@@ -493,3 +510,160 @@ class ElementLocator:
         locator1 = self.locate(selector1)
         locator2 = self.locate(selector2)
         return locator1.or_(locator2)
+
+    def locate_unique_by_text(self, base_selector: str, 
+                              text: str, exact: bool = True) -> Locator:
+        """通过文本内容从多个匹配元素中选择唯一元素
+        
+        当基础选择器匹配多个元素时，通过文本内容进一步过滤。
+        适用于解决严格模式冲突问题。
+
+        Args:
+            base_selector: 基础选择器（如 "title=日志检索"）
+            text: 用于过滤的精确文本内容
+            exact: 是否精确匹配文本
+
+        Returns:
+            Locator: 过滤后的唯一定位器
+        """
+        base_locator = self.locate(base_selector)
+        if exact:
+            return base_locator.filter(has_text=f"^{text}$")
+        else:
+            return base_locator.filter(has_text=text)
+
+    def locate_by_text_content_only(self, text: str, 
+                                    exact: bool = True) -> Locator:
+        """仅通过文本内容定位元素，避免title属性冲突
+        
+        Args:
+            text: 要匹配的文本内容
+            exact: 是否精确匹配
+
+        Returns:
+            Locator: 文本定位器
+        """
+        if exact:
+            return self.page.get_by_text(text, exact=True)
+        else:
+            return self.page.get_by_text(text)
+
+    def resolve_strict_mode_conflict(self, selector: str, 
+                                     preferred_text: Optional[str] = None,
+                                     prefer_visible: bool = True,
+                                     index: Optional[int] = None) -> Locator:
+        """解决严格模式冲突
+        
+        当选择器匹配多个元素时，提供多种策略来选择唯一元素。
+
+        Args:
+            selector: 原始选择器
+            preferred_text: 首选的文本内容（用于过滤）
+            prefer_visible: 是否优先选择可见元素
+            index: 如果指定，直接选择第N个元素
+
+        Returns:
+            Locator: 解决冲突后的定位器
+        """
+        base_locator = self.locate(selector)
+        
+        # 如果指定了索引，直接返回第N个元素
+        if index is not None:
+            return base_locator.nth(index)
+        
+        # 如果指定了首选文本，先按文本过滤
+        if preferred_text:
+            filtered_locator = base_locator.filter(has_text=preferred_text)
+            # 检查过滤后是否还有多个元素
+            if filtered_locator.count() == 1:
+                return filtered_locator
+            elif filtered_locator.count() > 1 and prefer_visible:
+                return filtered_locator.filter(visible=True).first
+            elif filtered_locator.count() > 1:
+                return filtered_locator.first
+        
+        # 如果没有指定文本或过滤后仍有多个，按可见性过滤
+        if prefer_visible:
+            visible_locator = base_locator.filter(visible=True)
+            if visible_locator.count() >= 1:
+                return visible_locator.first
+        
+        # 最后选择第一个元素
+        return base_locator.first
+
+    def locate_clickable_element(self, text: str, 
+                                 prefer_interactive: bool = True) -> Locator:
+        """智能定位可点击元素
+        
+        当多个元素包含相同文本时，智能选择最合适的可点击元素。
+        优先级：button > a > [role] > span > div
+        
+        Args:
+            text: 要匹配的文本
+            prefer_interactive: 是否优先选择交互性元素
+            
+        Returns:
+            Locator: 最适合点击的元素定位器
+        """
+        # 首先尝试常见的可点击元素
+        clickable_selectors = [
+            f"button:has-text('{text}')",
+            f"a:has-text('{text}')", 
+            f"[role='button']:has-text('{text}')",
+            f"[role='link']:has-text('{text}')",
+            f"[role='menuitem']:has-text('{text}')"
+        ]
+        
+        for selector in clickable_selectors:
+            locator = self.page.locator(selector)
+            if locator.count() > 0:
+                return locator.first
+        
+        # 如果没找到明确的可点击元素，尝试span和div
+        text_locator = self.page.get_by_text(text, exact=True)
+        count = text_locator.count()
+        
+        if count == 1:
+            return text_locator
+        elif count > 1:
+            # 优先选择span元素（通常是文本标签）
+            span_locator = self.page.locator(f"span:has-text('{text}')")
+            if span_locator.count() > 0:
+                return span_locator.first
+            
+            # 然后选择div元素
+            div_locator = self.page.locator(f"div:has-text('{text}')")
+            if div_locator.count() > 0:
+                return div_locator.first
+            
+            # 最后返回第一个匹配的元素
+            return text_locator.first
+        else:
+            # 如果精确匹配失败，尝试模糊匹配
+            return self.page.get_by_text(text).first
+
+    def locate_by_element_type(self, text: str, 
+                               element_type: str = "span") -> Locator:
+        """根据元素类型和文本定位
+        
+        Args:
+            text: 文本内容
+            element_type: 元素类型 (span, div, button, a等)
+            
+        Returns:
+            Locator: 指定类型的元素定位器
+        """
+        return self.page.locator(f"{element_type}:has-text('{text}')").first
+
+    def locate_by_css_class(self, text: str, 
+                            css_class: str) -> Locator:
+        """根据CSS类名和文本定位
+        
+        Args:
+            text: 文本内容  
+            css_class: CSS类名
+            
+        Returns:
+            Locator: 包含指定类名和文本的元素定位器
+        """
+        return self.page.locator(f".{css_class}:has-text('{text}')").first

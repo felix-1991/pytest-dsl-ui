@@ -1,12 +1,11 @@
 """元素操作关键字
 
 提供元素点击、输入、选择等交互操作关键字。
+充分利用Playwright的智能等待机制。
 """
 
-import asyncio
 import logging
 import allure
-from typing import Optional, List, Union
 
 from pytest_dsl.core.keyword_manager import keyword_manager
 from ..core.browser_manager import browser_manager
@@ -22,11 +21,15 @@ def _get_current_locator() -> ElementLocator:
 
 
 @keyword_manager.register('点击元素', [
-    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器（CSS选择器、XPath、文本等）'},
+    {'name': '定位器', 'mapping': 'selector', 
+     'description': '元素定位器（CSS选择器、XPath、文本等）'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
-    {'name': '强制点击', 'mapping': 'force', 'description': '是否强制点击（忽略元素状态检查）'},
-    {'name': '索引', 'mapping': 'index', 'description': '元素索引（当有多个匹配元素时）'},
-    {'name': '可见性', 'mapping': 'visible_only', 'description': '是否只点击可见元素'},
+    {'name': '强制点击', 'mapping': 'force', 
+     'description': '是否强制点击（忽略元素状态检查）'},
+    {'name': '索引', 'mapping': 'index', 
+     'description': '元素索引（当有多个匹配元素时）'},
+    {'name': '可见性', 'mapping': 'visible_only', 
+     'description': '是否只点击可见元素'},
 ])
 def click_element(**kwargs):
     """点击元素
@@ -64,13 +67,9 @@ def click_element(**kwargs):
             if index is not None:
                 element = element.nth(index)
 
-            # Playwright会自动等待元素可交互，无需显式等待
-            # 使用优化的异步执行方式
-            async def _click_async():
-                timeout_ms = int(timeout * 1000) if timeout else 30000  # 默认30秒超时
-                await element.click(force=force, timeout=timeout_ms)
-
-            locator._run_async(_click_async())
+            # 使用Playwright的智能等待机制
+            timeout_ms = int(timeout * 1000) if timeout else 30000
+            element.click(force=force, timeout=timeout_ms)
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -82,9 +81,11 @@ def click_element(**kwargs):
                 attachment_type=allure.attachment_type.TEXT
             )
 
-            logger.info(f"元素点击成功: {selector} (索引: {index}, 可见性: {visible_only})")
+            logger.info(
+                f"元素点击成功: {selector} "
+                f"(索引: {index}, 可见性: {visible_only})"
+            )
 
-            # 统一返回格式 - 支持远程关键字模式
             return {
                 "result": True,
                 "captures": {},
@@ -98,17 +99,25 @@ def click_element(**kwargs):
             }
 
         except Exception as e:
-            logger.error(f"元素点击失败: {str(e)}")
+            error_msg = f"元素点击失败: {str(e)}"
+            if "timeout" in str(e).lower():
+                error_msg += (f"\n可能原因: 1) 元素不存在或不可见 "
+                             f"2) 页面加载缓慢 3) 定位器 '{selector}' 不正确")
+            elif "detached" in str(e).lower():
+                error_msg += "\n可能原因: 页面结构发生变化，元素已被移除"
+            
+            logger.error(error_msg)
             allure.attach(
-                f"错误信息: {str(e)}",
+                f"错误信息: {error_msg}",
                 name="元素点击失败",
                 attachment_type=allure.attachment_type.TEXT
             )
-            raise
+            raise Exception(error_msg)
 
 
 @keyword_manager.register('双击元素', [
-    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器（CSS选择器、XPath、文本等）'},
+    {'name': '定位器', 'mapping': 'selector', 
+     'description': '元素定位器（CSS选择器、XPath、文本等）'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
 ])
 def double_click_element(**kwargs):
@@ -132,13 +141,8 @@ def double_click_element(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            # Playwright会自动等待元素可交互，无需显式等待
-            # 使用优化的异步执行方式
-            async def _double_click_async():
-                timeout_ms = int(timeout * 1000) if timeout else 30000  # 默认30秒超时
-                await element.dblclick(timeout=timeout_ms)
-
-            locator._run_async(_double_click_async())
+            timeout_ms = int(timeout * 1000) if timeout else 30000
+            element.dblclick(timeout=timeout_ms)
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -149,7 +153,6 @@ def double_click_element(**kwargs):
 
             logger.info(f"元素双击成功: {selector}")
 
-            # 统一返回格式 - 支持远程关键字模式
             return {
                 "result": True,
                 "captures": {},
@@ -171,7 +174,8 @@ def double_click_element(**kwargs):
 
 
 @keyword_manager.register('右键点击元素', [
-    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器（CSS选择器、XPath、文本等）'},
+    {'name': '定位器', 'mapping': 'selector', 
+     'description': '元素定位器（CSS选择器、XPath、文本等）'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
 ])
 def right_click_element(**kwargs):
@@ -195,13 +199,8 @@ def right_click_element(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            # Playwright会自动等待元素可交互，无需显式等待
-            # 使用优化的异步执行方式
-            async def _right_click_async():
-                timeout_ms = int(timeout * 1000) if timeout else 30000  # 默认30秒超时
-                await element.click(button="right", timeout=timeout_ms)
-
-            locator._run_async(_right_click_async())
+            timeout_ms = int(timeout * 1000) if timeout else 30000
+            element.click(button="right", timeout=timeout_ms)
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -212,7 +211,6 @@ def right_click_element(**kwargs):
 
             logger.info(f"元素右键点击成功: {selector}")
 
-            # 统一返回格式 - 支持远程关键字模式
             return {
                 "result": True,
                 "captures": {},
@@ -234,9 +232,11 @@ def right_click_element(**kwargs):
 
 
 @keyword_manager.register('输入文本', [
-    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器（CSS选择器、XPath、文本等）'},
+    {'name': '定位器', 'mapping': 'selector', 
+     'description': '元素定位器（CSS选择器、XPath、文本等）'},
     {'name': '文本', 'mapping': 'text', 'description': '要输入的文本内容'},
-    {'name': '清空输入框', 'mapping': 'clear', 'description': '输入前是否清空输入框，默认为true'},
+    {'name': '清空输入框', 'mapping': 'clear', 
+     'description': '输入前是否清空输入框，默认为true'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
 ])
 def input_text(**kwargs):
@@ -264,20 +264,15 @@ def input_text(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            # Playwright会自动等待元素可交互，无需显式等待
-            # 使用优化的异步执行方式 - 模拟Playwright录制脚本的行为
-            async def _input_async():
-                timeout_ms = int(timeout * 1000) if timeout else 30000  # 默认30秒超时
+            timeout_ms = int(timeout * 1000) if timeout else 30000
 
-                if clear:
-                    # 使用fill方法，它会自动清空并填入内容（类似录制脚本）
-                    await element.fill(text, timeout=timeout_ms)
-                else:
-                    # 不清空的情况下，先点击获得焦点，然后输入
-                    await element.click(timeout=timeout_ms)
-                    await element.type(text, delay=50, timeout=timeout_ms)
-
-            locator._run_async(_input_async())
+            if clear:
+                # 使用fill方法，它会自动清空并填入内容
+                element.fill(text, timeout=timeout_ms)
+            else:
+                # 不清空的情况下，先点击获得焦点，然后输入
+                element.click(timeout=timeout_ms)
+                element.type(text, delay=50, timeout=timeout_ms)
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -290,7 +285,6 @@ def input_text(**kwargs):
 
             logger.info(f"文本输入成功: {selector} -> {text}")
 
-            # 统一返回格式 - 支持远程关键字模式
             return {
                 "result": text,
                 "captures": {},
@@ -313,7 +307,8 @@ def input_text(**kwargs):
 
 
 @keyword_manager.register('清空文本', [
-    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器（CSS选择器、XPath、文本等）'},
+    {'name': '定位器', 'mapping': 'selector', 
+     'description': '元素定位器（CSS选择器、XPath、文本等）'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
 ])
 def clear_text(**kwargs):
@@ -337,13 +332,8 @@ def clear_text(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            # Playwright会自动等待元素可交互，无需显式等待
-            # 使用优化的异步执行方式
-            async def _clear_async():
-                timeout_ms = int(timeout * 1000) if timeout else 30000  # 默认30秒超时
-                await element.clear(timeout=timeout_ms)
-
-            locator._run_async(_clear_async())
+            timeout_ms = int(timeout * 1000) if timeout else 30000
+            element.clear(timeout=timeout_ms)
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -354,7 +344,6 @@ def clear_text(**kwargs):
 
             logger.info(f"文本清空成功: {selector}")
 
-            # 统一返回格式 - 支持远程关键字模式
             return {
                 "result": True,
                 "captures": {},

@@ -1,254 +1,192 @@
 # pytest-dsl-ui
 
-基于Playwright的UI自动化测试关键字框架，为pytest-dsl提供强大的Web UI测试能力。
+🎯 **基于Playwright的UI自动化测试框架** - 为pytest-dsl提供强大的Web UI测试能力
 
-## 🚀 特性
+## ✨ 核心特性
 
-- **无缝集成**：通过entry_points机制自动集成到pytest-dsl框架
-- **Playwright驱动**：基于现代化的Playwright浏览器自动化引擎
-- **丰富关键字**：提供完整的UI操作、断言和截图关键字
-- **多浏览器支持**：支持Chrome、Firefox、Safari、Edge等主流浏览器
-- **智能等待**：内置智能等待机制，提高测试稳定性
-- **可视化调试**：支持截图、录制和可视化调试
-- **远程执行**：支持pytest-dsl的远程关键字模式
+- 🔍 **智能定位器** - 支持20+种元素定位策略，包括复合定位器
+- ⚡ **零配置启动** - 开箱即用，无需复杂配置
+- 🌐 **多浏览器支持** - Chrome、Firefox、Safari、Edge
+- 🔧 **Playwright转换器** - 一键转换录制脚本为DSL格式
 
-## 📦 安装
+## 🚀 快速开始
 
+### 安装
 ```bash
-# 安装pytest-dsl-ui（会自动安装pytest-dsl依赖）
 pip install pytest-dsl-ui
-
-# 安装Playwright浏览器
-playwright install
+playwright install  # 安装浏览器
 ```
 
-## 🎯 快速入门
-
-### 1. 创建测试文件
-
+### 5分钟上手示例
 ```dsl
-@name: "UI自动化测试示例"
-@description: "演示pytest-dsl-ui的基本功能"
+@name: "百度搜索测试"
 
-# 启动浏览器并打开页面
-[启动浏览器], 浏览器: "chromium", 无头模式: false
-[打开页面], 地址: "https://www.example.com"
-
-# 元素操作
-[点击元素], 定位器: "button[type='submit']"
-[输入文本], 定位器: "#username", 文本: "testuser"
-[选择选项], 定位器: "select#country", 值: "China"
-
-# 断言验证
-[断言元素存在], 定位器: ".success-message"
-[断言文本内容], 定位器: "h1", 预期文本: "欢迎"
-
-# 截图保存
-[截图], 文件名: "test_result.png"
-
-# 关闭浏览器
+[启动浏览器], 浏览器: "chromium"
+[打开页面], 地址: "https://www.baidu.com"
+[输入文本], 定位器: "input#kw", 文本: "pytest-dsl-ui"
+[点击元素], 定位器: "input#su"
+[断言文本存在], 文本: "pytest"
+[截图], 文件名: "search_result.png"
 [关闭浏览器]
 ```
 
-### 2. 运行测试
+运行：`pytest-dsl test.dsl`
 
-```bash
-pytest-dsl test_ui.dsl
-```
+## 🎯 定位器速查表
 
-## 🔍 元素定位详解
+> **定位器是框架的核心**，支持简单到复杂的各种定位需求
 
-pytest-dsl-ui 提供了多种强大的元素定位策略，让您能够灵活地定位页面元素。
+### 基础定位器
 
-### 基础定位策略
+| 定位器类型 | 语法格式 | 使用示例 | 说明 |
+|-----------|---------|----------|------|
+| **CSS选择器** | `selector` | `"button.submit"` | 最常用，支持所有CSS选择器 |
+| **文本定位** | `text=文本` | `"text=登录"` | 根据元素文本内容定位 |
+| **角色定位** | `role=角色` | `"role=button"` | 根据ARIA角色定位 |
+| **标签定位** | `label=标签` | `"label=用户名"` | 根据关联的label定位 |
+| **占位符定位** | `placeholder=文本` | `"placeholder=请输入"` | 根据placeholder属性定位 |
+| **测试ID定位** | `testid=ID` | `"testid=submit-btn"` | 根据test-id属性定位 |
+| **XPath定位** | `//xpath` | `"//button[@type='submit']"` | 使用XPath表达式定位 |
 
-1. **CSS选择器**
-   ```dsl
-   [点击元素], 定位器: "button.submit"
-   [点击元素], 定位器: "#login-button"
-   [点击元素], 定位器: "div.container > p.text"
-   ```
+### 精确匹配定位器
 
-2. **XPath**
-   ```dsl
-   [点击元素], 定位器: "//button[@type='submit']"
-   [点击元素], 定位器: "//div[contains(@class, 'container')]//p"
-   ```
+| 定位器类型 | 语法格式 | 使用示例 | 说明 |
+|-----------|---------|----------|------|
+| **精确文本** | `text=文本,exact=true` | `"text=登录,exact=true"` | 精确匹配文本，不包含子串 |
+| **精确标签** | `label=标签,exact=true` | `"label=用户名,exact=true"` | 精确匹配标签文本 |
+| **角色+名称** | `role=角色:名称` | `"role=button:提交"` | 角色和名称的组合定位 |
 
-3. **文本定位**
-   ```dsl
-   [点击元素], 定位器: "text=提交"
-   [点击元素], 定位器: "text=提交,exact=true"  # 精确匹配
-   ```
+### 复合定位器 ⭐
 
-4. **角色定位**
-   ```dsl
-   [点击元素], 定位器: "role=button"
-   [点击元素], 定位器: "role=button:提交"  # 带名称的角色定位
-   [点击元素], 定位器: "role=button,name=提交"  # 完整格式
-   ```
+| 功能 | 语法格式 | 使用示例 | 说明 |
+|------|---------|----------|------|
+| **子元素定位** | `基础定位器&locator=子选择器` | `"role=cell:外到内&locator=label"` | 在基础元素中查找子元素 |
+| **文本过滤** | `基础定位器&has_text=文本` | `"div&has_text=重要"` | 包含特定文本的元素 |
+| **选择第一个** | `基础定位器&first=true` | `"button&first=true"` | 选择第一个匹配的元素 |
+| **选择最后一个** | `基础定位器&last=true` | `"li&last=true"` | 选择最后一个匹配的元素 |
+| **选择第N个** | `基础定位器&nth=索引` | `"option&nth=2"` | 选择第N个元素（从0开始） |
+| **组合条件** | `定位器&条件1&条件2` | `"role=cell:外到内&locator=label&first=true"` | 多个条件组合使用 |
 
-5. **其他定位方式**
-   ```dsl
-   # 标签定位
-   [点击元素], 定位器: "label=用户名"
-   
-   # 占位符定位
-   [点击元素], 定位器: "placeholder=请输入用户名"
-   
-   # 测试ID定位
-   [点击元素], 定位器: "testid=submit-btn"
-   
-   # 标题定位
-   [点击元素], 定位器: "title=关闭"
-   
-   # Alt文本定位
-   [点击元素], 定位器: "alt=logo"
-   ```
+### 智能定位器
 
-### 高级定位策略
+| 定位器类型 | 语法格式 | 使用示例 | 说明 |
+|-----------|---------|----------|------|
+| **可点击元素** | `clickable=文本` | `"clickable=提交"` | 智能查找可点击的元素 |
+| **元素类型** | `标签名=文本` | `"span=状态"` | 根据HTML标签和文本定位 |
+| **CSS类定位** | `class=类名:文本` | `"class=btn:确认"` | 根据CSS类名和文本定位 |
 
-1. **过滤定位**
-   ```dsl
-   # 文本过滤
-   [点击元素], 定位器: "role=listitem,filter_text=Product 2"
-   [点击元素], 定位器: "role=listitem,filter_not_text=Product 1"
-   
-   # 组合定位
-   [点击元素], 定位器: "role=button,and_title=Subscribe"
-   [点击元素], 定位器: "role=button,and_text=确认"
-   ```
+## 🛠️ 常用操作关键字
 
-2. **元素索引**
-   ```dsl
-   # 定位第一个元素
-   [点击元素], 定位器: "button >> nth=0"
-   
-   # 定位最后一个元素
-   [点击元素], 定位器: "button >> nth=-1"
-   
-   # 定位特定索引的元素
-   [点击元素], 定位器: "button >> nth=2"
-   ```
-
-3. **可见性过滤**
-   ```dsl
-   # 只定位可见元素
-   [点击元素], 定位器: "button >> visible=true"
-   ```
-
-4. **组合条件**
-   ```dsl
-   # 同时满足多个条件
-   [点击元素], 定位器: "button.submit >> has=span.icon >> has_text=提交"
-   
-   # 满足任一条件
-   [点击元素], 定位器: "button.submit >> or=text=取消"
-   ```
-
-### 智能等待
-
-框架内置智能等待机制，可以等待元素达到特定状态：
-
+### 浏览器控制
 ```dsl
-# 等待元素可见
-[等待元素出现], 定位器: ".loading", 超时时间: 10
-
-# 等待元素消失
-[等待元素消失], 定位器: ".loading"
-
-# 等待文本出现
-[等待文本出现], 文本: "加载完成"
-
-# 设置全局等待超时
-[设置等待超时], 超时时间: 30
+[启动浏览器], 浏览器: "chromium", 无头模式: false
+[打开页面], 地址: "https://example.com"
+[刷新页面]
+[关闭浏览器]
 ```
-
-## 📚 关键字参考
-
-### 浏览器管理
-
-- **启动浏览器**：启动指定类型的浏览器
-- **关闭浏览器**：关闭当前浏览器实例
-- **新建页面**：在当前浏览器中新建页面
-- **切换页面**：切换到指定页面
-
-### 页面导航
-
-- **打开页面**：导航到指定URL
-- **刷新页面**：刷新当前页面
-- **后退**：浏览器后退
-- **前进**：浏览器前进
-- **获取页面标题**：获取当前页面标题
-- **获取当前地址**：获取当前页面URL
 
 ### 元素操作
+```dsl
+[点击元素], 定位器: "button#submit"
+[双击元素], 定位器: "text=编辑"
+[输入文本], 定位器: "input[name='username']", 文本: "admin"
+[清空文本], 定位器: "textarea"
+[选择选项], 定位器: "select", 值: "选项1"
+[上传文件], 定位器: "input[type='file']", 文件路径: "test.jpg"
+```
 
-- **点击元素**：点击指定元素
-- **双击元素**：双击指定元素
-- **右键点击元素**：右键点击指定元素
-- **输入文本**：在输入框中输入文本
-- **清空文本**：清空输入框内容
-- **选择选项**：在下拉框中选择选项
-- **上传文件**：上传文件到文件输入框
+### 等待与断言
+```dsl
+[等待元素出现], 定位器: ".loading"
+[等待元素消失], 定位器: ".spinner" 
+[等待文本出现], 文本: "加载完成"
+[断言元素存在], 定位器: ".success"
+[断言文本内容], 定位器: "h1", 预期文本: "欢迎"
+[断言元素可见], 定位器: "button"
+```
 
-### 元素查找与等待
+## 🔄 Playwright脚本转换
 
-- **等待元素出现**：等待元素在页面中出现
-- **等待元素消失**：等待元素从页面中消失
-- **等待文本出现**：等待指定文本在页面中出现
-- **获取元素文本**：获取元素的文本内容
-- **获取元素属性**：获取元素的指定属性值
+将Playwright录制的脚本一键转换为DSL格式：
 
-### UI断言
+```bash
+# 转换Playwright脚本
+python -m pytest_dsl_ui.utils.playwright_converter input.py -o output.dsl
+```
 
-- **断言元素存在**：断言元素在页面中存在
-- **断言元素不存在**：断言元素在页面中不存在
-- **断言文本内容**：断言元素包含指定文本
-- **断言元素可见**：断言元素在页面中可见
-- **断言元素启用**：断言元素处于启用状态
+**转换前（Playwright）：**
+```python
+page.get_by_role("cell", name="外到内").locator("label").first.click()
+page.get_by_text("专家模式", exact=True).click()
+```
 
-### 截图与录制
+**转换后（DSL）：**
+```dsl
+[点击元素], 定位器: "role=cell:外到内&locator=label&first=true"
+[点击元素], 定位器: "text=专家模式,exact=true"
+```
 
-- **截图**：对当前页面或指定元素截图
-- **开始录制**：开始录制浏览器操作
-- **停止录制**：停止录制并保存视频
+## 📝 实战示例
+
+### 登录测试
+```dsl
+@name: "用户登录测试"
+
+[启动浏览器], 浏览器: "chromium"
+[打开页面], 地址: "https://example.com/login"
+
+# 输入用户名密码
+[输入文本], 定位器: "label=用户名", 文本: "admin"
+[输入文本], 定位器: "placeholder=请输入密码", 文本: "123456"
+
+# 点击登录按钮
+[点击元素], 定位器: "role=button:登录"
+
+# 验证登录成功
+[等待文本出现], 文本: "欢迎"
+[断言元素存在], 定位器: "text=退出"
+[截图], 文件名: "login_success.png"
+
+[关闭浏览器]
+```
+
+### 表单操作
+```dsl
+@name: "复杂表单测试"
+
+[启动浏览器]
+[打开页面], 地址: "https://example.com/form"
+
+# 复合定位器示例
+[点击元素], 定位器: "role=cell:配置项&locator=button&first=true"
+[选择选项], 定位器: "label=类型&locator=select", 值: "高级"
+[输入文本], 定位器: "class=input-group:备注&locator=textarea", 文本: "测试数据"
+
+# 提交表单
+[点击元素], 定位器: "clickable=提交"
+[等待文本出现], 文本: "保存成功"
+
+[关闭浏览器]
+```
 
 ## 🔧 高级配置
 
-### 浏览器配置
-
+### 设置默认超时
 ```dsl
-# 自定义浏览器启动参数
-[启动浏览器], 浏览器: "chromium", 配置: '''
-    headless: false
-    viewport:
-        width: 1920
-        height: 1080
-    args:
-        - "--disable-web-security"
-        - "--disable-features=VizDisplayCompositor"
-'''
+[设置等待超时], 超时时间: 30  # 30秒
 ```
 
-## 🌐 远程执行支持
-
-pytest-dsl-ui完全支持pytest-dsl的远程关键字模式：
-
-```bash
-# 启动远程关键字服务器
-pytest-dsl-server --host 0.0.0.0 --port 8270
-
-# 在DSL中使用远程UI关键字
-[注册远程服务器], 别名: "ui_server", 地址: "http://remote-host:8270"
-[ui_server|启动浏览器], 浏览器: "chromium"
-[ui_server|打开页面], 地址: "https://www.example.com"
+### 浏览器选项
+```dsl
+[启动浏览器], 浏览器: "firefox", 无头模式: true, 视口宽度: 1920, 视口高度: 1080
 ```
 
-## 🤝 贡献
+## 📚 更多资源
 
-欢迎提交Issue和Pull Request来改进这个项目！
+- 📖 [完整文档](https://github.com/your-repo/pytest-dsl-ui/docs)
+- 🐛 [问题反馈](https://github.com/your-repo/pytest-dsl-ui/issues)
+- 💡 [示例集合](https://github.com/your-repo/pytest-dsl-ui/examples)
 
-## �� 许可证
+---
 
-MIT License
+**💡 提示**：定位器是框架的核心，熟练掌握各种定位器的使用是提高测试效率的关键！

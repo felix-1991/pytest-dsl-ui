@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Playwright-based UI automation keywords for pytest-dsl framework"
 readme = "README.md"
 requires-python = ">=3.9"
-license = {text = "MIT"}
+license = "MIT"
 authors = [
     {name = "Chen Shuanglin"}
 ]
@@ -19,7 +19,6 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 dependencies = [
@@ -27,11 +26,17 @@ dependencies = [
     "playwright>=1.40.0",
     "allure-pytest>=2.9.0",
     "Pillow>=9.0.0",  # 用于截图处理
+    "ddddocr>=1.4.11",  # 用于验证码识别
 ]
 
 # 声明entry_points，让pytest-dsl自动发现这个插件
 [project.entry-points."pytest_dsl.keywords"]
 ui_keywords = "pytest_dsl_ui"
+
+# 添加控制台脚本入口点
+[project.scripts]
+pw2dsl = "pytest_dsl_ui.utils.playwright_converter:main"
+playwright2dsl = "pytest_dsl_ui.utils.playwright_converter:main"
 
 [project.urls]
 "Homepage" = "https://github.com/felix-1991/pytest-dsl-ui"
@@ -44,3 +49,11 @@ dev = [
     "black>=22.0.0",
     "flake8>=5.0.0",
 ]
+
+[tool.setuptools]
+packages = {find = {where = ["."], include = ["pytest_dsl_ui*"]}}
+
+
+[[tool.uv.index]]
+name = "tuna"
+url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"

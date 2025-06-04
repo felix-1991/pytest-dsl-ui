@@ -3,10 +3,8 @@
 提供更多元素操作功能，如选择、上传、等待、获取属性等。
 """
 
-import asyncio
 import logging
 import allure
-from typing import Optional, List, Union
 
 from pytest_dsl.core.keyword_manager import keyword_manager
 from ..core.browser_manager import browser_manager
@@ -58,20 +56,22 @@ def select_option(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            # Playwright会自动等待元素可交互，无需显式等待
-            # 使用优化的异步执行方式
-            async def _select_async():
-                timeout_ms = int(timeout * 1000) if timeout else 30000  # 默认30秒超时
-                if value is not None:
-                    await element.select_option(value=value, timeout=timeout_ms)
-                elif label is not None:
-                    await element.select_option(label=label, timeout=timeout_ms)
-                elif index is not None:
-                    await element.select_option(index=int(index), timeout=timeout_ms)
+            # 使用Playwright的智能等待机制
+            timeout_ms = int(timeout * 1000) if timeout else 30000
+            if value is not None:
+                element.select_option(value=value, timeout=timeout_ms)
+            elif label is not None:
+                element.select_option(label=label, timeout=timeout_ms)
+            elif index is not None:
+                element.select_option(
+                    index=int(index), timeout=timeout_ms
+                )
 
-            locator._run_async(_select_async())
-
-            selection_info = f"值: {value}" if value else f"标签: {label}" if label else f"索引: {index}"
+            selection_info = (
+                f"值: {value}" if value 
+                else f"标签: {label}" if label 
+                else f"索引: {index}"
+            )
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -141,13 +141,11 @@ def upload_file(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            # Playwright会自动等待元素可交互，无需显式等待
-            # 使用优化的异步执行方式
-            async def _upload_async():
-                timeout_ms = int(timeout * 1000) if timeout else 30000  # 默认30秒超时
-                await element.set_input_files(file_path, timeout=timeout_ms)
-
-            locator._run_async(_upload_async())
+            # 使用Playwright的智能等待机制
+            timeout_ms = int(timeout * 1000) if timeout else 30000
+            element.set_input_files(
+                file_path, timeout=timeout_ms
+            )
 
             allure.attach(
                 f"定位器: {selector}\n"

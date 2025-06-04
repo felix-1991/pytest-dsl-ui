@@ -10,6 +10,8 @@ from . import element_keywords
 from . import element_keywords_extended
 from . import assertion_keywords
 from . import capture_keywords
+from . import captcha_keywords
+from . import network_keywords
 
 __all__ = [
     'browser_keywords',
@@ -17,5 +19,7 @@ __all__ = [
     'element_keywords',
     'element_keywords_extended',
     'assertion_keywords',
-    'capture_keywords'
+    'capture_keywords',
+    'captcha_keywords',
+    'network_keywords'
 ]
