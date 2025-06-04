@@ -340,21 +340,93 @@ class ImprovedElementLocator:
         Returns:
             bool: 是否在超时时间内达到指定状态
         """
-        locator = self.locate(selector)
         timeout_ms = int((timeout * 1000) if timeout else self.default_timeout)
 
         try:
-            locator.wait_for(state=state, timeout=timeout_ms)
-            return True
+            # 特殊处理clickable定位器，确保与click操作行为一致
+            if selector.startswith("clickable="):
+                text = selector[10:]  # 移除"clickable="前缀
+                
+                # 对于clickable定位器，我们需要确保元素不仅存在，还要可点击
+                # 这与_locate_clickable_element的逻辑保持一致
+                clickable_selectors = [
+                    f"button:has-text('{text}')",
+                    f"a:has-text('{text}')", 
+                    f"[role='button']:has-text('{text}')",
+                    f"[role='link']:has-text('{text}')",
+                    f"[role='menuitem']:has-text('{text}')"
+                ]
+                
+                # 首先尝试明确的可点击元素
+                for css_selector in clickable_selectors:
+                    locator = self.page.locator(css_selector)
+                    if locator.count() > 0:
+                        locator.first.wait_for(state=state, timeout=timeout_ms)
+                        return True
+                
+                # 如果没有找到明确的可点击元素，尝试文本匹配
+                text_locator = self.page.get_by_text(text, exact=True)
+                if text_locator.count() > 0:
+                    # 对于多个匹配，优先选择span或div元素
+                    if text_locator.count() > 1:
+                        span_locator = self.page.locator(
+                            f"span:has-text('{text}')")
+                        if span_locator.count() > 0:
+                            span_locator.first.wait_for(
+                                state=state, timeout=timeout_ms)
+                            return True
+                        
+                        div_locator = self.page.locator(
+                            f"div:has-text('{text}')")
+                        if div_locator.count() > 0:
+                            div_locator.first.wait_for(
+                                state=state, timeout=timeout_ms)
+                            return True
+                    
+                    # 使用第一个匹配的元素
+                    text_locator.first.wait_for(
+                        state=state, timeout=timeout_ms)
+                    return True
+                else:
+                    # 尝试模糊匹配
+                    fuzzy_locator = self.page.get_by_text(text)
+                    if fuzzy_locator.count() > 0:
+                        fuzzy_locator.first.wait_for(
+                            state=state, timeout=timeout_ms)
+                        return True
+                    
+                return False
+            else:
+                # 对于其他类型的定位器，使用标准等待逻辑
+                locator = self.locate(selector)
+                locator.wait_for(state=state, timeout=timeout_ms)
+                return True
+                
         except PlaywrightTimeoutError:
-            logger.warning(f"等待元素超时: {selector}, 状态: {state}, 超时: {timeout_ms}ms")
+            logger.warning(
+                f"等待元素超时: {selector}, 状态: {state}, "
+                f"超时: {timeout_ms}ms"
+            )
+            return False
+        except Exception as e:
+            # 记录其他异常信息，但仍然返回False而不是抛出异常
+            logger.warning(
+                f"等待元素时发生异常: {selector}, 错误: {str(e)}"
+            )
             return False
 
     def is_element_visible(self, selector: str) -> bool:
         """检查元素是否可见"""
         try:
-            locator = self.locate(selector)
-            return locator.first.is_visible() if locator.count() > 0 else False
+            # 特殊处理clickable定位器，确保与其他操作行为一致
+            if selector.startswith("clickable="):
+                # 使用_locate_clickable_element方法获取智能定位的元素
+                locator = self._locate_clickable_element(selector[10:])
+                return locator.is_visible() if locator.count() > 0 else False
+            else:
+                locator = self.locate(selector)
+                return (locator.first.is_visible() 
+                       if locator.count() > 0 else False)
         except Exception as e:
             logger.debug(f"检查元素可见性失败: {selector}, 错误: {e}")
             return False
@@ -362,8 +434,15 @@ class ImprovedElementLocator:
     def is_element_enabled(self, selector: str) -> bool:
         """检查元素是否启用"""
         try:
-            locator = self.locate(selector)
-            return locator.first.is_enabled() if locator.count() > 0 else False
+            # 特殊处理clickable定位器，确保与其他操作行为一致
+            if selector.startswith("clickable="):
+                # 使用_locate_clickable_element方法获取智能定位的元素
+                locator = self._locate_clickable_element(selector[10:])
+                return locator.is_enabled() if locator.count() > 0 else False
+            else:
+                locator = self.locate(selector)
+                return (locator.first.is_enabled() 
+                       if locator.count() > 0 else False)
         except Exception as e:
             logger.debug(f"检查元素启用状态失败: {selector}, 错误: {e}")
             return False

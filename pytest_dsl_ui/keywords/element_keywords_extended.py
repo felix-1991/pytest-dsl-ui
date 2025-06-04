@@ -68,8 +68,8 @@ def select_option(**kwargs):
                 )
 
             selection_info = (
-                f"值: {value}" if value 
-                else f"标签: {label}" if label 
+                f"值: {value}" if value
+                else f"标签: {label}" if label
                 else f"索引: {index}"
             )
 
@@ -181,8 +181,11 @@ def upload_file(**kwargs):
 
 @keyword_manager.register('等待元素出现', [
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
-    {'name': '状态', 'mapping': 'state', 'description': '等待状态：visible, hidden, attached, detached'},
+    {'name': '状态', 'mapping': 'state',
+     'description': '等待状态：visible, hidden, attached, detached'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '失败时抛异常', 'mapping': 'raise_on_timeout',
+     'description': '等待超时时是否抛出异常，默认为false'},
 ])
 def wait_for_element(**kwargs):
     """等待元素出现或达到指定状态
@@ -191,6 +194,7 @@ def wait_for_element(**kwargs):
         selector: 元素定位器
         state: 等待状态
         timeout: 超时时间
+        raise_on_timeout: 超时时是否抛出异常
 
     Returns:
         dict: 操作结果
@@ -198,6 +202,7 @@ def wait_for_element(**kwargs):
     selector = kwargs.get('selector')
     state = kwargs.get('state', 'visible')
     timeout = kwargs.get('timeout')
+    raise_on_timeout = kwargs.get('raise_on_timeout', False)
 
     if not selector:
         raise ValueError("定位器参数不能为空")
@@ -211,7 +216,8 @@ def wait_for_element(**kwargs):
                 f"定位器: {selector}\n"
                 f"等待状态: {state}\n"
                 f"超时时间: {timeout or '默认'}秒\n"
-                f"等待结果: {'成功' if result else '超时'}",
+                f"等待结果: {'成功' if result else '超时'}\n"
+                f"失败时抛异常: {raise_on_timeout}",
                 name="元素等待信息",
                 attachment_type=allure.attachment_type.TEXT
             )
@@ -220,6 +226,13 @@ def wait_for_element(**kwargs):
                 logger.info(f"元素等待成功: {selector} ({state})")
             else:
                 logger.warning(f"元素等待超时: {selector} ({state})")
+
+                # 如果设置了失败时抛异常，则抛出异常
+                if raise_on_timeout:
+                    raise TimeoutError(
+                        f"等待元素超时: {selector} (状态: {state}, "
+                        f"超时时间: {timeout or '默认'}秒)"
+                    )
 
             # 统一返回格式 - 支持远程关键字模式
             return {
@@ -230,6 +243,7 @@ def wait_for_element(**kwargs):
                     "selector": selector,
                     "state": state,
                     "timeout": timeout,
+                    "raise_on_timeout": raise_on_timeout,
                     "operation": "wait_for_element"
                 }
             }
@@ -247,6 +261,8 @@ def wait_for_element(**kwargs):
 @keyword_manager.register('等待文本出现', [
     {'name': '文本', 'mapping': 'text', 'description': '要等待的文本内容'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '失败时抛异常', 'mapping': 'raise_on_timeout',
+     'description': '等待超时时是否抛出异常，默认为false'},
 ])
 def wait_for_text(**kwargs):
     """等待文本在页面中出现
@@ -254,12 +270,14 @@ def wait_for_text(**kwargs):
     Args:
         text: 要等待的文本
         timeout: 超时时间
+        raise_on_timeout: 超时时是否抛出异常
 
     Returns:
         dict: 操作结果
     """
     text = kwargs.get('text')
     timeout = kwargs.get('timeout')
+    raise_on_timeout = kwargs.get('raise_on_timeout', False)
 
     if not text:
         raise ValueError("文本参数不能为空")
@@ -272,7 +290,8 @@ def wait_for_text(**kwargs):
             allure.attach(
                 f"等待文本: {text}\n"
                 f"超时时间: {timeout or '默认'}秒\n"
-                f"等待结果: {'成功' if result else '超时'}",
+                f"等待结果: {'成功' if result else '超时'}\n"
+                f"失败时抛异常: {raise_on_timeout}",
                 name="文本等待信息",
                 attachment_type=allure.attachment_type.TEXT
             )
@@ -282,6 +301,13 @@ def wait_for_text(**kwargs):
             else:
                 logger.warning(f"文本等待超时: {text}")
 
+                # 如果设置了失败时抛异常，则抛出异常
+                if raise_on_timeout:
+                    raise TimeoutError(
+                        f"等待文本超时: {text} "
+                        f"(超时时间: {timeout or '默认'}秒)"
+                    )
+
             # 统一返回格式 - 支持远程关键字模式
             return {
                 "result": result,
@@ -290,6 +316,7 @@ def wait_for_text(**kwargs):
                 "metadata": {
                     "text": text,
                     "timeout": timeout,
+                    "raise_on_timeout": raise_on_timeout,
                     "operation": "wait_for_text"
                 }
             }

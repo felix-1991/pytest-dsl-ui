@@ -877,11 +877,14 @@ def check_element_visible(**kwargs):
             
             if is_visible:
                 # 再次确认元素真的可见（有时需要等待）
+                # 使用与断言相同的逻辑确保一致性
                 try:
                     expect(element).to_be_visible(timeout=int(timeout * 1000))
                     result = True
                 except Exception:
-                    result = False
+                    # 如果expect失败，但is_visible为True，说明元素可见但可能不稳定
+                    # 使用is_element_visible方法再次检查（支持智能定位器）
+                    result = locator.is_element_visible(selector)
             else:
                 result = False
 
@@ -908,17 +911,27 @@ def check_element_visible(**kwargs):
 
         except Exception as e:
             logger.error(f"元素可见性检查异常: {selector} - {str(e)}")
+            # 对于检查类方法，异常时应该返回False而不是抛出异常
+            # 但同时使用is_element_visible做最后尝试
+            try:
+                locator = _get_current_locator()
+                result = locator.is_element_visible(selector)
+                logger.info(f"使用备用方法检查元素可见性: {selector} -> {'可见' if result else '不可见'}")
+            except Exception:
+                result = False
+            
             allure.attach(
                 f"定位器: {selector}\n"
                 f"超时时间: {timeout}秒\n"
-                f"检查结果: 异常 - {str(e)}",
+                f"检查结果: {'可见' if result else '异常 - 不可见'}\n"
+                f"异常信息: {str(e)}",
                 name="元素可见性检查异常",
                 attachment_type=allure.attachment_type.TEXT
             )
             
             return {
-                "result": False,
-                "captures": {"is_visible": False, "error": str(e)},
+                "result": result,
+                "captures": {"is_visible": result, "error": str(e)},
                 "session_state": {},
                 "metadata": {
                     "selector": selector,
