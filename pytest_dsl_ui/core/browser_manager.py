@@ -5,7 +5,7 @@
 """
 
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Optional
 from playwright.sync_api import (
     sync_playwright, Browser, BrowserContext, Page, Playwright
 )
@@ -86,7 +86,7 @@ class BrowserManager:
 
         Args:
             browser_id: 浏览器ID，如果为None则使用当前浏览器
-            **config: 上下文配置
+            **config: 上下文配置，支持storage_state参数加载认证状态
 
         Returns:
             str: 上下文ID
@@ -131,12 +131,21 @@ class BrowserManager:
         if ignore_https_errors:
             context_config["ignore_https_errors"] = True
 
+        # 认证状态配置
+        if "storage_state" in config:
+            context_config["storage_state"] = config["storage_state"]
+            logger.info("将使用认证状态创建浏览器上下文")
+
         context = browser.new_context(**context_config)
 
         # 生成上下文ID
         context_id = f"{browser_id}_ctx_{len(self.contexts)}"
         self.contexts[context_id] = context
         self.current_context = context_id
+
+        # 标记上下文是否支持HTTPS证书错误忽略
+        if context_config.get('ignore_https_errors', False):
+            setattr(context, '_ignore_https_errors', True)
 
         logger.info(f"已创建浏览器上下文: {context_id}")
         return context_id

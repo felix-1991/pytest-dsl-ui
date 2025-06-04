@@ -12,6 +12,7 @@ from . import assertion_keywords
 from . import capture_keywords
 from . import captcha_keywords
 from . import network_keywords
+from . import auth_keywords
 
 __all__ = [
     'browser_keywords',
@@ -21,5 +22,6 @@ __all__ = [
     'assertion_keywords',
     'capture_keywords',
     'captcha_keywords',
-    'network_keywords'
+    'network_keywords',
+    'auth_keywords'
 ]
