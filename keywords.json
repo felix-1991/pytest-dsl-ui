@@ -1,0 +1,2091 @@
+{
+  "summary": {
+    "total_count": 99,
+    "category_counts": {
+      "builtin": 18,
+      "custom": 81
+    }
+  },
+  "keywords": [
+    {
+      "name": "HTTP请求",
+      "category": "builtin",
+      "parameters": [
+        {
+          "name": "客户端",
+          "mapping": "client",
+          "description": "客户端名称，对应YAML变量文件中的客户端配置",
+          "default": "default"
+        },
+        {
+          "name": "配置",
+          "mapping": "config",
+          "description": "包含请求、捕获和断言的YAML配置"
+        },
+        {
+          "name": "会话",
+          "mapping": "session",
+          "description": "会话名称，用于在多个请求间保持会话状态"
+        },
+        {
+          "name": "保存响应",
+          "mapping": "save_response",
+          "description": "将完整响应保存到指定变量名中"
+        },
+        {
+          "name": "禁用授权",
+          "mapping": "disable_auth",
+          "description": "禁用客户端配置中的授权机制",
+          "default": false
+        },
+        {
+          "name": "模板",
+          "mapping": "template",
+          "description": "使用YAML变量文件中定义的请求模板"
+        },
+        {
+          "name": "断言重试次数",
+          "mapping": "assert_retry_count",
+          "description": "断言失败时的重试次数",
+          "default": 0
+        },
+        {
+          "name": "断言重试间隔",
+          "mapping": "assert_retry_interval",
+          "description": "断言重试间隔时间（秒）",
+          "default": 1
+        }
+      ],
+      "documentation": "执行HTTP请求\n\n    根据YAML配置发送HTTP请求，支持客户端配置、会话管理、响应捕获和断言。\n\n    Args:\n        context: 测试上下文\n        client: 客户端名称\n        config: YAML配置\n        session: 会话名称\n        save_response: 保存响应的变量名\n        disable_auth: 禁用客户端配置中的授权机制\n        template: 模板名称\n        assert_retry_count: 断言失败时的重试次数\n        assert_retry_interval: 断言重试间隔时间（秒）\n\n    Returns:\n        捕获的变量字典或响应对象"
+    },
+    {
+      "name": "JSON提取",
+      "category": "builtin",
+      "parameters": [
+        {
+          "name": "JSON数据",
+          "mapping": "json_data",
+          "description": "JSON数据（字符串或对象）"
+        },
+        {
+          "name": "JSONPath",
+          "mapping": "jsonpath",
+          "description": "JSONPath表达式"
+        },
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "存储提取值的变量名"
+        }
+      ],
+      "documentation": "从JSON数据中提取值并保存到变量\n\n    Args:\n        json_data: JSON数据（字符串或对象）\n        jsonpath: JSONPath表达式\n        variable: 存储提取值的变量名\n        context: 测试上下文\n\n    Returns:\n        提取的值或包含提取值的字典（远程模式）\n\n    Raises:\n        ValueError: 如果JSONPath无效或找不到匹配项"
+    },
+    {
+      "name": "JSON断言",
+      "category": "builtin",
+      "parameters": [
+        {
+          "name": "JSON数据",
+          "mapping": "json_data",
+          "description": "JSON数据（字符串或对象）"
+        },
+        {
+          "name": "JSONPath",
+          "mapping": "jsonpath",
+          "description": "JSONPath表达式"
+        },
+        {
+          "name": "预期值",
+          "mapping": "expected_value",
+          "description": "预期的值"
+        },
+        {
+          "name": "操作符",
+          "mapping": "operator",
+          "description": "比较操作符",
+          "default": "=="
+        },
+        {
+          "name": "消息",
+          "mapping": "message",
+          "description": "断言失败时的错误消息",
+          "default": "JSON断言失败"
+        }
+      ],
+      "documentation": "执行JSON断言\n\n    Args:\n        json_data: JSON数据（字符串或对象）\n        jsonpath: JSONPath表达式\n        expected_value: 预期的值\n        operator: 比较操作符，默认为\"==\"\n        message: 断言失败时的错误消息\n\n    Returns:\n        断言结果 (True/False)\n\n    Raises:\n        AssertionError: 如果断言失败\n        ValueError: 如果JSONPath无效或找不到匹配项"
+    },
+    {
+      "name": "上传文件",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "文件输入框元素定位器"
+        },
+        {
+          "name": "文件路径",
+          "mapping": "file_path",
+          "description": "要上传的文件路径"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）"
+        }
+      ],
+      "documentation": "上传文件\n\n    Args:\n        selector: 文件输入框定位器\n        file_path: 文件路径\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "保存认证状态",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "状态名称",
+          "mapping": "state_name",
+          "description": "认证状态名称"
+        },
+        {
+          "name": "用户名",
+          "mapping": "username",
+          "description": "用户名（元数据）"
+        },
+        {
+          "name": "描述",
+          "mapping": "description",
+          "description": "状态描述（元数据）"
+        },
+        {
+          "name": "包含IndexedDB",
+          "mapping": "include_indexed_db",
+          "description": "是否包含IndexedDB数据",
+          "default": true
+        }
+      ],
+      "documentation": "保存当前的认证状态\n\n    Args:\n        state_name: 认证状态名称\n        username: 用户名\n        description: 状态描述\n        include_indexed_db: 是否包含IndexedDB数据\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "停止录制",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存录制路径的变量名"
+        }
+      ],
+      "documentation": "停止录制视频\n\n    Args:\n        variable: 变量名\n\n    Returns:\n        dict: 包含录制路径的字典"
+    },
+    {
+      "name": "停止网络监听",
+      "category": "custom",
+      "parameters": [],
+      "documentation": "停止监听网络请求和响应\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "关闭浏览器",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "浏览器ID",
+          "mapping": "browser_id",
+          "description": "要关闭的浏览器ID，如果不指定则关闭当前浏览器"
+        }
+      ],
+      "documentation": "关闭浏览器\n\n    Args:\n        browser_id: 浏览器ID\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "切换页面",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "页面ID",
+          "mapping": "page_id",
+          "description": "要切换到的页面ID"
+        }
+      ],
+      "documentation": "切换页面\n\n    Args:\n        page_id: 页面ID\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "列出认证状态",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存状态列表的变量名"
+        }
+      ],
+      "documentation": "列出所有认证状态\n\n    Args:\n        variable: 变量名\n\n    Returns:\n        dict: 包含状态列表的字典"
+    },
+    {
+      "name": "删除全局变量",
+      "category": "builtin",
+      "parameters": [
+        {
+          "name": "变量名",
+          "mapping": "name",
+          "description": "全局变量的名称"
+        }
+      ],
+      "documentation": "删除全局变量"
+    },
+    {
+      "name": "删除认证状态",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "状态名称",
+          "mapping": "state_name",
+          "description": "要删除的认证状态名称"
+        }
+      ],
+      "documentation": "删除认证状态\n\n    Args:\n        state_name: 认证状态名称\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "刷新页面",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "等待条件",
+          "mapping": "wait_until",
+          "description": "等待条件：load, domcontentloaded, networkidle",
+          "default": "load"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "刷新页面\n\n    Args:\n        wait_until: 等待条件\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "前进",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "等待条件",
+          "mapping": "wait_until",
+          "description": "等待条件：load, domcontentloaded, networkidle",
+          "default": "load"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "浏览器前进\n\n    Args:\n        wait_until: 等待条件\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "加载认证状态",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "状态名称",
+          "mapping": "state_name",
+          "description": "要加载的认证状态名称"
+        },
+        {
+          "name": "创建新上下文",
+          "mapping": "new_context",
+          "description": "是否创建新的浏览器上下文",
+          "default": true
+        },
+        {
+          "name": "验证登录",
+          "mapping": "verify_login",
+          "description": "是否验证登录状态",
+          "default": true
+        }
+      ],
+      "documentation": "加载保存的认证状态\n\n    Args:\n        state_name: 认证状态名称\n        new_context: 是否创建新的浏览器上下文\n        verify_login: 是否验证登录状态\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "勾选复选框",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "复选框元素定位器（CSS选择器、XPath、文本等）"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "勾选复选框\n\n    Args:\n        selector: 复选框定位器\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "双击元素",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器（CSS选择器、XPath、文本等）"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "双击元素\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "取消勾选复选框",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "复选框元素定位器（CSS选择器、XPath、文本等）"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "取消勾选复选框\n\n    Args:\n        selector: 复选框定位器\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "右键点击元素",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器（CSS选择器、XPath、文本等）"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "右键点击元素\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "后退",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "等待条件",
+          "mapping": "wait_until",
+          "description": "等待条件：load, domcontentloaded, networkidle",
+          "default": "load"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "浏览器后退\n\n    Args:\n        wait_until: 等待条件\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "启动浏览器",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "浏览器",
+          "mapping": "browser_type",
+          "description": "浏览器类型：chromium, firefox, webkit",
+          "default": "chromium"
+        },
+        {
+          "name": "无头模式",
+          "mapping": "headless",
+          "description": "是否以无头模式运行",
+          "default": false
+        },
+        {
+          "name": "慢动作",
+          "mapping": "slow_mo",
+          "description": "操作间隔时间（毫秒），用于调试",
+          "default": 0
+        },
+        {
+          "name": "配置",
+          "mapping": "config",
+          "description": "浏览器启动配置（YAML格式）",
+          "default": "{}"
+        },
+        {
+          "name": "视口宽度",
+          "mapping": "width",
+          "description": "浏览器视口宽度"
+        },
+        {
+          "name": "视口高度",
+          "mapping": "height",
+          "description": "浏览器视口高度"
+        },
+        {
+          "name": "忽略证书错误",
+          "mapping": "ignore_https_errors",
+          "description": "是否忽略HTTPS证书错误",
+          "default": true
+        }
+      ],
+      "documentation": "启动浏览器\n\n    Args:\n        browser_type: 浏览器类型\n        headless: 是否无头模式\n        slow_mo: 慢动作间隔\n        config: 配置字符串\n        width: 视口宽度\n        height: 视口高度\n        ignore_https_errors: 是否忽略HTTPS证书错误\n\n    Returns:\n        dict: 包含浏览器ID和相关信息的字典"
+    },
+    {
+      "name": "多条件检查",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "检查条件列表",
+          "mapping": "conditions",
+          "description": "包含多个检查条件的列表"
+        },
+        {
+          "name": "逻辑关系",
+          "mapping": "logic",
+          "description": "AND或OR逻辑关系"
+        }
+      ],
+      "documentation": "执行多个条件检查并根据逻辑关系返回结果\n\n    Args:\n        conditions: 检查条件列表，每个条件包含type和参数\n        logic: 逻辑关系，'AND'或'OR'\n\n    Returns:\n        dict: 包含boolean结果的操作结果\n\n    示例:\n        conditions = [\n            {\"type\": \"element_visible\", \"selector\": \"#login-button\"},\n            {\"type\": \"text_contains\", \"selector\": \"#message\", \n             \"expected_text\": \"欢迎\"}\n        ]"
+    },
+    {
+      "name": "字符串操作",
+      "category": "builtin",
+      "parameters": [
+        {
+          "name": "操作",
+          "mapping": "operation",
+          "description": "操作类型：拼接(concat)、替换(replace)、分割(split)、大写(upper)、小写(lower)、去空格(strip)",
+          "default": "strip"
+        },
+        {
+          "name": "字符串",
+          "mapping": "string",
+          "description": "要操作的字符串"
+        },
+        {
+          "name": "参数1",
+          "mapping": "param1",
+          "description": "操作参数1，根据操作类型不同而不同",
+          "default": ""
+        },
+        {
+          "name": "参数2",
+          "mapping": "param2",
+          "description": "操作参数2，根据操作类型不同而不同",
+          "default": ""
+        }
+      ],
+      "documentation": "字符串操作\n\n    Args:\n        operation: 操作类型，默认为strip（去空格）\n        string: 要操作的字符串\n        param1: 操作参数1，默认为空字符串\n        param2: 操作参数2，默认为空字符串\n\n    Returns:\n        str: 操作结果"
+    },
+    {
+      "name": "开始录制",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "文件名",
+          "mapping": "filename",
+          "description": "录制文件名，如果不指定则自动生成"
+        },
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存录制路径的变量名"
+        }
+      ],
+      "documentation": "开始录制视频\n\n    Args:\n        filename: 文件名\n        variable: 变量名\n\n    Returns:\n        dict: 包含录制路径的字典"
+    },
+    {
+      "name": "开始网络监听",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存监听器状态的变量名"
+        }
+      ],
+      "documentation": "开始监听网络请求和响应\n\n    Args:\n        variable: 变量名\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "悬停元素",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器（CSS选择器、XPath、文本等）"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "悬停在元素上\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "截图",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "文件名",
+          "mapping": "filename",
+          "description": "截图文件名，如果不指定则自动生成"
+        },
+        {
+          "name": "元素定位器",
+          "mapping": "element_selector",
+          "description": "如果指定则只截取该元素"
+        },
+        {
+          "name": "全页面",
+          "mapping": "full_page",
+          "description": "是否截取整个页面（包括滚动区域）",
+          "default": false
+        },
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存截图路径的变量名"
+        }
+      ],
+      "documentation": "截图\n\n    Args:\n        filename: 文件名\n        element_selector: 元素定位器\n        full_page: 是否全页面截图\n        variable: 变量名\n\n    Returns:\n        dict: 包含截图路径的字典"
+    },
+    {
+      "name": "打印",
+      "category": "builtin",
+      "parameters": [
+        {
+          "name": "内容",
+          "mapping": "content",
+          "description": "要打印的文本内容"
+        }
+      ]
+    },
+    {
+      "name": "打开页面",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "地址",
+          "mapping": "url",
+          "description": "要打开的页面URL"
+        },
+        {
+          "name": "等待条件",
+          "mapping": "wait_until",
+          "description": "等待条件：load, domcontentloaded, networkidle",
+          "default": "load"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        },
+        {
+          "name": "忽略证书错误",
+          "mapping": "ignore_https_errors",
+          "description": "是否忽略HTTPS证书错误",
+          "default": true
+        }
+      ],
+      "documentation": "打开页面\n\n    Args:\n        url: 页面URL\n        wait_until: 等待条件\n        timeout: 超时时间\n        ignore_https_errors: 是否忽略HTTPS证书错误\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "执行JavaScript",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "脚本",
+          "mapping": "script",
+          "description": "JavaScript代码"
+        },
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存执行结果的变量名"
+        }
+      ],
+      "documentation": "执行JavaScript代码\n\n    Args:\n        script: JavaScript代码\n        variable: 变量名\n\n    Returns:\n        dict: 包含执行结果的字典"
+    },
+    {
+      "name": "执行命令",
+      "category": "builtin",
+      "parameters": [
+        {
+          "name": "命令",
+          "mapping": "command",
+          "description": "要执行的系统命令"
+        },
+        {
+          "name": "超时",
+          "mapping": "timeout",
+          "description": "命令执行超时时间（秒）",
+          "default": 60
+        },
+        {
+          "name": "捕获输出",
+          "mapping": "capture_output",
+          "description": "是否捕获命令输出",
+          "default": true
+        }
+      ],
+      "documentation": "执行系统命令\n\n    Args:\n        command: 要执行的系统命令\n        timeout: 命令执行超时时间（秒）\n        capture_output: 是否捕获命令输出\n\n    Returns:\n        dict: 包含返回码、标准输出和标准错误的字典"
+    },
+    {
+      "name": "拖拽元素",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "源定位器",
+          "mapping": "source_selector",
+          "description": "要拖拽的源元素定位器"
+        },
+        {
+          "name": "目标定位器",
+          "mapping": "target_selector",
+          "description": "拖拽目标元素定位器"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "拖拽元素到另一个元素\n\n    Args:\n        source_selector: 源元素定位器\n        target_selector: 目标元素定位器\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "按键操作",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器（CSS选择器、XPath、文本等）"
+        },
+        {
+          "name": "按键",
+          "mapping": "key",
+          "description": "按键名称或组合键（如Enter、Ctrl+A等）"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "按键操作\n\n    Args:\n        selector: 元素定位器\n        key: 按键名称或组合键\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "数据比较",
+      "category": "builtin",
+      "parameters": [
+        {
+          "name": "实际值",
+          "mapping": "actual",
+          "description": "实际值"
+        },
+        {
+          "name": "预期值",
+          "mapping": "expected",
+          "description": "预期值"
+        },
+        {
+          "name": "操作符",
+          "mapping": "operator",
+          "description": "比较操作符",
+          "default": "=="
+        },
+        {
+          "name": "消息",
+          "mapping": "message",
+          "description": "断言失败时的错误消息",
+          "default": "数据比较失败"
+        }
+      ],
+      "documentation": "比较两个值\n\n    Args:\n        actual: 实际值\n        expected: 预期值\n        operator: 比较操作符，默认为\"==\"\n        message: 断言失败时的错误消息\n\n    Returns:\n        比较结果 (True/False)\n\n    Raises:\n        AssertionError: 如果比较失败"
+    },
+    {
+      "name": "断言",
+      "category": "builtin",
+      "parameters": [
+        {
+          "name": "条件",
+          "mapping": "condition",
+          "description": "断言条件表达式，例如: \"${value} == 100\" 或 \"1 + 1 == 2\""
+        },
+        {
+          "name": "消息",
+          "mapping": "message",
+          "description": "断言失败时的错误消息",
+          "default": "断言失败"
+        }
+      ],
+      "documentation": "执行表达式断言\n\n    Args:\n        condition: 断言条件表达式\n        message: 断言失败时的错误消息\n\n    Returns:\n        断言结果 (True/False)\n\n    Raises:\n        AssertionError: 如果断言失败"
+    },
+    {
+      "name": "断言元素可见",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 5
+        },
+        {
+          "name": "消息",
+          "mapping": "message",
+          "description": "断言失败时的错误消息"
+        }
+      ],
+      "documentation": "断言元素可见\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间（秒）\n        message: 自定义错误消息\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "断言元素启用",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）"
+        },
+        {
+          "name": "消息",
+          "mapping": "message",
+          "description": "断言失败时的错误消息"
+        }
+      ],
+      "documentation": "断言元素启用\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间（秒）\n        message: 自定义错误消息\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "断言元素存在",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 5
+        },
+        {
+          "name": "消息",
+          "mapping": "message",
+          "description": "断言失败时的错误消息"
+        }
+      ],
+      "documentation": "断言元素存在\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间（秒）\n        message: 自定义错误消息\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "断言元素数量",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器"
+        },
+        {
+          "name": "期望数量",
+          "mapping": "expected_count",
+          "description": "期望的元素数量"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）"
+        },
+        {
+          "name": "消息",
+          "mapping": "message",
+          "description": "断言失败时的错误消息"
+        }
+      ],
+      "documentation": "断言元素数量\n\n    Args:\n        selector: 元素定位器\n        expected_count: 期望的元素数量\n        timeout: 超时时间（秒）\n        message: 自定义错误消息\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "断言元素禁用",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）"
+        },
+        {
+          "name": "消息",
+          "mapping": "message",
+          "description": "断言失败时的错误消息"
+        }
+      ],
+      "documentation": "断言元素禁用\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间（秒）\n        message: 自定义错误消息\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "断言元素隐藏",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 5
+        },
+        {
+          "name": "消息",
+          "mapping": "message",
+          "description": "断言失败时的错误消息"
+        }
+      ],
+      "documentation": "断言元素隐藏\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间（秒）\n        message: 自定义错误消息\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "断言响应内容",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "响应数据",
+          "mapping": "response_data",
+          "description": "响应数据（变量名或字典）"
+        },
+        {
+          "name": "断言类型",
+          "mapping": "assertion_type",
+          "description": "断言类型：status_code, json_path, text_contains"
+        },
+        {
+          "name": "期望值",
+          "mapping": "expected_value",
+          "description": "期望的值"
+        },
+        {
+          "name": "JSON路径",
+          "mapping": "json_path",
+          "description": "JSON路径（用于json_path断言）"
+        },
+        {
+          "name": "消息",
+          "mapping": "message",
+          "description": "断言失败时的错误消息"
+        }
+      ],
+      "documentation": "断言响应内容\n\n    Args:\n        response_data: 响应数据\n        assertion_type: 断言类型\n        expected_value: 期望值\n        json_path: JSON路径\n        message: 自定义错误消息\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "断言复选框状态",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "复选框定位器"
+        },
+        {
+          "name": "期望状态",
+          "mapping": "expected_checked",
+          "description": "期望的选中状态（True/False）"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 5
+        },
+        {
+          "name": "消息",
+          "mapping": "message",
+          "description": "断言失败时的错误消息"
+        }
+      ],
+      "documentation": "断言复选框状态\n\n    Args:\n        selector: 复选框定位器\n        expected_checked: 期望的选中状态\n        timeout: 超时时间（秒）\n        message: 自定义错误消息\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "断言属性值",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器"
+        },
+        {
+          "name": "属性名",
+          "mapping": "attribute_name",
+          "description": "属性名称"
+        },
+        {
+          "name": "期望值",
+          "mapping": "expected_value",
+          "description": "期望的属性值"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 5
+        },
+        {
+          "name": "消息",
+          "mapping": "message",
+          "description": "断言失败时的错误消息"
+        }
+      ],
+      "documentation": "断言元素属性值\n\n    Args:\n        selector: 元素定位器\n        attribute_name: 属性名称\n        expected_value: 期望的属性值\n        timeout: 超时时间（秒）\n        message: 自定义错误消息\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "断言文本内容",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器"
+        },
+        {
+          "name": "期望文本",
+          "mapping": "expected_text",
+          "description": "期望的文本内容"
+        },
+        {
+          "name": "匹配方式",
+          "mapping": "match_type",
+          "description": "完全匹配或包含匹配，匹配方式 - exact(完全匹配) 或 contains(包含匹配)",
+          "default": "exact"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 5
+        },
+        {
+          "name": "消息",
+          "mapping": "message",
+          "description": "断言失败时的错误消息"
+        }
+      ],
+      "documentation": "断言元素文本内容\n\n    Args:\n        selector: 元素定位器\n        expected_text: 期望的文本内容\n        match_type: 匹配方式 - exact(完全匹配) 或 contains(包含匹配)\n        timeout: 超时时间（秒）\n        message: 自定义错误消息\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "断言输入值",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "输入元素定位器"
+        },
+        {
+          "name": "期望值",
+          "mapping": "expected_value",
+          "description": "期望的输入值"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 5
+        },
+        {
+          "name": "消息",
+          "mapping": "message",
+          "description": "断言失败时的错误消息"
+        }
+      ],
+      "documentation": "断言输入元素的值\n\n    Args:\n        selector: 输入元素定位器\n        expected_value: 期望的输入值\n        timeout: 超时时间（秒）\n        message: 自定义错误消息\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "断言页面URL",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "期望URL",
+          "mapping": "expected_url",
+          "description": "期望的页面URL"
+        },
+        {
+          "name": "匹配方式",
+          "mapping": "match_type",
+          "description": "完全匹配或包含匹配"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）"
+        },
+        {
+          "name": "消息",
+          "mapping": "message",
+          "description": "断言失败时的错误消息"
+        }
+      ],
+      "documentation": "断言页面URL\n\n    Args:\n        expected_url: 期望的页面URL\n        match_type: 匹配方式 - exact(完全匹配) 或 contains(包含匹配)\n        timeout: 超时时间（秒）\n        message: 自定义错误消息\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "断言页面标题",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "期望标题",
+          "mapping": "expected_title",
+          "description": "期望的页面标题"
+        },
+        {
+          "name": "匹配方式",
+          "mapping": "match_type",
+          "description": "完全匹配或包含匹配"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）"
+        },
+        {
+          "name": "消息",
+          "mapping": "message",
+          "description": "断言失败时的错误消息"
+        }
+      ],
+      "documentation": "断言页面标题\n\n    Args:\n        expected_title: 期望的页面标题\n        match_type: 匹配方式 - exact(完全匹配) 或 contains(包含匹配)\n        timeout: 超时时间（秒）\n        message: 自定义错误消息\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "新建页面",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "上下文ID",
+          "mapping": "context_id",
+          "description": "浏览器上下文ID，如果不指定则使用当前上下文"
+        }
+      ],
+      "documentation": "新建页面\n\n    Args:\n        context_id: 上下文ID\n\n    Returns:\n        dict: 包含新页面ID的字典"
+    },
+    {
+      "name": "日志",
+      "category": "builtin",
+      "parameters": [
+        {
+          "name": "级别",
+          "mapping": "level",
+          "description": "日志级别：DEBUG, INFO, WARNING, ERROR, CRITICAL",
+          "default": "INFO"
+        },
+        {
+          "name": "消息",
+          "mapping": "message",
+          "description": "日志消息内容"
+        }
+      ],
+      "documentation": "记录日志\n\n    Args:\n        level: 日志级别\n        message: 日志消息内容"
+    },
+    {
+      "name": "检查元素属性值",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器"
+        },
+        {
+          "name": "属性名",
+          "mapping": "attribute_name",
+          "description": "属性名称"
+        },
+        {
+          "name": "期望值",
+          "mapping": "expected_value",
+          "description": "期望的属性值"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）"
+        }
+      ],
+      "documentation": "检查元素属性值是否匹配\n\n    Args:\n        selector: 元素定位器\n        attribute_name: 属性名称\n        expected_value: 期望的属性值\n        timeout: 超时时间（秒）\n\n    Returns:\n        dict: 包含boolean结果的操作结果"
+    },
+    {
+      "name": "检查元素是否可见",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）"
+        }
+      ],
+      "documentation": "检查元素是否可见\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间（秒）\n\n    Returns:\n        dict: 包含boolean结果的操作结果"
+    },
+    {
+      "name": "检查元素是否启用",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）"
+        }
+      ],
+      "documentation": "检查元素是否启用\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间（秒）\n\n    Returns:\n        dict: 包含boolean结果的操作结果"
+    },
+    {
+      "name": "检查元素是否存在",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）"
+        }
+      ],
+      "documentation": "检查元素是否存在\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间（秒）\n\n    Returns:\n        dict: 包含boolean结果的操作结果"
+    },
+    {
+      "name": "检查元素是否选中",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器"
+        }
+      ],
+      "documentation": "检查元素是否选中（复选框或单选框）\n\n    Args:\n        selector: 元素定位器\n\n    Returns:\n        dict: 包含布尔值结果的字典"
+    },
+    {
+      "name": "检查文本是否包含",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器"
+        },
+        {
+          "name": "期望文本",
+          "mapping": "expected_text",
+          "description": "期望包含的文本"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）"
+        }
+      ],
+      "documentation": "检查元素文本是否包含指定内容\n\n    Args:\n        selector: 元素定位器\n        expected_text: 期望包含的文本\n        timeout: 超时时间（秒）\n\n    Returns:\n        dict: 包含boolean结果的操作结果"
+    },
+    {
+      "name": "检查认证状态",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "状态名称",
+          "mapping": "state_name",
+          "description": "要检查的认证状态名称"
+        }
+      ],
+      "documentation": "检查认证状态是否存在\n\n    Args:\n        state_name: 认证状态名称\n\n    Returns:\n        dict: 包含检查结果的字典"
+    },
+    {
+      "name": "检查页面URL是否包含",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "期望URL片段",
+          "mapping": "url_fragment",
+          "description": "期望包含的URL片段"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）"
+        }
+      ],
+      "documentation": "检查页面URL是否包含指定片段\n\n    Args:\n        url_fragment: 期望包含的URL片段\n        timeout: 超时时间（秒）\n\n    Returns:\n        dict: 包含boolean结果的操作结果"
+    },
+    {
+      "name": "检查页面标题是否包含",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "期望标题片段",
+          "mapping": "title_fragment",
+          "description": "期望包含的标题片段"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）"
+        }
+      ],
+      "documentation": "检查页面标题是否包含指定片段\n\n    Args:\n        title_fragment: 期望包含的标题片段\n        timeout: 超时时间（秒）\n\n    Returns:\n        dict: 包含boolean结果的操作结果"
+    },
+    {
+      "name": "清理下载文件",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "下载目录",
+          "mapping": "download_directory",
+          "description": "要清理的下载目录",
+          "default": "downloads"
+        },
+        {
+          "name": "文件模式",
+          "mapping": "file_pattern",
+          "description": "要删除的文件模式（如 *.pdf）"
+        },
+        {
+          "name": "保留天数",
+          "mapping": "keep_days",
+          "description": "保留最近几天的文件",
+          "default": 0
+        }
+      ],
+      "documentation": "清理下载文件\n\n    Args:\n        download_directory: 下载目录\n        file_pattern: 文件模式\n        keep_days: 保留天数\n\n    Returns:\n        dict: 清理结果"
+    },
+    {
+      "name": "清空文本",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器（CSS选择器、XPath、文本等）"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "清空文本\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "清除所有全局变量",
+      "category": "builtin",
+      "parameters": [],
+      "documentation": "清除所有全局变量"
+    },
+    {
+      "name": "清除所有认证状态",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "确认清除",
+          "mapping": "confirm_clear",
+          "description": "确认清除所有状态",
+          "default": false
+        }
+      ],
+      "documentation": "清除所有认证状态\n\n    Args:\n        confirm_clear: 确认清除所有状态，防止误操作\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "清除认证状态",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "状态名称",
+          "mapping": "state_name",
+          "description": "要清除的认证状态名称"
+        }
+      ],
+      "documentation": "清除指定的认证状态\n\n    Args:\n        state_name: 认证状态名称\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "滚动元素到视野",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器（CSS选择器、XPath、文本等）"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "滚动元素到视野中\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "点击元素",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器（CSS选择器、XPath、文本等）"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        },
+        {
+          "name": "强制点击",
+          "mapping": "force",
+          "description": "是否强制点击（忽略元素状态检查）",
+          "default": false
+        },
+        {
+          "name": "索引",
+          "mapping": "index",
+          "description": "元素索引（当有多个匹配元素时）"
+        },
+        {
+          "name": "可见性",
+          "mapping": "visible_only",
+          "description": "是否只点击可见元素",
+          "default": false
+        }
+      ],
+      "documentation": "点击元素\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间\n        force: 是否强制点击\n        index: 元素索引（当有多个匹配元素时）\n        visible_only: 是否只点击可见元素\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "生成随机字符串",
+      "category": "builtin",
+      "parameters": [
+        {
+          "name": "长度",
+          "mapping": "length",
+          "description": "随机字符串的长度",
+          "default": 8
+        },
+        {
+          "name": "类型",
+          "mapping": "type",
+          "description": "字符类型：字母(letters)、数字(digits)、字母数字(alphanumeric)、全部(all)",
+          "default": "alphanumeric"
+        }
+      ],
+      "documentation": "生成指定长度和类型的随机字符串\n\n    Args:\n        length: 字符串长度\n        type: 字符类型\n\n    Returns:\n        str: 生成的随机字符串"
+    },
+    {
+      "name": "生成随机数",
+      "category": "builtin",
+      "parameters": [
+        {
+          "name": "最小值",
+          "mapping": "min",
+          "description": "随机数的最小值",
+          "default": 0
+        },
+        {
+          "name": "最大值",
+          "mapping": "max",
+          "description": "随机数的最大值",
+          "default": 100
+        },
+        {
+          "name": "小数位数",
+          "mapping": "decimals",
+          "description": "小数位数，0表示整数",
+          "default": 0
+        }
+      ],
+      "documentation": "生成指定范围内的随机数\n\n    Args:\n        min: 随机数的最小值\n        max: 随机数的最大值\n        decimals: 小数位数，0表示整数\n\n    Returns:\n        int/float: 生成的随机数"
+    },
+    {
+      "name": "监听下载",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "监听时间",
+          "mapping": "listen_duration",
+          "description": "监听下载的时间（秒）",
+          "default": 10
+        },
+        {
+          "name": "保存目录",
+          "mapping": "save_directory",
+          "description": "下载文件保存目录，不指定则使用默认下载目录"
+        },
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存下载文件列表的变量名"
+        }
+      ],
+      "documentation": "监听页面下载事件\n\n    Args:\n        listen_duration: 监听时间（秒）\n        save_directory: 保存目录\n        variable: 变量名\n\n    Returns:\n        dict: 包含下载文件列表的字典"
+    },
+    {
+      "name": "等待",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "时间",
+          "mapping": "time",
+          "description": "等待时间（秒）"
+        }
+      ],
+      "documentation": "等待指定时间\n    \n    Args:\n        time: 等待时间（秒）\n        \n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "等待URL变化",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "URL模式",
+          "mapping": "url_pattern",
+          "description": "期望的URL模式（正则表达式）"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）"
+        },
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存新URL的变量名"
+        }
+      ],
+      "documentation": "等待页面URL变化到指定模式\n\n    Args:\n        url_pattern: 期望的URL模式（正则表达式）\n        timeout: 超时时间（秒）\n        variable: 变量名\n\n    Returns:\n        dict: 包含新URL的字典"
+    },
+    {
+      "name": "等待下载",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "触发元素",
+          "mapping": "trigger_selector",
+          "description": "触发下载的元素定位器"
+        },
+        {
+          "name": "保存路径",
+          "mapping": "save_path",
+          "description": "文件保存路径，不指定则使用默认下载目录"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "等待下载超时时间（秒）",
+          "default": 30
+        },
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存下载文件路径的变量名"
+        }
+      ],
+      "documentation": "等待文件下载完成\n\n    Args:\n        trigger_selector: 触发下载的元素定位器\n        save_path: 保存路径\n        timeout: 超时时间\n        variable: 变量名\n\n    Returns:\n        dict: 包含下载文件路径的字典"
+    },
+    {
+      "name": "等待元素出现",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器"
+        },
+        {
+          "name": "状态",
+          "mapping": "state",
+          "description": "等待状态：visible, hidden, attached, detached"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）"
+        },
+        {
+          "name": "失败时抛异常",
+          "mapping": "raise_on_timeout",
+          "description": "等待超时时是否抛出异常，默认为false"
+        }
+      ],
+      "documentation": "等待元素出现或达到指定状态\n\n    Args:\n        selector: 元素定位器\n        state: 等待状态\n        timeout: 超时时间\n        raise_on_timeout: 超时时是否抛出异常\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "等待文本出现",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "文本",
+          "mapping": "text",
+          "description": "要等待的文本内容"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）"
+        },
+        {
+          "name": "失败时抛异常",
+          "mapping": "raise_on_timeout",
+          "description": "等待超时时是否抛出异常，默认为false"
+        }
+      ],
+      "documentation": "等待文本在页面中出现\n\n    Args:\n        text: 要等待的文本\n        timeout: 超时时间\n        raise_on_timeout: 超时时是否抛出异常\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "等待网络响应",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "URL模式",
+          "mapping": "url_pattern",
+          "description": "匹配URL的正则表达式模式"
+        },
+        {
+          "name": "状态码",
+          "mapping": "status_code",
+          "description": "期望的HTTP状态码"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）"
+        },
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存匹配响应的变量名"
+        }
+      ],
+      "documentation": "等待特定的网络响应\n\n    Args:\n        url_pattern: URL匹配模式（正则表达式）\n        status_code: 期望的HTTP状态码\n        timeout: 超时时间（秒）\n        variable: 变量名\n\n    Returns:\n        dict: 包含匹配响应的字典"
+    },
+    {
+      "name": "等待网络请求",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "URL模式",
+          "mapping": "url_pattern",
+          "description": "匹配URL的正则表达式模式"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）"
+        },
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存匹配请求的变量名"
+        }
+      ],
+      "documentation": "等待特定的网络请求\n\n    Args:\n        url_pattern: URL匹配模式（正则表达式）\n        timeout: 超时时间（秒）\n        variable: 变量名\n\n    Returns:\n        dict: 包含匹配请求的字典"
+    },
+    {
+      "name": "类型断言",
+      "category": "builtin",
+      "parameters": [
+        {
+          "name": "值",
+          "mapping": "value",
+          "description": "要检查的值"
+        },
+        {
+          "name": "类型",
+          "mapping": "type",
+          "description": "预期的类型 (string, number, boolean, list, object, null)"
+        },
+        {
+          "name": "消息",
+          "mapping": "message",
+          "description": "断言失败时的错误消息",
+          "default": "类型断言失败"
+        }
+      ],
+      "documentation": "断言值的类型\n\n    Args:\n        value: 要检查的值\n        type: 预期的类型 (string, number, boolean, list, object, null)\n        message: 断言失败时的错误消息\n\n    Returns:\n        断言结果 (True/False)\n\n    Raises:\n        AssertionError: 如果断言失败"
+    },
+    {
+      "name": "聚焦元素",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器（CSS选择器、XPath、文本等）"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "聚焦元素\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "获取元素属性",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器"
+        },
+        {
+          "name": "属性",
+          "mapping": "attribute",
+          "description": "要获取的属性名称"
+        },
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存属性值的变量名"
+        },
+        {
+          "name": "默认值",
+          "mapping": "default_value",
+          "description": "当属性不存在或为None时的默认值"
+        }
+      ],
+      "documentation": "获取元素属性值\n\n    Args:\n        selector: 元素定位器\n        attribute: 属性名称\n        variable: 变量名\n        default_value: 当属性不存在或为None时的默认值\n\n    Returns:\n        dict: 包含属性值的字典"
+    },
+    {
+      "name": "获取元素文本",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器"
+        },
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存文本内容的变量名"
+        }
+      ],
+      "documentation": "获取元素文本内容\n\n    Args:\n        selector: 元素定位器\n        variable: 变量名\n\n    Returns:\n        dict: 包含文本内容的字典"
+    },
+    {
+      "name": "获取全局变量",
+      "category": "builtin",
+      "parameters": [
+        {
+          "name": "变量名",
+          "mapping": "name",
+          "description": "全局变量的名称"
+        }
+      ],
+      "documentation": "获取全局变量"
+    },
+    {
+      "name": "获取当前地址",
+      "category": "custom",
+      "parameters": [],
+      "documentation": "获取当前页面URL\n\n    Returns:\n        dict: 包含当前URL的字典"
+    },
+    {
+      "name": "获取当前时间",
+      "category": "builtin",
+      "parameters": [
+        {
+          "name": "格式",
+          "mapping": "format",
+          "description": "时间格式，例如 \"%Y-%m-%d %H:%M:%S\"",
+          "default": "timestamp"
+        },
+        {
+          "name": "时区",
+          "mapping": "timezone",
+          "description": "时区，例如 \"Asia/Shanghai\"",
+          "default": "Asia/Shanghai"
+        }
+      ],
+      "documentation": "获取当前时间\n\n    Args:\n        format: 时间格式，如果设置为'timestamp'则返回时间戳\n        timezone: 时区，默认为Asia/Shanghai\n\n    Returns:\n        str/float: 格式化的时间字符串或时间戳"
+    },
+    {
+      "name": "获取网络响应",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "URL模式",
+          "mapping": "url_pattern",
+          "description": "匹配URL的正则表达式模式"
+        },
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存响应列表的变量名"
+        }
+      ],
+      "documentation": "获取捕获的网络响应\n\n    Args:\n        url_pattern: URL匹配模式（正则表达式）\n        variable: 变量名\n\n    Returns:\n        dict: 包含响应列表的字典"
+    },
+    {
+      "name": "获取网络请求",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "URL模式",
+          "mapping": "url_pattern",
+          "description": "匹配URL的正则表达式模式"
+        },
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存请求列表的变量名"
+        }
+      ],
+      "documentation": "获取捕获的网络请求\n\n    Args:\n        url_pattern: URL匹配模式（正则表达式）\n        variable: 变量名\n\n    Returns:\n        dict: 包含请求列表的字典"
+    },
+    {
+      "name": "获取视口大小",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存视口大小的变量名"
+        }
+      ],
+      "documentation": "获取视口大小\n\n    Args:\n        variable: 变量名\n\n    Returns:\n        dict: 包含视口大小的字典"
+    },
+    {
+      "name": "获取页面标题",
+      "category": "custom",
+      "parameters": [],
+      "documentation": "获取页面标题\n\n    Returns:\n        dict: 包含页面标题的字典"
+    },
+    {
+      "name": "设置全局变量",
+      "category": "builtin",
+      "parameters": [
+        {
+          "name": "变量名",
+          "mapping": "name",
+          "description": "全局变量的名称"
+        },
+        {
+          "name": "值",
+          "mapping": "value",
+          "description": "全局变量的值"
+        }
+      ],
+      "documentation": "设置全局变量"
+    },
+    {
+      "name": "设置复选框状态",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "复选框元素定位器（CSS选择器、XPath、文本等）"
+        },
+        {
+          "name": "选中状态",
+          "mapping": "checked",
+          "description": "是否选中复选框",
+          "default": true
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "设置复选框状态\n\n    Args:\n        selector: 复选框定位器\n        checked: 是否选中\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "设置等待超时",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "默认等待超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "设置默认等待超时时间\n\n    Args:\n        timeout: 超时时间（秒）\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "设置视口大小",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "宽度",
+          "mapping": "width",
+          "description": "视口宽度"
+        },
+        {
+          "name": "高度",
+          "mapping": "height",
+          "description": "视口高度"
+        }
+      ],
+      "documentation": "设置视口大小\n\n    Args:\n        width: 视口宽度\n        height: 视口高度\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "识别文字验证码",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "图片源",
+          "mapping": "image_source",
+          "description": "图片来源：文件路径、元素定位器、base64数据或变量名"
+        },
+        {
+          "name": "源类型",
+          "mapping": "source_type",
+          "description": "源类型：file/element/base64/variable，默认auto自动判断"
+        },
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存识别结果的变量名"
+        },
+        {
+          "name": "预处理",
+          "mapping": "preprocess",
+          "description": "是否进行图片预处理：去噪、二值化等"
+        }
+      ],
+      "documentation": "识别文字验证码\n\n    Args:\n        image_source: 图片源\n        source_type: 源类型 (file/element/base64/variable/auto)\n        variable: 变量名\n        preprocess: 是否预处理\n\n    Returns:\n        dict: 包含识别结果的字典"
+    },
+    {
+      "name": "输入文本",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器（CSS选择器、XPath、文本等）"
+        },
+        {
+          "name": "文本",
+          "mapping": "text",
+          "description": "要输入的文本内容"
+        },
+        {
+          "name": "清空输入框",
+          "mapping": "clear",
+          "description": "输入前是否清空输入框",
+          "default": true
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "输入文本\n\n    Args:\n        selector: 元素定位器\n        text: 要输入的文本\n        clear: 是否清空输入框\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "返回结果",
+      "category": "builtin",
+      "parameters": [
+        {
+          "name": "结果",
+          "mapping": "result",
+          "description": "要返回的结果值"
+        }
+      ]
+    },
+    {
+      "name": "选择下拉选项",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "下拉框元素定位器（CSS选择器、XPath、文本等）"
+        },
+        {
+          "name": "选项值",
+          "mapping": "value",
+          "description": "要选择的选项值"
+        },
+        {
+          "name": "选项标签",
+          "mapping": "label",
+          "description": "要选择的选项标签文本"
+        },
+        {
+          "name": "选项索引",
+          "mapping": "index",
+          "description": "要选择的选项索引（从0开始）"
+        },
+        {
+          "name": "多选",
+          "mapping": "multiple",
+          "description": "是否多选（值用逗号分隔）",
+          "default": false
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "选择下拉框选项\n\n    Args:\n        selector: 下拉框定位器\n        value: 选项值\n        label: 选项标签\n        index: 选项索引\n        multiple: 是否多选\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "选择单选框",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "单选框元素定位器（CSS选择器、XPath、文本等）"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "选择单选框\n\n    Args:\n        selector: 单选框定位器\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "选择选项",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "下拉框元素定位器"
+        },
+        {
+          "name": "值",
+          "mapping": "value",
+          "description": "要选择的选项值"
+        },
+        {
+          "name": "标签",
+          "mapping": "label",
+          "description": "要选择的选项标签文本"
+        },
+        {
+          "name": "索引",
+          "mapping": "index",
+          "description": "要选择的选项索引（从0开始）"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）"
+        }
+      ],
+      "documentation": "选择下拉框选项\n\n    Args:\n        selector: 下拉框定位器\n        value: 选项值\n        label: 选项标签\n        index: 选项索引\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "逐字符输入",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "元素定位器（CSS选择器、XPath、文本等）"
+        },
+        {
+          "name": "文本",
+          "mapping": "text",
+          "description": "要输入的文本内容"
+        },
+        {
+          "name": "延迟",
+          "mapping": "delay",
+          "description": "字符间延迟时间（毫秒）",
+          "default": 100
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "逐字符输入文本（适用于有特殊键盘处理的情况）\n\n    Args:\n        selector: 元素定位器\n        text: 要输入的文本\n        delay: 字符间延迟\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
+      "name": "验证下载文件",
+      "category": "custom",
+      "parameters": [
+        {
+          "name": "文件路径",
+          "mapping": "file_path",
+          "description": "要验证的文件路径"
+        },
+        {
+          "name": "最小文件大小",
+          "mapping": "min_size",
+          "description": "最小文件大小（字节）",
+          "default": 0
+        },
+        {
+          "name": "最大文件大小",
+          "mapping": "max_size",
+          "description": "最大文件大小（字节）"
+        },
+        {
+          "name": "文件扩展名",
+          "mapping": "expected_extension",
+          "description": "期望的文件扩展名"
+        }
+      ],
+      "documentation": "验证下载的文件\n\n    Args:\n        file_path: 文件路径\n        min_size: 最小文件大小\n        max_size: 最大文件大小\n        expected_extension: 期望的文件扩展名\n\n    Returns:\n        dict: 验证结果"
+    }
+  ]
+}

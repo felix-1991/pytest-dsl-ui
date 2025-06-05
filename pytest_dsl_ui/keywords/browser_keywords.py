@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
     {'name': '浏览器', 'mapping': 'browser_type',
         'description': '浏览器类型：chromium, firefox, webkit', 'default': 'chromium'},
     {'name': '无头模式', 'mapping': 'headless',
-     'description': '是否以无头模式运行', 'default': True},
+     'description': '是否以无头模式运行', 'default': False},
     {'name': '慢动作', 'mapping': 'slow_mo',
      'description': '操作间隔时间（毫秒），用于调试', 'default': 0},
     {'name': '配置', 'mapping': 'config',

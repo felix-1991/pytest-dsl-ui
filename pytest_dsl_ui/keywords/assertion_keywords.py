@@ -395,9 +395,15 @@ def assert_text_content(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            expect(element).to_have_text(
-                expected_text, timeout=int(timeout * 1000)
-            )
+            # 根据匹配方式选择不同的断言方法
+            if match_type == 'contains':
+                expect(element).to_contain_text(
+                    expected_text, timeout=int(timeout * 1000)
+                )
+            else:  # exact
+                expect(element).to_have_text(
+                    expected_text, timeout=int(timeout * 1000)
+                )
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -724,9 +730,18 @@ def assert_page_title(**kwargs):
         try:
             page = browser_manager.get_current_page()
 
-            expect(page).to_have_title(
-                expected_title, timeout=int(timeout * 1000)
-            )
+            # 根据匹配方式选择不同的断言方法
+            if match_type == 'contains':
+                # 使用正则表达式实现包含匹配
+                import re
+                title_pattern = re.compile(f".*{re.escape(expected_title)}.*")
+                expect(page).to_have_title(
+                    title_pattern, timeout=int(timeout * 1000)
+                )
+            else:  # exact
+                expect(page).to_have_title(
+                    expected_title, timeout=int(timeout * 1000)
+                )
 
             allure.attach(
                 f"期望标题: {expected_title}\n"
@@ -802,9 +817,18 @@ def assert_page_url(**kwargs):
         try:
             page = browser_manager.get_current_page()
 
-            expect(page).to_have_url(
-                expected_url, timeout=int(timeout * 1000)
-            )
+            # 根据匹配方式选择不同的断言方法
+            if match_type == 'contains':
+                # 使用正则表达式实现包含匹配
+                import re
+                url_pattern = re.compile(f".*{re.escape(expected_url)}.*")
+                expect(page).to_have_url(
+                    url_pattern, timeout=int(timeout * 1000)
+                )
+            else:  # exact
+                expect(page).to_have_url(
+                    expected_url, timeout=int(timeout * 1000)
+                )
 
             allure.attach(
                 f"期望URL: {expected_url}\n"
@@ -1558,3 +1582,80 @@ def check_multiple_conditions(**kwargs):
                 "operation": "check_multiple_conditions"
             }
         }
+
+
+@keyword_manager.register('断言复选框状态', [
+    {'name': '定位器', 'mapping': 'selector', 'description': '复选框定位器'},
+    {'name': '期望状态', 'mapping': 'expected_checked', 'description': '期望的选中状态（True/False）'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 5},
+    {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
+])
+def assert_checkbox_state(**kwargs):
+    """断言复选框状态
+
+    Args:
+        selector: 复选框定位器
+        expected_checked: 期望的选中状态
+        timeout: 超时时间（秒）
+        message: 自定义错误消息
+
+    Returns:
+        dict: 操作结果
+    """
+    selector = kwargs.get('selector')
+    expected_checked = kwargs.get('expected_checked')
+    timeout = kwargs.get('timeout', 5)
+    message = kwargs.get('message', 
+                       f'复选框 {selector} 应该{"被选中" if expected_checked else "未选中"}')
+
+    if not selector:
+        raise ValueError("定位器参数不能为空")
+    if expected_checked is None:
+        raise ValueError("期望状态参数不能为空")
+
+    with allure.step(f"断言复选框状态: {selector} -> {expected_checked}"):
+        try:
+            locator = _get_current_locator()
+            element = locator.locate(selector)
+
+            if expected_checked:
+                expect(element).to_be_checked(timeout=int(timeout * 1000))
+            else:
+                expect(element).not_to_be_checked(timeout=int(timeout * 1000))
+
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"期望状态: {'选中' if expected_checked else '未选中'}\n"
+                f"超时时间: {timeout}秒\n"
+                f"断言结果: 通过",
+                name="复选框状态断言",
+                attachment_type=allure.attachment_type.TEXT
+            )
+
+            logger.info(f"复选框状态断言通过: {selector} -> {expected_checked}")
+
+            return {
+                "result": True,
+                "captures": {},
+                "session_state": {},
+                "metadata": {
+                    "selector": selector,
+                    "expected_checked": expected_checked,
+                    "assertion": "checkbox_state",
+                    "operation": "assert_checkbox_state"
+                }
+            }
+
+        except Exception as e:
+            logger.error(f"复选框状态断言失败: {selector} -> {expected_checked} - {str(e)}")
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"期望状态: {'选中' if expected_checked else '未选中'}\n"
+                f"超时时间: {timeout}秒\n"
+                f"断言结果: 失败\n"
+                f"错误消息: {message}\n"
+                f"实际错误: {str(e)}",
+                name="复选框状态断言失败",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            raise AssertionError(f"{message}: {str(e)}")

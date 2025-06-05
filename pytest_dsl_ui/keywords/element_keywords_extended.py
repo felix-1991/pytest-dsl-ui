@@ -394,3 +394,167 @@ def get_element_text(**kwargs):
                 attachment_type=allure.attachment_type.TEXT
             )
             raise
+
+
+@keyword_manager.register('获取元素属性', [
+    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
+    {'name': '属性', 'mapping': 'attribute', 'description': '要获取的属性名称'},
+    {'name': '变量名', 'mapping': 'variable', 'description': '保存属性值的变量名'},
+    {'name': '默认值', 'mapping': 'default_value', 'description': '当属性不存在或为None时的默认值'},
+])
+def get_element_attribute(**kwargs):
+    """获取元素属性值
+
+    Args:
+        selector: 元素定位器
+        attribute: 属性名称
+        variable: 变量名
+        default_value: 当属性不存在或为None时的默认值
+
+    Returns:
+        dict: 包含属性值的字典
+    """
+    selector = kwargs.get('selector')
+    attribute = kwargs.get('attribute')
+    variable = kwargs.get('variable')
+    default_value = kwargs.get('default_value')
+    context = kwargs.get('context')
+
+    if not selector:
+        raise ValueError("定位器参数不能为空")
+    if not attribute:
+        raise ValueError("属性参数不能为空")
+
+    with allure.step(f"获取元素属性: {selector}.{attribute}"):
+        try:
+            locator = _get_current_locator()
+            attribute_value = locator.get_element_attribute(selector, attribute)
+
+            # 处理None值和特殊属性
+            if attribute_value is None:
+                if default_value is not None:
+                    attribute_value = default_value
+                elif attribute.lower() in ['checked', 'selected', 'disabled']:
+                    # 对于布尔属性，None表示false
+                    attribute_value = False
+                else:
+                    # 对于其他属性，转换为字符串表示
+                    attribute_value = "null"
+            
+            # 对于布尔属性的特殊处理
+            elif attribute.lower() in ['checked', 'selected', 'disabled']:
+                # 将字符串转换为布尔值
+                if isinstance(attribute_value, str):
+                    attribute_value = attribute_value.lower() in ['true', 'checked', 'selected', 'disabled', '']
+                else:
+                    attribute_value = bool(attribute_value)
+            
+            # 对于checked属性，使用is_checked方法更可靠
+            if attribute.lower() == 'checked':
+                try:
+                    attribute_value = locator.is_element_checked(selector)
+                except Exception:
+                    # 如果is_checked方法失败，回退到原来的逻辑
+                    pass
+            
+            # 对于value属性，使用get_element_value方法更可靠
+            if attribute.lower() == 'value':
+                try:
+                    attribute_value = locator.get_element_value(selector)
+                except Exception:
+                    # 如果get_element_value方法失败，回退到原来的逻辑
+                    pass
+
+            # 保存到变量
+            captures = {}
+            if variable and context:
+                context.set(variable, attribute_value)
+                captures[variable] = attribute_value
+
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"属性名: {attribute}\n"
+                f"原始属性值: {locator.get_element_attribute(selector, attribute)}\n"
+                f"处理后属性值: {attribute_value}\n"
+                f"默认值: {default_value or '无'}\n"
+                f"保存变量: {variable or '无'}",
+                name="元素属性信息",
+                attachment_type=allure.attachment_type.TEXT
+            )
+
+            logger.info(f"获取元素属性成功: {selector}.{attribute} -> {attribute_value}")
+
+            # 统一返回格式 - 支持远程关键字模式
+            return {
+                "result": attribute_value,
+                "captures": captures,
+                "session_state": {},
+                "metadata": {
+                    "selector": selector,
+                    "attribute": attribute,
+                    "attribute_value": attribute_value,
+                    "variable": variable,
+                    "operation": "get_element_attribute"
+                }
+            }
+
+        except Exception as e:
+            logger.error(f"获取元素属性失败: {str(e)}")
+            allure.attach(
+                f"错误信息: {str(e)}",
+                name="获取元素属性失败",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            raise
+
+
+@keyword_manager.register('检查元素是否选中', [
+    {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
+])
+def check_element_checked(**kwargs):
+    """检查元素是否选中（复选框或单选框）
+
+    Args:
+        selector: 元素定位器
+
+    Returns:
+        dict: 包含布尔值结果的字典
+    """
+    selector = kwargs.get('selector')
+
+    if not selector:
+        raise ValueError("定位器参数不能为空")
+
+    with allure.step(f"检查元素是否选中: {selector}"):
+        try:
+            locator = _get_current_locator()
+            is_checked = locator.is_element_checked(selector)
+
+            allure.attach(
+                f"定位器: {selector}\n"
+                f"选中状态: {is_checked}",
+                name="元素选中状态检查",
+                attachment_type=allure.attachment_type.TEXT
+            )
+
+            logger.info(f"元素选中状态检查完成: {selector} -> {is_checked}")
+
+            return {
+                "result": is_checked,
+                "captures": {},
+                "session_state": {},
+                "metadata": {
+                    "selector": selector,
+                    "checked": is_checked,
+                    "operation": "check_element_checked"
+                }
+            }
+
+        except Exception as e:
+            logger.error(f"检查元素选中状态失败: {str(e)}")
+            allure.attach(
+                f"错误信息: {str(e)}",
+                name="元素选中状态检查失败",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            raise

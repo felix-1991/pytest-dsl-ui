@@ -2,6 +2,15 @@
 Playwright Python脚本到DSL语法转换工具
 
 支持将playwright codegen生成的Python脚本转换为pytest-dsl-ui的DSL语法
+
+最近更新:
+- 修复了关键字映射错误，将注释的操作改为正确的DSL关键字
+- 添加了对按键操作、悬停元素、聚焦元素、滚动元素到视野的支持
+- 修正了复选框操作（勾选、取消勾选、设置状态）的映射
+- 改进了下拉选择操作，支持按值、标签、索引选择
+- 扩展了断言支持，包括文本包含、元素状态、输入值、URL、标题等
+- 添加了页面级别操作：刷新、后退、前进
+- 修正了等待操作的参数名（时间 -> 秒数）
 """
 
 import re
@@ -52,15 +61,23 @@ class PlaywrightToDSLConverter:
         ])
         
         browser_started = False
+        i = 0
         
-        for line in lines:
+        while i < len(lines):
+            line = lines[i]
             line = line.strip()
             
-            # 跳过导入、函数定义和注释
+            # 跳过导入、函数定义和注释，但不跳过下载相关的with语句
             skip_patterns = [
-                'import ', 'from ', 'def ', 'with ', '#', '"""', "'''"]
-            if (any(line.startswith(pattern) for pattern in skip_patterns)
-                    or not line or line == 'pass' or line.startswith('return')):
+                'import ', 'from ', 'def ', '#', '"""', "'''"]
+            if (any(line.startswith(pattern) for pattern in skip_patterns) or
+                    not line or line == 'pass' or line.startswith('return')):
+                i += 1
+                continue
+            
+            # 跳过非下载相关的with语句
+            if line.startswith('with ') and 'expect_download' not in line:
+                i += 1
                 continue
             
             # 启动浏览器
@@ -78,11 +95,13 @@ class PlaywrightToDSLConverter:
                                 f'无头模式: {headless_val}')
                 dsl_lines.append(browser_line)
                 browser_started = True
+                i += 1
                 continue
             
             # 跳过context和page创建
             if ('.new_context()' in line or '.new_page()' in line or
                     '.close()' in line):
+                i += 1
                 continue
             
             # 打开页面
@@ -92,18 +111,27 @@ class PlaywrightToDSLConverter:
                     url = url_match.group(1)
                     dsl_lines.append("\n# 打开页面")
                     dsl_lines.append(f'[打开页面], 地址: "{url}"')
+                i += 1
+                continue
+            
+            # 处理等待操作 - 移到前面处理
+            if '.wait_for_' in line:
+                self._convert_wait_operation(line, dsl_lines)
+                i += 1
                 continue
             
             # 处理复杂的链式调用（优先处理）
             dsl_line = self._convert_complex_chained_call(line)
             if dsl_line:
                 dsl_lines.append(dsl_line)
+                i += 1
                 continue
             
             # 处理get_by系列方法的链式调用
             dsl_line = self._convert_chained_call(line)
             if dsl_line:
                 dsl_lines.append(dsl_line)
+                i += 1
                 continue
             
             # 处理普通的点击操作
@@ -113,6 +141,7 @@ class PlaywrightToDSLConverter:
                 if selector_match:
                     selector = selector_match.group(1)
                     dsl_lines.append(f'[点击元素], 定位器: "{selector}"')
+                i += 1
                 continue
             
             # 处理截图
@@ -123,17 +152,59 @@ class PlaywrightToDSLConverter:
                 else:
                     filename = "screenshot.png"
                 dsl_lines.append(f'[截图], 文件名: "{filename}"')
+                i += 1
                 continue
             
-            # 处理等待操作
-            if '.wait_for_' in line:
-                self._convert_wait_operation(line, dsl_lines)
+            # 处理页面级别的操作
+            if '.reload(' in line:
+                dsl_lines.append("[刷新页面]")
+                i += 1
+                continue
+            
+            if '.go_back(' in line:
+                dsl_lines.append("[后退]")
+                i += 1
                 continue
                 
+            if '.go_forward(' in line:
+                dsl_lines.append("[前进]")
+                i += 1
+                continue
+            
+            # 处理下载操作
+            if 'with page.expect_download()' in line:
+                # 使用专门的下载转换方法
+                download_dsl, new_index = self._convert_download_operation(
+                    '\n'.join(lines), i)
+                dsl_lines.extend(download_dsl)
+                i = new_index
+                continue
+                
+            if '.expect_download(' in line or 'expect_download()' in line:
+                # 简单的expect_download调用
+                dsl_lines.append("# 等待下载 - 需要手动转换为[等待下载]关键字")
+                i += 1
+                continue
+                
+            if '.save_as(' in line:
+                # 保存下载文件
+                path_match = re.search(r'\.save_as\(["\']([^"\']+)["\']', line)
+                if path_match:
+                    save_path = path_match.group(1)
+                    dsl_lines.append(f'# 保存下载文件到: {save_path} - 需要手动处理')
+                i += 1
+                continue
+            
+
+            
             # 处理页面断言
             if 'expect(' in line:
                 self._convert_assertion(line, dsl_lines)
+                i += 1
                 continue
+            
+            # 增加循环索引
+            i += 1
         
         # 添加关闭浏览器
         dsl_lines.append("\n# 关闭浏览器")
@@ -145,10 +216,12 @@ class PlaywrightToDSLConverter:
         """转换复杂的链式调用，包括filter、locator、first等"""
         
         # 处理复杂的链式调用，如：
-        # page.get_by_label("日志检索", exact=True).locator("div").filter(has_text="日志检索").click()
+        # page.get_by_label("日志检索", exact=True).locator("div")
+        #   .filter(has_text="日志检索").click()
         # page.get_by_role("cell", name="外到内").locator("label").first.click()
         
-        if not ('get_by_' in line and ('filter(' in line or 'locator(' in line or '.first' in line)):
+        if not ('get_by_' in line and ('filter(' in line or
+                                        'locator(' in line or '.first' in line)):
             return None
             
         # 提取基础定位器
@@ -165,6 +238,8 @@ class PlaywrightToDSLConverter:
         # 检查最终操作类型
         if '.click()' in line:
             return f'[点击元素], 定位器: "{final_locator}"'
+        elif '.dblclick()' in line:
+            return f'[双击元素], 定位器: "{final_locator}"'
         elif '.fill(' in line:
             text_match = re.search(r'\.fill\(["\']([^"\']*)["\']', line)
             text = text_match.group(1) if text_match else ""
@@ -174,15 +249,18 @@ class PlaywrightToDSLConverter:
                 return f'[清空文本], 定位器: "{final_locator}"'
         elif '.check()' in line:
             return f'[勾选复选框], 定位器: "{final_locator}"'
+        elif '.uncheck()' in line:
+            return f'[取消勾选复选框], 定位器: "{final_locator}"'
         elif '.press(' in line:
             key_match = re.search(r'\.press\(["\']([^"\']+)["\']', line)
             if key_match:
                 key = key_match.group(1)
-                return f'[按键], 定位器: "{final_locator}", 按键: "{key}"'
+                return f'[按键操作], 定位器: "{final_locator}", 按键: "{key}"'
         
         return None
     
-    def _extract_base_locator_with_params(self, line: str) -> Optional[Dict[str, Any]]:
+    def _extract_base_locator_with_params(self, line: str) -> \
+            Optional[Dict[str, Any]]:
         """提取带参数的基础定位器"""
         
         # get_by_role with name parameter
@@ -200,7 +278,7 @@ class PlaywrightToDSLConverter:
         
         # get_by_label with exact parameter
         label_pattern = (r'get_by_label\(["\']([^"\']+)["\']'
-                        r'(?:,\s*exact=([^,\)]+))?\)')
+                         r'(?:,\s*exact=([^,\)]+))?\)')
         label_match = re.search(label_pattern, line)
         if label_match:
             label = label_match.group(1)
@@ -342,6 +420,8 @@ class PlaywrightToDSLConverter:
             return f'[点击元素], 定位器: "{locator}"'
         elif '.dblclick()' in line:
             return f'[双击元素], 定位器: "{locator}"'
+        elif '.context_click()' in line:  # 右键点击
+            return f'[右键点击元素], 定位器: "{locator}"'
         elif '.fill(' in line:
             text_match = re.search(r'\.fill\(["\']([^"\']*)["\']', line)
             text = text_match.group(1) if text_match else ""
@@ -353,23 +433,52 @@ class PlaywrightToDSLConverter:
             key_match = re.search(r'\.press\(["\']([^"\']+)["\']', line)
             if key_match:
                 key = key_match.group(1)
-                return f'[按键], 定位器: "{locator}", 按键: "{key}"'
+                return f'[按键操作], 定位器: "{locator}", 按键: "{key}"'
         elif '.check()' in line:
             return f'[勾选复选框], 定位器: "{locator}"'
         elif '.uncheck()' in line:
             return f'[取消勾选复选框], 定位器: "{locator}"'
+        elif '.set_checked(' in line:
+            # 处理set_checked操作
+            checked_match = re.search(r'\.set_checked\((True|False)\)', line)
+            if checked_match:
+                checked = checked_match.group(1) == 'True'
+                return f'[设置复选框状态], 定位器: "{locator}", 选中状态: {checked}'
         elif '.select_option(' in line:
-            option_match = re.search(
-                r'\.select_option\(["\']([^"\']*)["\']', line)
-            if option_match:
-                option = option_match.group(1)
-                return f'[选择选项], 定位器: "{locator}", 值: "{option}"'
+            # 支持多种选择方式：value, label, index
+            value_match = re.search(r'\.select_option\(["\']([^"\']*)["\']', line)
+            if value_match:
+                option = value_match.group(1)
+                return f'[选择下拉选项], 定位器: "{locator}", 选项值: "{option}"'
+            # 检查是否是通过label选择
+            label_match = re.search(r'\.select_option\(label=["\']([^"\']+)["\']', line)
+            if label_match:
+                label = label_match.group(1)
+                return f'[选择下拉选项], 定位器: "{locator}", 选项标签: "{label}"'
+            # 检查是否是通过index选择
+            index_match = re.search(r'\.select_option\(index=(\d+)', line)
+            if index_match:
+                index = index_match.group(1)
+                return f'[选择下拉选项], 定位器: "{locator}", 选项索引: {index}'
         elif '.hover()' in line:
             return f'[悬停元素], 定位器: "{locator}"'
         elif '.focus()' in line:
             return f'[聚焦元素], 定位器: "{locator}"'
         elif '.scroll_into_view_if_needed()' in line:
-            return f'[滚动到元素], 定位器: "{locator}"'
+            return f'[滚动元素到视野], 定位器: "{locator}"'
+        elif '.set_input_files(' in line:  # 文件上传
+            file_match = re.search(r'\.set_input_files\(["\']([^"\']+)["\']', line)
+            if file_match:
+                file_path = file_match.group(1)
+                return f'[上传文件], 定位器: "{locator}", 文件路径: "{file_path}"'
+        elif '.inner_text()' in line:
+            # 获取文本内容，通常与变量赋值一起使用
+            return f'# 获取文本: {locator} (需要手动处理变量赋值)'
+        elif '.get_attribute(' in line:
+            attr_match = re.search(r'\.get_attribute\(["\']([^"\']+)["\']', line)
+            if attr_match:
+                attr = attr_match.group(1)
+                return f'# 获取属性 {attr}: {locator} (需要手动处理变量赋值)'
         
         return None
     
@@ -455,21 +564,114 @@ class PlaywrightToDSLConverter:
                 r'\.wait_for_selector\(["\']([^"\']+)["\']', line)
             if selector_match:
                 selector = selector_match.group(1)
-                dsl_lines.append(f'[等待元素出现], 定位器: "{selector}"')
+                dsl_lines.append(f'[等待元素出现], 定位器: "{selector}", 状态: "visible"')
         elif '.wait_for_load_state(' in line:
             state_match = re.search(
                 r'\.wait_for_load_state\(["\']([^"\']+)["\']', line)
             if state_match:
                 state = state_match.group(1)
-                if state == 'networkidle':
-                    dsl_lines.append('[等待页面加载完成]')
-                else:
-                    dsl_lines.append(f'[等待页面状态], 状态: "{state}"')
+                # 根据keywords.json，没有找到对应的等待页面状态关键字，使用注释
+                dsl_lines.append(f'# 等待页面状态: {state} (需要手动处理)')
         elif '.wait_for_timeout(' in line:
             timeout_match = re.search(r'\.wait_for_timeout\((\d+)\)', line)
             if timeout_match:
                 timeout = int(timeout_match.group(1)) / 1000  # 转换为秒
-                dsl_lines.append(f'[等待], 时间: {timeout}')
+                dsl_lines.append(f'[等待], 秒数: {timeout}')
+        elif '.wait_for_event(' in line and 'download' in line:
+            # 处理等待下载事件 - 转换为监听下载关键字
+            dsl_lines.append("[监听下载], 监听时间: 30, 变量名: \"download_events\"")
+            dsl_lines.append("# 原代码: " + line)
+        elif '.wait_for_event(' in line:
+            # 处理其他事件等待
+            event_match = re.search(r'\.wait_for_event\(["\']([^"\']+)["\']', line)
+            if event_match:
+                event = event_match.group(1)
+                dsl_lines.append(f'# 等待{event}事件 (需要手动处理)')
+            else:
+                # 如果没有匹配到具体事件，也要处理这行
+                dsl_lines.append(f'# 等待事件: {line} (需要手动处理)')
+    
+    def _convert_download_operation(self, script_content: str, 
+                                   current_line_index: int):
+        """转换下载操作块"""
+        lines = script_content.split('\n')
+        dsl_lines = []
+        i = current_line_index
+        
+        # 检查是否是expect_download模式
+        current_line = lines[i].strip()
+        
+        if 'with page.expect_download()' in current_line:
+            # 处理with expect_download模式
+            dsl_lines.append("# 等待下载操作开始")
+            i += 1
+            
+            # 查找触发下载的操作（通常是下一行的点击）
+            trigger_found = False
+            while i < len(lines) and not trigger_found:
+                next_line = lines[i].strip()
+                
+                # 跳过空行和注释
+                if not next_line or next_line.startswith('#'):
+                    i += 1
+                    continue
+                    
+                # 找到触发操作
+                if '.click(' in next_line or '.get_by_' in next_line:
+                    # 尝试提取触发元素
+                    locator = self._extract_locator(next_line)
+                    if locator:
+                        dsl_lines.append(
+                            f'download_path = [等待下载], 触发元素: "{locator}", 变量名: "download_path"')
+                        trigger_found = True
+                        i += 1
+                        break
+                    else:
+                        # 如果无法提取定位器，直接转换为注释
+                        dsl_lines.append(f'# 触发下载: {next_line}')
+                        trigger_found = True
+                        i += 1
+                        break
+                
+                # 如果遇到其他操作，也停止查找
+                if any(op in next_line for op in ['.value', 'download =', 'download_info']):
+                    i += 1
+                    continue
+                    
+                i += 1
+            
+            # 查找save_as操作和其他下载相关操作
+            while i < len(lines):
+                line = lines[i].strip()
+                
+                if not line or line.startswith('#'):
+                    i += 1
+                    continue
+                
+                if '.save_as(' in line:
+                    path_match = re.search(r'\.save_as\(["\']([^"\']+)["\']', line)
+                    if path_match:
+                        save_path = path_match.group(1)
+                        dsl_lines.append(f'# 保存文件到: {save_path}')
+                        dsl_lines.append('[验证下载文件], 文件路径: "${download_path}"')
+                    i += 1
+                    continue
+                
+                # 处理wait_for_event下载事件
+                if '.wait_for_event(' in line and 'download' in line:
+                    dsl_lines.append("[监听下载], 监听时间: 30, 变量名: \"download_events\"")
+                    dsl_lines.append("# 原代码: " + line)
+                    i += 1
+                    continue
+                
+                # 遇到非下载相关的代码，停止处理
+                if not any(keyword in line for keyword in 
+                          ['download', '.value', 'save_as', 'expect_download']):
+                    break
+                    
+                i += 1
+                
+        return dsl_lines, i
 
     def _convert_assertion(self, line: str, dsl_lines: list):
         """转换断言操作"""
@@ -478,15 +680,55 @@ class PlaywrightToDSLConverter:
             text_match = re.search(r'to_have_text\(["\']([^"\']+)["\']', line)
             if text_match:
                 text = text_match.group(1)
-                # 提取定位器
                 locator = self._extract_locator_from_expect(line)
                 if locator:
                     dsl_lines.append(
-                        f'[断言文本内容], 定位器: "{locator}", 预期文本: "{text}"')
+                        f'[断言文本内容], 定位器: "{locator}", 期望文本: "{text}"')
+        elif 'to_contain_text(' in line:
+            text_match = re.search(r'to_contain_text\(["\']([^"\']+)["\']', line)
+            if text_match:
+                text = text_match.group(1)
+                locator = self._extract_locator_from_expect(line)
+                if locator:
+                    dsl_lines.append(
+                        f'[断言文本内容], 定位器: "{locator}", 期望文本: "{text}", 匹配方式: "contains"')
         elif 'to_be_visible()' in line:
             locator = self._extract_locator_from_expect(line)
             if locator:
                 dsl_lines.append(f'[断言元素可见], 定位器: "{locator}"')
+        elif 'to_be_hidden()' in line:
+            locator = self._extract_locator_from_expect(line)
+            if locator:
+                dsl_lines.append(f'[断言元素隐藏], 定位器: "{locator}"')
+        elif 'to_be_enabled()' in line:
+            locator = self._extract_locator_from_expect(line)
+            if locator:
+                dsl_lines.append(f'[断言元素启用], 定位器: "{locator}"')
+        elif 'to_be_disabled()' in line:
+            locator = self._extract_locator_from_expect(line)
+            if locator:
+                dsl_lines.append(f'[断言元素禁用], 定位器: "{locator}"')
+        elif 'to_be_checked()' in line:
+            locator = self._extract_locator_from_expect(line)
+            if locator:
+                dsl_lines.append(f'[断言复选框状态], 定位器: "{locator}", 期望状态: True')
+        elif 'to_have_value(' in line:
+            value_match = re.search(r'to_have_value\(["\']([^"\']+)["\']', line)
+            if value_match:
+                value = value_match.group(1)
+                locator = self._extract_locator_from_expect(line)
+                if locator:
+                    dsl_lines.append(f'[断言输入值], 定位器: "{locator}", 期望值: "{value}"')
+        elif 'to_have_url(' in line:
+            url_match = re.search(r'to_have_url\(["\']([^"\']+)["\']', line)
+            if url_match:
+                url = url_match.group(1)
+                dsl_lines.append(f'[断言页面URL], 期望URL: "{url}"')
+        elif 'to_have_title(' in line:
+            title_match = re.search(r'to_have_title\(["\']([^"\']+)["\']', line)
+            if title_match:
+                title = title_match.group(1)
+                dsl_lines.append(f'[断言页面标题], 期望标题: "{title}"')
 
     def _extract_locator_from_expect(self, line: str) -> Optional[str]:
         """从expect语句中提取定位器"""

@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>元素操作关键字测试页面</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #2196F3, #21CBF3);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .section {
+            padding: 30px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #2196F3;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+
+        .btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #1976D2;
+        }
+
+        .btn-danger {
+            background: #f44336;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .checkbox-group, .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .checkbox-item, .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .drag-drop-area {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .drag-container, .drop-container {
+            flex: 1;
+            min-height: 200px;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .drag-item {
+            background: #2196F3;
+            color: white;
+            padding: 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: move;
+            user-select: none;
+            transition: transform 0.2s;
+        }
+
+        .drag-item:hover {
+            transform: scale(1.05);
+        }
+
+        .hover-demo {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .hover-demo:hover {
+            background: #2196F3;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .scroll-container {
+            height: 300px;
+            overflow-y: auto;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+        }
+
+        .scroll-item {
+            padding: 20px;
+            margin: 10px 0;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border-left: 4px solid #2196F3;
+        }
+
+        .result-display {
+            background: #f0f8ff;
+            border: 1px solid #2196F3;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 15px;
+            min-height: 50px;
+        }
+
+        .context-menu {
+            position: absolute;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            padding: 10px 0;
+            display: none;
+            z-index: 1000;
+        }
+
+        .context-menu-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .context-menu-item:hover {
+            background: #f5f5f5;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            border-bottom-color: #2196F3;
+            color: #2196F3;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 元素操作关键字测试页面</h1>
+            <p>此页面用于测试pytest-dsl-ui中的所有元素操作关键字</p>
+        </div>
+
+        <!-- 基础点击操作测试 -->
+        <div class="section">
+            <h2>🖱️ 基础点击操作测试</h2>
+            <div class="form-group">
+                <button id="single-click-btn" class="btn">单击测试</button>
+                <button id="double-click-btn" class="btn">双击测试</button>
+                <button id="right-click-btn" class="btn">右键测试</button>
+                <button id="hover-btn" class="btn tooltip">
+                    悬停测试
+                    <span class="tooltiptext">这是一个悬停提示</span>
+                </button>
+            </div>
+            <div id="click-result" class="result-display">点击结果将显示在这里</div>
+        </div>
+
+        <!-- 文本输入测试 -->
+        <div class="section">
+            <h2>📝 文本输入测试</h2>
+            <div class="form-group">
+                <label for="text-input">普通文本输入框：</label>
+                <input type="text" id="text-input" class="form-control" placeholder="请输入文本">
+            </div>
+            <div class="form-group">
+                <label for="password-input">密码输入框：</label>
+                <input type="password" id="password-input" class="form-control" placeholder="请输入密码">
+            </div>
+            <div class="form-group">
+                <label for="email-input">邮箱输入框：</label>
+                <input type="email" id="email-input" class="form-control" placeholder="请输入邮箱">
+            </div>
+            <div class="form-group">
+                <label for="textarea">多行文本框：</label>
+                <textarea id="textarea" class="form-control" rows="4" placeholder="请输入多行文本"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="date-input">日期输入框：</label>
+                <input type="date" id="date-input" class="form-control">
+            </div>
+            <div class="form-group">
+                <button id="clear-inputs" class="btn">清空所有输入框</button>
+                <button id="fill-inputs" class="btn">填充测试数据</button>
+            </div>
+        </div>
+
+        <!-- 复选框和单选框测试 -->
+        <div class="section">
+            <h2>☑️ 复选框和单选框测试</h2>
+            <div class="form-group">
+                <label>爱好选择（复选框）：</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="hobby-reading" name="hobby" value="reading">
+                        <label for="hobby-reading">阅读</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="hobby-music" name="hobby" value="music">
+                        <label for="hobby-music">音乐</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="hobby-sports" name="hobby" value="sports">
+                        <label for="hobby-sports">运动</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="hobby-travel" name="hobby" value="travel">
+                        <label for="hobby-travel">旅行</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>性别选择（单选框）：</label>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" id="gender-male" name="gender" value="male">
+                        <label for="gender-male">男</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="gender-female" name="gender" value="female">
+                        <label for="gender-female">女</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="gender-other" name="gender" value="other">
+                        <label for="gender-other">其他</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button id="check-all" class="btn">全选爱好</button>
+                <button id="uncheck-all" class="btn">取消全选</button>
+                <button id="toggle-checkboxes" class="btn">切换选择状态</button>
+            </div>
+        </div>
+
+        <!-- 下拉选择测试 -->
+        <div class="section">
+            <h2>🔽 下拉选择测试</h2>
+            <div class="form-group">
+                <label for="city-select">城市选择（单选）：</label>
+                <select id="city-select" class="form-control">
+                    <option value="">请选择城市</option>
+                    <option value="beijing">北京</option>
+                    <option value="shanghai">上海</option>
+                    <option value="guangzhou">广州</option>
+                    <option value="shenzhen">深圳</option>
+                    <option value="hangzhou">杭州</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="skills-select">技能选择（多选）：</label>
+                <select id="skills-select" class="form-control" multiple size="5">
+                    <option value="javascript">JavaScript</option>
+                    <option value="python">Python</option>
+                    <option value="java">Java</option>
+                    <option value="csharp">C#</option>
+                    <option value="php">PHP</option>
+                    <option value="go">Go</option>
+                    <option value="rust">Rust</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <button id="select-random-city" class="btn">随机选择城市</button>
+                <button id="select-tech-skills" class="btn">选择技术技能</button>
+                <button id="clear-selections" class="btn">清空选择</button>
+            </div>
+        </div>
+
+        <!-- 拖拽操作测试 -->
+        <div class="section">
+            <h2>🔄 拖拽操作测试</h2>
+            <div class="drag-drop-area">
+                <div class="drag-container">
+                    <h3>拖拽源</h3>
+                    <div class="drag-item" id="drag-item-1" draggable="true">项目 1</div>
+                    <div class="drag-item" id="drag-item-2" draggable="true">项目 2</div>
+                    <div class="drag-item" id="drag-item-3" draggable="true">项目 3</div>
+                    <div class="drag-item" id="drag-item-4" draggable="true">项目 4</div>
+                </div>
+                <div class="drop-container" id="drop-zone">
+                    <h3>拖放目标</h3>
+                    <p>将左侧项目拖拽到这里</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <button id="reset-drag-items" class="btn">重置拖拽项目</button>
+            </div>
+        </div>
+
+        <!-- 文件上传测试 -->
+        <div class="section">
+            <h2>📁 文件上传测试</h2>
+            <div class="form-group">
+                <label for="file-upload">单文件上传：</label>
+                <input type="file" id="file-upload" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="multiple-file-upload">多文件上传：</label>
+                <input type="file" id="multiple-file-upload" class="form-control" multiple>
+            </div>
+            <div class="form-group">
+                <label for="image-upload">图片上传：</label>
+                <input type="file" id="image-upload" class="form-control" accept="image/*">
+            </div>
+            <div id="upload-result" class="result-display">上传结果将显示在这里</div>
+        </div>
+
+        <!-- 滚动操作测试 -->
+        <div class="section">
+            <h2>📜 滚动操作测试</h2>
+            <div class="scroll-container" id="scroll-container">
+                <div class="scroll-item" id="scroll-item-1">滚动项目 1 - 这是页面顶部</div>
+                <div class="scroll-item" id="scroll-item-2">滚动项目 2</div>
+                <div class="scroll-item" id="scroll-item-3">滚动项目 3</div>
+                <div class="scroll-item" id="scroll-item-4">滚动项目 4</div>
+                <div class="scroll-item" id="scroll-item-5">滚动项目 5</div>
+                <div class="scroll-item" id="scroll-item-6">滚动项目 6</div>
+                <div class="scroll-item" id="scroll-item-7">滚动项目 7</div>
+                <div class="scroll-item" id="scroll-item-8">滚动项目 8</div>
+                <div class="scroll-item" id="scroll-item-9">滚动项目 9</div>
+                <div class="scroll-item" id="scroll-item-10">滚动项目 10 - 这是页面底部</div>
+            </div>
+            <div class="form-group">
+                <button id="scroll-to-top" class="btn">滚动到顶部</button>
+                <button id="scroll-to-middle" class="btn">滚动到中间</button>
+                <button id="scroll-to-bottom" class="btn">滚动到底部</button>
+            </div>
+        </div>
+
+        <!-- 聚焦和焦点测试 -->
+        <div class="section">
+            <h2>🎯 聚焦和焦点测试</h2>
+            <div class="form-group">
+                <input type="text" id="focus-input-1" class="form-control" placeholder="输入框 1">
+            </div>
+            <div class="form-group">
+                <input type="text" id="focus-input-2" class="form-control" placeholder="输入框 2">
+            </div>
+            <div class="form-group">
+                <input type="text" id="focus-input-3" class="form-control" placeholder="输入框 3">
+            </div>
+            <div class="form-group">
+                <button id="focus-first" class="btn">聚焦输入框1</button>
+                <button id="focus-second" class="btn">聚焦输入框2</button>
+                <button id="focus-third" class="btn">聚焦输入框3</button>
+                <button id="blur-all" class="btn">移除所有焦点</button>
+            </div>
+        </div>
+
+        <!-- 动态元素测试 -->
+        <div class="section">
+            <h2>⚡ 动态元素测试</h2>
+            <div class="form-group">
+                <button id="add-element" class="btn">添加动态元素</button>
+                <button id="remove-element" class="btn btn-danger">移除动态元素</button>
+                <button id="toggle-element" class="btn">切换元素显示</button>
+            </div>
+            <div id="dynamic-container" class="result-display">
+                动态元素将出现在这里
+            </div>
+        </div>
+
+        <!-- 文件下载测试 -->
+        <div class="section">
+            <h2>⬇️ 文件下载测试</h2>
+            <div class="form-group">
+                <h3>基本下载功能</h3>
+                <button id="download-txt" class="btn">下载文本文件</button>
+                <button id="download-json" class="btn">下载JSON文件</button>
+                <button id="download-dynamic-txt" class="btn">动态生成并下载文本</button>
+                <button id="download-dynamic-csv" class="btn">动态生成并下载CSV</button>
+            </div>
+            <div class="form-group">
+                <h3>不同类型文件</h3>
+                <button id="download-small-file" class="btn">小文件下载 (<1KB)</button>
+                <button id="download-medium-file" class="btn">中等文件下载 (~10KB)</button>
+                <button id="download-large-content" class="btn">大内容下载 (~100KB)</button>
+            </div>
+            <div class="form-group">
+                <h3>特殊下载场景</h3>
+                <button id="download-with-spaces" class="btn">带空格文件名</button>
+                <button id="download-chinese-name" class="btn">中文文件名下载</button>
+                <button id="download-special-chars" class="btn">特殊字符文件名</button>
+            </div>
+            <div id="download-result" class="result-display">下载结果将显示在这里</div>
+        </div>
+
+        <!-- 表单综合测试 -->
+        <div class="section">
+            <h2>📋 表单综合测试</h2>
+            <form id="test-form">
+                <div class="form-group">
+                    <label for="form-name">姓名：</label>
+                    <input type="text" id="form-name" name="name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="form-email">邮箱：</label>
+                    <input type="email" id="form-email" name="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="form-phone">电话：</label>
+                    <input type="tel" id="form-phone" name="phone" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="form-agree" name="agree" required>
+                        我同意用户协议
+                    </label>
+                </div>
+                <div class="form-group">
+                    <button type="submit" id="submit-form" class="btn">提交表单</button>
+                    <button type="reset" id="reset-form" class="btn btn-danger">重置表单</button>
+                </div>
+            </form>
+            <div id="form-result" class="result-display">表单提交结果将显示在这里</div>
+        </div>
+    </div>
+
+    <script>
+        // 基础点击操作
+        document.getElementById('single-click-btn').addEventListener('click', function() {
+            document.getElementById('click-result').innerHTML = '✅ 单击操作成功！时间：' + new Date().toLocaleTimeString();
+        });
+
+        document.getElementById('double-click-btn').addEventListener('dblclick', function() {
+            document.getElementById('click-result').innerHTML = '✅ 双击操作成功！时间：' + new Date().toLocaleTimeString();
+        });
+
+        document.getElementById('right-click-btn').addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            document.getElementById('click-result').innerHTML = '✅ 右键点击成功！时间：' + new Date().toLocaleTimeString();
+        });
+
+        document.getElementById('hover-btn').addEventListener('mouseenter', function() {
+            document.getElementById('click-result').innerHTML = '✅ 悬停操作触发！时间：' + new Date().toLocaleTimeString();
+        });
+
+        // 文本输入操作
+        document.getElementById('clear-inputs').addEventListener('click', function() {
+            document.getElementById('text-input').value = '';
+            document.getElementById('password-input').value = '';
+            document.getElementById('email-input').value = '';
+            document.getElementById('textarea').value = '';
+            document.getElementById('date-input').value = '';
+        });
+
+        document.getElementById('fill-inputs').addEventListener('click', function() {
+            document.getElementById('text-input').value = '测试用户';
+            document.getElementById('password-input').value = 'password123';
+            document.getElementById('email-input').value = 'test@example.com';
+            document.getElementById('textarea').value = '这是多行文本测试内容\n第二行内容\n第三行内容';
+            document.getElementById('date-input').value = '2024-01-01';
+        });
+
+        // 复选框操作
+        document.getElementById('check-all').addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('input[name="hobby"]');
+            checkboxes.forEach(cb => cb.checked = true);
+        });
+
+        document.getElementById('uncheck-all').addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('input[name="hobby"]');
+            checkboxes.forEach(cb => cb.checked = false);
+        });
+
+        document.getElementById('toggle-checkboxes').addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('input[name="hobby"]');
+            checkboxes.forEach(cb => cb.checked = !cb.checked);
+        });
+
+        // 下拉选择操作
+        document.getElementById('select-random-city').addEventListener('click', function() {
+            const select = document.getElementById('city-select');
+            const options = select.options;
+            const randomIndex = Math.floor(Math.random() * (options.length - 1)) + 1;
+            select.selectedIndex = randomIndex;
+        });
+
+        document.getElementById('select-tech-skills').addEventListener('click', function() {
+            const select = document.getElementById('skills-select');
+            const techSkills = ['javascript', 'python', 'java'];
+            for (let option of select.options) {
+                option.selected = techSkills.includes(option.value);
+            }
+        });
+
+        document.getElementById('clear-selections').addEventListener('click', function() {
+            document.getElementById('city-select').selectedIndex = 0;
+            const skillsSelect = document.getElementById('skills-select');
+            for (let option of skillsSelect.options) {
+                option.selected = false;
+            }
+        });
+
+        // 拖拽操作
+        let draggedElement = null;
+
+        document.querySelectorAll('.drag-item').forEach(item => {
+            item.addEventListener('dragstart', function(e) {
+                draggedElement = this;
+                this.style.opacity = '0.5';
+            });
+
+            item.addEventListener('dragend', function(e) {
+                this.style.opacity = '1';
+                draggedElement = null;
+            });
+        });
+
+        document.getElementById('drop-zone').addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.style.backgroundColor = '#e3f2fd';
+        });
+
+        document.getElementById('drop-zone').addEventListener('dragleave', function(e) {
+            this.style.backgroundColor = '';
+        });
+
+        document.getElementById('drop-zone').addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.style.backgroundColor = '';
+            if (draggedElement) {
+                this.appendChild(draggedElement);
+                const p = this.querySelector('p');
+                if (p) p.style.display = 'none';
+            }
+        });
+
+        document.getElementById('reset-drag-items').addEventListener('click', function() {
+            const dragContainer = document.querySelector('.drag-container');
+            const dropZone = document.getElementById('drop-zone');
+            const dragItems = dropZone.querySelectorAll('.drag-item');
+            
+            dragItems.forEach(item => {
+                dragContainer.appendChild(item);
+            });
+            
+            const p = dropZone.querySelector('p');
+            if (p) p.style.display = 'block';
+        });
+
+        // 文件上传
+        document.getElementById('file-upload').addEventListener('change', function(e) {
+            const files = e.target.files;
+            document.getElementById('upload-result').innerHTML = 
+                `✅ 选择了 ${files.length} 个文件: ${Array.from(files).map(f => f.name).join(', ')}`;
+        });
+
+        document.getElementById('multiple-file-upload').addEventListener('change', function(e) {
+            const files = e.target.files;
+            document.getElementById('upload-result').innerHTML = 
+                `✅ 选择了 ${files.length} 个文件: ${Array.from(files).map(f => f.name).join(', ')}`;
+        });
+
+        // 滚动操作
+        document.getElementById('scroll-to-top').addEventListener('click', function() {
+            document.getElementById('scroll-item-1').scrollIntoView();
+        });
+
+        document.getElementById('scroll-to-middle').addEventListener('click', function() {
+            document.getElementById('scroll-item-5').scrollIntoView();
+        });
+
+        document.getElementById('scroll-to-bottom').addEventListener('click', function() {
+            document.getElementById('scroll-item-10').scrollIntoView();
+        });
+
+        // 聚焦操作
+        document.getElementById('focus-first').addEventListener('click', function() {
+            document.getElementById('focus-input-1').focus();
+        });
+
+        document.getElementById('focus-second').addEventListener('click', function() {
+            document.getElementById('focus-input-2').focus();
+        });
+
+        document.getElementById('focus-third').addEventListener('click', function() {
+            document.getElementById('focus-input-3').focus();
+        });
+
+        document.getElementById('blur-all').addEventListener('click', function() {
+            document.activeElement.blur();
+        });
+
+        // 动态元素
+        let elementCounter = 0;
+        document.getElementById('add-element').addEventListener('click', function() {
+            elementCounter++;
+            const container = document.getElementById('dynamic-container');
+            const newElement = document.createElement('div');
+            newElement.id = `dynamic-element-${elementCounter}`;
+            newElement.className = 'form-control';
+            newElement.style.marginBottom = '10px';
+            newElement.innerHTML = `动态元素 ${elementCounter} - ${new Date().toLocaleTimeString()}`;
+            container.appendChild(newElement);
+        });
+
+        document.getElementById('remove-element').addEventListener('click', function() {
+            const container = document.getElementById('dynamic-container');
+            const lastElement = container.lastElementChild;
+            if (lastElement && lastElement.id && lastElement.id.startsWith('dynamic-element-')) {
+                container.removeChild(lastElement);
+            }
+        });
+
+        document.getElementById('toggle-element').addEventListener('click', function() {
+            const container = document.getElementById('dynamic-container');
+            container.style.display = container.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // 文件下载
+        function downloadText(content, filename, mimeType = 'text/plain') {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            document.getElementById('download-result').innerHTML = 
+                `✅ 下载完成: ${filename} (${blob.size} 字节)`;
+        }
+
+        // 动态生成文本文件下载
+        document.getElementById('download-dynamic-txt').addEventListener('click', function() {
+            const content = `动态生成的测试文件
+
+生成时间: ${new Date().toLocaleString()}
+文件用途: pytest-dsl-ui 下载功能测试
+内容类型: 纯文本
+
+测试内容包括：
+- 中文文本测试
+- English text test
+- 数字: 12345
+- 特殊字符: !@#$%^&*()
+- 多行文本
+- 时间戳: ${Date.now()}
+
+这是一个动态生成的测试文件，用于验证文件下载功能。`;
+            downloadText(content, `动态文本_${Date.now()}.txt`);
+        });
+
+        // 动态生成CSV文件下载
+        document.getElementById('download-dynamic-csv').addEventListener('click', function() {
+            const csvContent = `姓名,年龄,邮箱,城市
+张三,25,zhangsan@test.com,北京
+李四,30,lisi@test.com,上海
+王五,28,wangwu@test.com,广州
+赵六,32,zhaoliu@test.com,深圳
+孙七,27,sunqi@test.com,杭州`;
+            downloadText(csvContent, `测试数据_${Date.now()}.csv`, 'text/csv');
+        });
+
+        // 小文件下载
+        document.getElementById('download-small-file').addEventListener('click', function() {
+            const content = 'Hello World! 这是一个小文件测试。';
+            downloadText(content, '小文件测试.txt');
+        });
+
+        // 中等文件下载
+        document.getElementById('download-medium-file').addEventListener('click', function() {
+            let content = '中等大小文件测试内容\n\n';
+            // 生成约10KB的内容
+            for (let i = 1; i <= 100; i++) {
+                content += `第${i}行：这是一行测试内容，包含中文和英文 Line ${i}: This is a test line with Chinese and English text.\n`;
+            }
+            downloadText(content, '中等文件测试.txt');
+        });
+
+        // 大内容下载
+        document.getElementById('download-large-content').addEventListener('click', function() {
+            let content = '大文件内容测试\n\n';
+            // 生成约100KB的内容
+            for (let i = 1; i <= 1000; i++) {
+                content += `第${i}行：这是一个大文件测试，包含大量重复内容用于测试文件大小验证功能。包含中文字符和数字${i}以及英文内容。\n`;
+            }
+            downloadText(content, '大文件测试.txt');
+        });
+
+        // 带空格文件名
+        document.getElementById('download-with-spaces').addEventListener('click', function() {
+            const content = '这是一个测试文件名包含空格的文件。';
+            downloadText(content, '测试 文件 名 包含 空格.txt');
+        });
+
+        // 中文文件名
+        document.getElementById('download-chinese-name').addEventListener('click', function() {
+            const content = `中文文件名测试
+
+这个文件使用纯中文文件名，用于测试下载功能对各种文件名的支持。
+
+包含内容：
+- 中文字符测试
+- 文件名编码测试
+- 下载功能验证
+
+生成时间：${new Date().toLocaleString()}`;
+            downloadText(content, '中文文件名测试文档.txt');
+        });
+
+        // 特殊字符文件名
+        document.getElementById('download-special-chars').addEventListener('click', function() {
+            const content = '这个文件包含特殊字符的文件名。';
+            downloadText(content, '特殊字符_!@#$%^&()_测试.txt');
+        });
+
+        // 下载预制文件
+        document.getElementById('download-txt').addEventListener('click', function() {
+            // 读取并下载预制的文本文件
+            fetch('downloads/test_sample.txt')
+                .then(response => response.text())
+                .then(content => {
+                    downloadText(content, '测试文本文件.txt');
+                })
+                .catch(error => {
+                    console.error('下载文本文件失败:', error);
+                    // 如果读取失败，创建一个简单的文本文件
+                    const fallbackContent = `测试文本文件下载
+
+这是一个测试用的文本文件，用于验证下载功能。
+
+文件内容包括：
+- 中文字符测试
+- 英文字符测试
+- 数字：123456
+- 特殊符号：!@#$%^&*()
+
+生成时间：${new Date().toLocaleString()}`;
+                    downloadText(fallbackContent, '测试文本文件.txt');
+                });
+        });
+
+        document.getElementById('download-json').addEventListener('click', function() {
+            // 读取并下载预制的JSON文件
+            fetch('downloads/sample_data.json')
+                .then(response => response.text())
+                .then(content => {
+                    downloadText(content, '测试数据.json', 'application/json');
+                })
+                .catch(error => {
+                    console.error('下载JSON文件失败:', error);
+                    // 如果读取失败，创建一个简单的JSON文件
+                    const fallbackContent = JSON.stringify({
+                        "test_info": {
+                            "name": "下载测试JSON文件",
+                            "version": "1.0.0",
+                            "description": "用于测试下载功能的JSON文件",
+                            "created_at": new Date().toISOString(),
+                            "file_type": "application/json"
+                        },
+                        "test_data": [
+                            {"id": 1, "name": "测试项目1", "value": 100},
+                            {"id": 2, "name": "测试项目2", "value": 200},
+                            {"id": 3, "name": "测试项目3", "value": 300}
+                        ]
+                    }, null, 2);
+                    downloadText(fallbackContent, '测试数据.json', 'application/json');
+                });
+        });
+
+        // 表单提交
+        document.getElementById('test-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            document.getElementById('form-result').innerHTML = 
+                '✅ 表单提交成功！数据：' + JSON.stringify(data, null, 2);
+        });
+
+        document.getElementById('reset-form').addEventListener('click', function() {
+            document.getElementById('form-result').innerHTML = '表单已重置';
+        });
+
+        // 显示页面加载完成信息
+        window.addEventListener('load', function() {
+            console.log('🎉 元素操作测试页面加载完成！');
+            console.log('📝 页面包含以下测试区域：');
+            console.log('  - 基础点击操作（单击、双击、右键、悬停）');
+            console.log('  - 文本输入操作（普通输入、密码、邮箱、多行文本、日期）');
+            console.log('  - 复选框和单选框操作');
+            console.log('  - 下拉选择操作（单选、多选）');
+            console.log('  - 拖拽操作测试');
+            console.log('  - 文件上传测试');
+            console.log('  - 文件下载测试（⬇️ 新增功能）');
+            console.log('  - 滚动操作测试');
+            console.log('  - 聚焦和焦点测试');
+            console.log('  - 动态元素测试');
+            console.log('  - 表单综合测试');
+        });
+    </script>
+</body>
+</html> 
