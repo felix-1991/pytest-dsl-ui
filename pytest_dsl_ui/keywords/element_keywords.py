@@ -23,13 +23,13 @@ def _get_current_locator() -> ElementLocator:
 @keyword_manager.register('点击元素', [
     {'name': '定位器', 'mapping': 'selector', 
      'description': '元素定位器（CSS选择器、XPath、文本等）'},
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 30},
     {'name': '强制点击', 'mapping': 'force', 
-     'description': '是否强制点击（忽略元素状态检查）'},
+     'description': '是否强制点击（忽略元素状态检查）', 'default': False},
     {'name': '索引', 'mapping': 'index', 
      'description': '元素索引（当有多个匹配元素时）'},
     {'name': '可见性', 'mapping': 'visible_only', 
-     'description': '是否只点击可见元素'},
+     'description': '是否只点击可见元素', 'default': False},
 ])
 def click_element(**kwargs):
     """点击元素
@@ -118,7 +118,7 @@ def click_element(**kwargs):
 @keyword_manager.register('双击元素', [
     {'name': '定位器', 'mapping': 'selector', 
      'description': '元素定位器（CSS选择器、XPath、文本等）'},
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 30},
 ])
 def double_click_element(**kwargs):
     """双击元素
@@ -176,7 +176,7 @@ def double_click_element(**kwargs):
 @keyword_manager.register('右键点击元素', [
     {'name': '定位器', 'mapping': 'selector', 
      'description': '元素定位器（CSS选择器、XPath、文本等）'},
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 30},
 ])
 def right_click_element(**kwargs):
     """右键点击元素
@@ -236,8 +236,8 @@ def right_click_element(**kwargs):
      'description': '元素定位器（CSS选择器、XPath、文本等）'},
     {'name': '文本', 'mapping': 'text', 'description': '要输入的文本内容'},
     {'name': '清空输入框', 'mapping': 'clear', 
-     'description': '输入前是否清空输入框，默认为true'},
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+     'description': '输入前是否清空输入框', 'default': True},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 30},
 ])
 def input_text(**kwargs):
     """输入文本
@@ -309,7 +309,7 @@ def input_text(**kwargs):
 @keyword_manager.register('清空文本', [
     {'name': '定位器', 'mapping': 'selector', 
      'description': '元素定位器（CSS选择器、XPath、文本等）'},
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 30},
 ])
 def clear_text(**kwargs):
     """清空文本

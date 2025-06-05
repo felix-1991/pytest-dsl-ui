@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
     {'name': '元素定位器', 'mapping': 'element_selector', 
      'description': '如果指定则只截取该元素'},
     {'name': '全页面', 'mapping': 'full_page', 
-     'description': '是否截取整个页面（包括滚动区域）'},
+     'description': '是否截取整个页面（包括滚动区域）', 'default': False},
     {'name': '变量名', 'mapping': 'variable', 
      'description': '保存截图路径的变量名'},
 ])

@@ -16,17 +16,17 @@ logger = logging.getLogger(__name__)
 
 @keyword_manager.register('启动浏览器', [
     {'name': '浏览器', 'mapping': 'browser_type',
-        'description': '浏览器类型：chromium, firefox, webkit'},
+        'description': '浏览器类型：chromium, firefox, webkit', 'default': 'chromium'},
     {'name': '无头模式', 'mapping': 'headless',
-     'description': '是否以无头模式运行，默认为true'},
+     'description': '是否以无头模式运行', 'default': True},
     {'name': '慢动作', 'mapping': 'slow_mo',
-     'description': '操作间隔时间（毫秒），用于调试'},
+     'description': '操作间隔时间（毫秒），用于调试', 'default': 0},
     {'name': '配置', 'mapping': 'config',
-     'description': '浏览器启动配置（YAML格式）'},
+     'description': '浏览器启动配置（YAML格式）', 'default': '{}'},
     {'name': '视口宽度', 'mapping': 'width', 'description': '浏览器视口宽度'},
     {'name': '视口高度', 'mapping': 'height', 'description': '浏览器视口高度'},
     {'name': '忽略证书错误', 'mapping': 'ignore_https_errors',
-     'description': '是否忽略HTTPS证书错误，默认为true'},
+     'description': '是否忽略HTTPS证书错误', 'default': True},
 ])
 def launch_browser(**kwargs):
     """启动浏览器
@@ -322,7 +322,7 @@ def switch_page(**kwargs):
 
 
 @keyword_manager.register('设置等待超时', [
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '默认等待超时时间（秒）'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '默认等待超时时间（秒）', 'default': 30},
 ])
 def set_default_timeout(**kwargs):
     """设置默认等待超时时间

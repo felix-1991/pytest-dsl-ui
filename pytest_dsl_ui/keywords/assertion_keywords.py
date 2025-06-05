@@ -28,7 +28,7 @@ def _get_current_locator() -> ElementLocator:
 
 @keyword_manager.register('断言元素可见', [
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 5},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
 ])
 def assert_element_visible(**kwargs):
@@ -43,7 +43,7 @@ def assert_element_visible(**kwargs):
         dict: 操作结果
     """
     selector = kwargs.get('selector')
-    timeout = kwargs.get('timeout', 5.0)
+    timeout = kwargs.get('timeout', 5)
     message = kwargs.get('message', f'元素 {selector} 应该可见')
 
     if not selector:
@@ -94,7 +94,7 @@ def assert_element_visible(**kwargs):
 
 @keyword_manager.register('断言元素隐藏', [
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 5},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
 ])
 def assert_element_hidden(**kwargs):
@@ -109,7 +109,7 @@ def assert_element_hidden(**kwargs):
         dict: 操作结果
     """
     selector = kwargs.get('selector')
-    timeout = kwargs.get('timeout', 5.0)
+    timeout = kwargs.get('timeout', 5)
     message = kwargs.get('message', f'元素 {selector} 应该隐藏')
 
     if not selector:
@@ -159,7 +159,7 @@ def assert_element_hidden(**kwargs):
 
 @keyword_manager.register('断言元素存在', [
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 5},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
 ])
 def assert_element_exists(**kwargs):
@@ -174,7 +174,7 @@ def assert_element_exists(**kwargs):
         dict: 操作结果
     """
     selector = kwargs.get('selector')
-    timeout = kwargs.get('timeout', 5.0)
+    timeout = kwargs.get('timeout', 5)
     message = kwargs.get('message', f'元素 {selector} 应该存在')
 
     if not selector:
@@ -239,7 +239,7 @@ def assert_element_enabled(**kwargs):
         dict: 操作结果
     """
     selector = kwargs.get('selector')
-    timeout = kwargs.get('timeout', 5.0)
+    timeout = kwargs.get('timeout', 5)
     message = kwargs.get('message', f'元素 {selector} 应该启用')
 
     if not selector:
@@ -304,7 +304,7 @@ def assert_element_disabled(**kwargs):
         dict: 操作结果
     """
     selector = kwargs.get('selector')
-    timeout = kwargs.get('timeout', 5.0)
+    timeout = kwargs.get('timeout', 5)
     message = kwargs.get('message', f'元素 {selector} 应该禁用')
 
     if not selector:
@@ -355,8 +355,9 @@ def assert_element_disabled(**kwargs):
 @keyword_manager.register('断言文本内容', [
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
     {'name': '期望文本', 'mapping': 'expected_text', 'description': '期望的文本内容'},
-    {'name': '匹配方式', 'mapping': 'match_type', 'description': '完全匹配或包含匹配'},
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '匹配方式', 'mapping': 'match_type',
+        'description': '完全匹配或包含匹配，匹配方式 - exact(完全匹配) 或 contains(包含匹配)', 'default': 'exact'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 5},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
 ])
 def assert_text_content(**kwargs):
@@ -375,7 +376,7 @@ def assert_text_content(**kwargs):
     selector = kwargs.get('selector')
     expected_text = kwargs.get('expected_text')
     match_type = kwargs.get('match_type', 'exact')
-    timeout = kwargs.get('timeout', 5.0)
+    timeout = kwargs.get('timeout', 5)
     message = kwargs.get('message')
 
     if not selector:
@@ -442,7 +443,7 @@ def assert_text_content(**kwargs):
 @keyword_manager.register('断言输入值', [
     {'name': '定位器', 'mapping': 'selector', 'description': '输入元素定位器'},
     {'name': '期望值', 'mapping': 'expected_value', 'description': '期望的输入值'},
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 5},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
 ])
 def assert_input_value(**kwargs):
@@ -459,7 +460,7 @@ def assert_input_value(**kwargs):
     """
     selector = kwargs.get('selector')
     expected_value = kwargs.get('expected_value')
-    timeout = kwargs.get('timeout', 5.0)
+    timeout = kwargs.get('timeout', 5)
     message = kwargs.get('message', f'输入元素 {selector} 值应该为 "{expected_value}"')
 
     if not selector:
@@ -518,7 +519,7 @@ def assert_input_value(**kwargs):
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
     {'name': '属性名', 'mapping': 'attribute_name', 'description': '属性名称'},
     {'name': '期望值', 'mapping': 'expected_value', 'description': '期望的属性值'},
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 5},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
 ])
 def assert_attribute_value(**kwargs):
@@ -537,7 +538,7 @@ def assert_attribute_value(**kwargs):
     selector = kwargs.get('selector')
     attribute_name = kwargs.get('attribute_name')
     expected_value = kwargs.get('expected_value')
-    timeout = kwargs.get('timeout', 5.0)
+    timeout = kwargs.get('timeout', 5)
     message = kwargs.get(
         'message',
         f'元素 {selector} 属性 {attribute_name} 应该为 "{expected_value}"'
@@ -625,7 +626,7 @@ def assert_element_count(**kwargs):
     """
     selector = kwargs.get('selector')
     expected_count = kwargs.get('expected_count')
-    timeout = kwargs.get('timeout', 5.0)
+    timeout = kwargs.get('timeout', 5)
     message = kwargs.get('message', f'元素 {selector} 数量应该为 {expected_count}')
 
     if not selector:
@@ -707,7 +708,7 @@ def assert_page_title(**kwargs):
     """
     expected_title = kwargs.get('expected_title')
     match_type = kwargs.get('match_type', 'exact')
-    timeout = kwargs.get('timeout', 5.0)
+    timeout = kwargs.get('timeout', 5)
     message = kwargs.get('message')
 
     if expected_title is None:
@@ -785,7 +786,7 @@ def assert_page_url(**kwargs):
     """
     expected_url = kwargs.get('expected_url')
     match_type = kwargs.get('match_type', 'exact')
-    timeout = kwargs.get('timeout', 5.0)
+    timeout = kwargs.get('timeout', 5)
     message = kwargs.get('message')
 
     if expected_url is None:
@@ -874,7 +875,7 @@ def check_element_visible(**kwargs):
 
             # 使用is_visible()方法检查，不会抛出异常
             is_visible = element.is_visible()
-            
+
             if is_visible:
                 # 再次确认元素真的可见（有时需要等待）
                 # 使用与断言相同的逻辑确保一致性
@@ -916,10 +917,11 @@ def check_element_visible(**kwargs):
             try:
                 locator = _get_current_locator()
                 result = locator.is_element_visible(selector)
-                logger.info(f"使用备用方法检查元素可见性: {selector} -> {'可见' if result else '不可见'}")
+                logger.info(
+                    f"使用备用方法检查元素可见性: {selector} -> {'可见' if result else '不可见'}")
             except Exception:
                 result = False
-            
+
             allure.attach(
                 f"定位器: {selector}\n"
                 f"超时时间: {timeout}秒\n"
@@ -928,7 +930,7 @@ def check_element_visible(**kwargs):
                 name="元素可见性检查异常",
                 attachment_type=allure.attachment_type.TEXT
             )
-            
+
             return {
                 "result": result,
                 "captures": {"is_visible": result, "error": str(e)},
@@ -1001,7 +1003,7 @@ def check_element_exists(**kwargs):
                 name="元素存在性检查异常",
                 attachment_type=allure.attachment_type.TEXT
             )
-            
+
             return {
                 "result": False,
                 "captures": {"exists": False, "error": str(e)},
@@ -1072,7 +1074,7 @@ def check_element_enabled(**kwargs):
                 name="元素启用状态检查异常",
                 attachment_type=allure.attachment_type.TEXT
             )
-            
+
             return {
                 "result": False,
                 "captures": {"is_enabled": False, "error": str(e)},
@@ -1157,7 +1159,7 @@ def check_text_contains(**kwargs):
                 name="文本包含检查异常",
                 attachment_type=allure.attachment_type.TEXT
             )
-            
+
             return {
                 "result": False,
                 "captures": {
@@ -1176,7 +1178,7 @@ def check_text_contains(**kwargs):
 
 
 @keyword_manager.register('检查页面URL是否包含', [
-    {'name': '期望URL片段', 'mapping': 'url_fragment', 
+    {'name': '期望URL片段', 'mapping': 'url_fragment',
      'description': '期望包含的URL片段'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
 ])
@@ -1240,7 +1242,7 @@ def check_url_contains(**kwargs):
                 name="URL包含检查异常",
                 attachment_type=allure.attachment_type.TEXT
             )
-            
+
             return {
                 "result": False,
                 "captures": {
@@ -1258,7 +1260,7 @@ def check_url_contains(**kwargs):
 
 
 @keyword_manager.register('检查页面标题是否包含', [
-    {'name': '期望标题片段', 'mapping': 'title_fragment', 
+    {'name': '期望标题片段', 'mapping': 'title_fragment',
      'description': '期望包含的标题片段'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
 ])
@@ -1322,7 +1324,7 @@ def check_title_contains(**kwargs):
                 name="标题包含检查异常",
                 attachment_type=allure.attachment_type.TEXT
             )
-            
+
             return {
                 "result": False,
                 "captures": {
@@ -1376,8 +1378,8 @@ def check_attribute_value(**kwargs):
 
             # 获取属性值
             actual_value = element.get_attribute(attribute_name)
-            result = (str(actual_value) == str(expected_value) 
-                      if actual_value is not None 
+            result = (str(actual_value) == str(expected_value)
+                      if actual_value is not None
                       else expected_value is None)
 
             allure.attach(
@@ -1427,7 +1429,7 @@ def check_attribute_value(**kwargs):
                 name="属性值检查异常",
                 attachment_type=allure.attachment_type.TEXT
             )
-            
+
             return {
                 "result": False,
                 "captures": {

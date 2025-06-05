@@ -18,9 +18,9 @@ logger = logging.getLogger(__name__)
 @keyword_manager.register('加载认证状态', [
     {'name': '状态名称', 'mapping': 'state_name', 'description': '要加载的认证状态名称'},
     {'name': '创建新上下文', 'mapping': 'new_context',
-     'description': '是否创建新的浏览器上下文，默认为true'},
+     'description': '是否创建新的浏览器上下文', 'default': True},
     {'name': '验证登录', 'mapping': 'verify_login',
-     'description': '是否验证登录状态，默认为true'},
+     'description': '是否验证登录状态', 'default': True},
 ])
 def load_auth_state(**kwargs):
     """加载保存的认证状态
@@ -190,7 +190,7 @@ def load_auth_state(**kwargs):
     {'name': '用户名', 'mapping': 'username', 'description': '用户名（元数据）'},
     {'name': '描述', 'mapping': 'description', 'description': '状态描述（元数据）'},
     {'name': '包含IndexedDB', 'mapping': 'include_indexed_db',
-     'description': '是否包含IndexedDB数据，默认为true'},
+     'description': '是否包含IndexedDB数据', 'default': True},
 ])
 def save_auth_state(**kwargs):
     """保存当前的认证状态
@@ -582,7 +582,7 @@ def clear_auth_state(**kwargs):
 
 @keyword_manager.register('清除所有认证状态', [
     {'name': '确认清除', 'mapping': 'confirm_clear',
-        'description': '确认清除所有状态，默认为false'},
+        'description': '确认清除所有状态', 'default': False},
 ])
 def clear_all_auth_states(**kwargs):
     """清除所有认证状态

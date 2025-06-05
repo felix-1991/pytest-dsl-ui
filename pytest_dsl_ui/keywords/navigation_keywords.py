@@ -16,10 +16,10 @@ logger = logging.getLogger(__name__)
 @keyword_manager.register('打开页面', [
     {'name': '地址', 'mapping': 'url', 'description': '要打开的页面URL'},
     {'name': '等待条件', 'mapping': 'wait_until',
-     'description': '等待条件：load, domcontentloaded, networkidle'},
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+     'description': '等待条件：load, domcontentloaded, networkidle', 'default': 'load'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 30},
     {'name': '忽略证书错误', 'mapping': 'ignore_https_errors',
-     'description': '是否忽略HTTPS证书错误，默认为true'},
+     'description': '是否忽略HTTPS证书错误', 'default': True},
 ])
 def open_page(**kwargs):
     """打开页面
@@ -102,8 +102,8 @@ def open_page(**kwargs):
 
 @keyword_manager.register('刷新页面', [
     {'name': '等待条件', 'mapping': 'wait_until',
-     'description': '等待条件：load, domcontentloaded, networkidle'},
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+     'description': '等待条件：load, domcontentloaded, networkidle', 'default': 'load'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 30},
 ])
 def refresh_page(**kwargs):
     """刷新页面
@@ -157,8 +157,8 @@ def refresh_page(**kwargs):
 
 @keyword_manager.register('后退', [
     {'name': '等待条件', 'mapping': 'wait_until',
-     'description': '等待条件：load, domcontentloaded, networkidle'},
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+     'description': '等待条件：load, domcontentloaded, networkidle', 'default': 'load'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 30},
 ])
 def go_back(**kwargs):
     """浏览器后退
@@ -212,8 +212,8 @@ def go_back(**kwargs):
 
 @keyword_manager.register('前进', [
     {'name': '等待条件', 'mapping': 'wait_until',
-     'description': '等待条件：load, domcontentloaded, networkidle'},
-    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
+     'description': '等待条件：load, domcontentloaded, networkidle', 'default': 'load'},
+    {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 30},
 ])
 def go_forward(**kwargs):
     """浏览器前进
