@@ -1,0 +1,81 @@
+# 浏览器HTTP测试配置文件
+# 用于验证浏览器HTTP实现修复功能
+
+# 浏览器HTTP客户端配置
+browser_http_clients:
+  httpbin:
+    name: "httpbin"
+    base_url: "https://httpbin.org"
+    headers:
+      User-Agent: "pytest-dsl-ui/browser-http-test"
+      Accept: "application/json"
+    timeout: 30
+    ignore_https_errors: false
+    
+  jsonplaceholder:
+    name: "jsonplaceholder"
+    base_url: "https://jsonplaceholder.typicode.com"
+    headers:
+      User-Agent: "pytest-dsl-ui/browser-http-test"
+      Accept: "application/json"
+    timeout: 30
+    ignore_https_errors: false
+
+  local_test:
+    name: "local_test"
+    base_url: "http://localhost:8080"
+    headers:
+      User-Agent: "pytest-dsl-ui/browser-http-test"
+      Accept: "application/json"
+    timeout: 10
+    ignore_https_errors: true
+
+# 浏览器HTTP请求模板（可选）
+browser_http_templates:
+  basic_get:
+    method: GET
+    request:
+      headers:
+        Accept: application/json
+    asserts:
+      - ["status", "eq", 200]
+      - ["header", "content-type", "contains", "json"]
+      
+  basic_post:
+    method: POST
+    request:
+      headers:
+        Content-Type: application/json
+    asserts:
+      - ["status", "in", [200, 201]]
+      
+  validation_template:
+    request:
+      headers:
+        Accept: application/json
+    captures:
+      response_time: ["response_time"]
+      status_code: ["status"]
+    asserts:
+      - ["status", "lt", 400]
+      - ["response_time", "lt", 5000]
+
+# 测试环境变量
+test_config:
+  # 测试超时设置
+  default_timeout: 30
+  retry_count: 3
+  retry_interval: 1
+  
+  # 测试数据
+  test_data:
+    sample_email: "test@example.com"
+    sample_phone: "+86-138-0013-8000"
+    sample_url: "https://www.example.com"
+    
+  # 预期结果
+  expected_values:
+    httpbin_status: 200
+    json_content_type: "application/json"
+    min_response_time: 0
+    max_response_time: 5000 

@@ -82,7 +82,8 @@ class HTTPClient:
 
             logger.debug(f"会话已完全重置: {self.name}")
 
-    def make_request(self, method: str, url: str, **request_kwargs) -> requests.Response:
+    def make_request(self, method: str, url: str,
+                     **request_kwargs) -> requests.Response:
         """发送HTTP请求
 
         Args:

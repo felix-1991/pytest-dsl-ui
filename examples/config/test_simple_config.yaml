@@ -1,0 +1,36 @@
+# 简化浏览器HTTP测试配置文件
+
+# 浏览器HTTP客户端配置
+browser_http_clients:
+  # HTTPBin测试API（稳定可靠）
+  httpbin:
+    base_url: "https://httpbin.org"
+    timeout: 30
+    headers:
+      User-Agent: "pytest-dsl-ui-browser-test/1.0 (python-requests)"
+      Accept: "application/json"
+    # 浏览器环境下不需要处理HTTPS错误
+    ignore_https_errors: false
+    
+  # JSONPlaceholder测试API
+  jsonplaceholder:
+    base_url: "https://jsonplaceholder.typicode.com"
+    timeout: 30
+    headers:
+      User-Agent: "pytest-dsl-ui-browser-test/1.0"
+      Accept: "application/json"
+    ignore_https_errors: false
+
+# 浏览器配置
+browser:
+  type: "chromium"
+  headless: false
+  slow_mo: 500  # 慢动作模式，便于观察
+  viewport:
+    width: 1280
+    height: 720
+  
+# 测试配置
+test_config:
+  timeout: 30
+  retry_count: 2 

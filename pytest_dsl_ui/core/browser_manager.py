@@ -210,6 +210,26 @@ class BrowserManager:
         self.current_page = page_id
         logger.info(f"已切换到页面: {page_id}")
 
+    def get_page_list(self) -> dict:
+        """获取页面列表信息
+        
+        Returns:
+            dict: 包含页面ID列表和当前页面信息的字典
+        """
+        return {
+            'page_ids': list(self.pages.keys()),
+            'current_page_id': self.current_page,
+            'page_count': len(self.pages)
+        }
+
+    def get_current_page_id(self) -> Optional[str]:
+        """获取当前页面ID
+        
+        Returns:
+            Optional[str]: 当前页面ID，如果没有页面则返回None
+        """
+        return self.current_page
+
     def close_browser(self, browser_id: Optional[str] = None):
         """关闭浏览器
 

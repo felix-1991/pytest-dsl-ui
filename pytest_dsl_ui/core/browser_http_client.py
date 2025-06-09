@@ -290,9 +290,8 @@ class BrowserResponse:
     @property
     def elapsed_ms(self) -> float:
         """获取响应时间（毫秒）"""
-        # Playwright没有直接提供响应时间，这里返回0
-        # 在实际使用中可以通过时间戳计算
-        return 0.0
+        # 如果有设置响应时间属性，返回它；否则返回0
+        return getattr(self, '_elapsed_ms', 0.0)
 
     def json(self) -> Any:
         """解析JSON响应"""

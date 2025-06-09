@@ -77,13 +77,19 @@ def open_page(**kwargs):
 
             logger.info(f"页面打开成功: {url}")
 
+            # 获取当前页面ID
+            current_page_id = browser_manager.get_current_page_id()
+
             # 统一返回格式 - 支持远程关键字模式
             return {
                 "result": url,
-                "captures": {},
+                "captures": {
+                    'current_page_id': current_page_id
+                },
                 "session_state": {},
                 "metadata": {
                     "url": url,
+                    "page_id": current_page_id,
                     "wait_until": wait_until,
                     "ignore_https_errors": ignore_https_errors,
                     "operation": "open_page"
