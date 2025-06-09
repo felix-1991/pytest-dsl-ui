@@ -191,6 +191,18 @@ class BrowserManager:
             raise ValueError(f"页面 {page_id} 不存在")
         return self.pages[page_id]
 
+    def get_current_context(self) -> Optional[BrowserContext]:
+        """获取当前浏览器上下文实例"""
+        if self.current_context is None or self.current_context not in self.contexts:
+            return None
+        return self.contexts[self.current_context]
+
+    def get_context(self, context_id: str) -> BrowserContext:
+        """获取指定浏览器上下文实例"""
+        if context_id not in self.contexts:
+            raise ValueError(f"浏览器上下文 {context_id} 不存在")
+        return self.contexts[context_id]
+
     def switch_page(self, page_id: str):
         """切换到指定页面"""
         if page_id not in self.pages:
@@ -218,14 +230,14 @@ class BrowserManager:
 
             # 清理相关的上下文和页面
             contexts_to_remove = [
-                ctx_id for ctx_id in self.contexts.keys() 
+                ctx_id for ctx_id in self.contexts.keys()
                 if ctx_id.startswith(browser_id)
             ]
             for ctx_id in contexts_to_remove:
                 del self.contexts[ctx_id]
 
             pages_to_remove = [
-                page_id for page_id in self.pages.keys() 
+                page_id for page_id in self.pages.keys()
                 if page_id.startswith(browser_id)
             ]
             for page_id in pages_to_remove:

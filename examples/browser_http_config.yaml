@@ -1,0 +1,276 @@
+# 浏览器HTTP关键字配置示例
+# 此文件展示了如何配置浏览器HTTP客户端和模板
+
+# 浏览器HTTP客户端配置
+browser_http_clients:
+  # 默认客户端
+  default:
+    base_url: "https://api.example.com"
+    timeout: 30
+    headers:
+      Content-Type: "application/json"
+      User-Agent: "pytest-dsl-ui/1.0"
+      Accept: "application/json"
+    ignore_https_errors: false
+    extra_http_headers:
+      X-Request-ID: "test-${timestamp}"
+      X-Environment: "test"
+
+  # JSONPlaceholder测试API
+  jsonplaceholder:
+    base_url: "https://jsonplaceholder.typicode.com"
+    timeout: 15
+    headers:
+      Content-Type: "application/json"
+      User-Agent: "pytest-dsl-ui-test/1.0"
+
+  # 认证服务器
+  auth_server:
+    base_url: "https://auth.example.com"
+    timeout: 60
+    headers:
+      Content-Type: "application/json"
+    ignore_https_errors: true  # 测试环境可能使用自签名证书
+
+  # 本地开发API
+  local_api:
+    base_url: "http://localhost:8000"
+    timeout: 10
+    headers:
+      Content-Type: "application/json"
+      X-Debug: "true"
+
+  # 生产环境API
+  prod_api:
+    base_url: "https://api.production.com"
+    timeout: 5
+    headers:
+      Content-Type: "application/json"
+      User-Agent: "pytest-dsl-ui-prod/1.0"
+    extra_http_headers:
+      X-Environment: "production"
+
+# 浏览器HTTP请求模板
+browser_http_templates:
+  # 用户登录模板
+  login_api:
+    method: POST
+    url: /auth/login
+    request:
+      headers:
+        Content-Type: "application/json"
+      json:
+        username: "${username}"
+        password: "${password}"
+    captures:
+      access_token: ["jsonpath", "$.access_token"]
+      refresh_token: ["jsonpath", "$.refresh_token"]
+      user_id: ["jsonpath", "$.user.id"]
+      expires_in: ["jsonpath", "$.expires_in"]
+    asserts:
+      - ["status", "eq", 200]
+      - ["jsonpath", "$.access_token", "exists"]
+      - ["jsonpath", "$.user.id", "exists"]
+
+  # 获取用户资料模板
+  get_user_profile:
+    method: GET
+    url: /users/${user_id}
+    request:
+      headers:
+        Authorization: "Bearer ${access_token}"
+    captures:
+      user_data: ["jsonpath", "$"]
+      user_name: ["jsonpath", "$.name"]
+      user_email: ["jsonpath", "$.email"]
+      user_role: ["jsonpath", "$.role"]
+    asserts:
+      - ["status", "eq", 200]
+      - ["jsonpath", "$.id", "eq", "${user_id}"]
+      - ["jsonpath", "$.name", "exists"]
+
+  # 创建新用户模板
+  create_user:
+    method: POST
+    url: /users
+    request:
+      headers:
+        Content-Type: "application/json"
+        Authorization: "Bearer ${admin_token}"
+      json:
+        name: "${user_name}"
+        email: "${user_email}"
+        role: "${user_role}"
+        password: "${user_password}"
+    captures:
+      new_user_id: ["jsonpath", "$.id"]
+      created_at: ["jsonpath", "$.created_at"]
+    asserts:
+      - ["status", "eq", 201]
+      - ["jsonpath", "$.id", "exists"]
+      - ["jsonpath", "$.name", "eq", "${user_name}"]
+      - ["jsonpath", "$.email", "eq", "${user_email}"]
+
+  # 更新用户信息模板
+  update_user:
+    method: PUT
+    url: /users/${user_id}
+    request:
+      headers:
+        Content-Type: "application/json"
+        Authorization: "Bearer ${access_token}"
+      json:
+        name: "${new_name}"
+        email: "${new_email}"
+    captures:
+      updated_user: ["jsonpath", "$"]
+      updated_at: ["jsonpath", "$.updated_at"]
+    asserts:
+      - ["status", "eq", 200]
+      - ["jsonpath", "$.id", "eq", "${user_id}"]
+      - ["jsonpath", "$.name", "eq", "${new_name}"]
+
+  # 删除用户模板
+  delete_user:
+    method: DELETE
+    url: /users/${user_id}
+    request:
+      headers:
+        Authorization: "Bearer ${admin_token}"
+    asserts:
+      - ["status", "eq", 204]
+
+  # 分页获取数据模板
+  get_paginated_data:
+    method: GET
+    url: /api/${resource}
+    request:
+      params:
+        page: "${page}"
+        limit: "${limit}"
+        sort: "${sort_field}"
+        order: "${sort_order}"
+    captures:
+      data: ["jsonpath", "$.data"]
+      total: ["jsonpath", "$.total"]
+      current_page: ["jsonpath", "$.page"]
+      per_page: ["jsonpath", "$.limit"]
+      has_next: ["jsonpath", "$.has_next"]
+    asserts:
+      - ["status", "eq", 200]
+      - ["jsonpath", "$.data", "type", "array"]
+      - ["jsonpath", "$.total", "type", "number"]
+      - ["jsonpath", "$.page", "eq", "${page}"]
+
+  # 文件上传模板
+  upload_file:
+    method: POST
+    url: /upload
+    request:
+      headers:
+        Authorization: "Bearer ${access_token}"
+      files:
+        file: "${file_path}"
+      data:
+        description: "${file_description}"
+        category: "${file_category}"
+    captures:
+      file_id: ["jsonpath", "$.file_id"]
+      file_url: ["jsonpath", "$.url"]
+      file_size: ["jsonpath", "$.size"]
+    asserts:
+      - ["status", "eq", 201]
+      - ["jsonpath", "$.file_id", "exists"]
+      - ["jsonpath", "$.url", "exists"]
+
+  # 搜索模板
+  search_api:
+    method: GET
+    url: /search
+    request:
+      params:
+        q: "${search_query}"
+        type: "${search_type}"
+        filters: "${search_filters}"
+    captures:
+      results: ["jsonpath", "$.results"]
+      results_count: ["jsonpath", "$.results", "length"]
+      search_time: ["jsonpath", "$.search_time"]
+    asserts:
+      - ["status", "eq", 200]
+      - ["jsonpath", "$.results", "type", "array"]
+      - ["response_time", "lt", 3000]
+
+  # 批量操作模板
+  batch_operation:
+    method: POST
+    url: /batch/${operation}
+    request:
+      headers:
+        Content-Type: "application/json"
+        Authorization: "Bearer ${access_token}"
+      json:
+        items: "${item_ids}"
+        action: "${action_type}"
+        options: "${batch_options}"
+    captures:
+      batch_id: ["jsonpath", "$.batch_id"]
+      processed_count: ["jsonpath", "$.processed"]
+      failed_count: ["jsonpath", "$.failed"]
+    asserts:
+      - ["status", "eq", 202]
+      - ["jsonpath", "$.batch_id", "exists"]
+      - ["jsonpath", "$.processed", "type", "number"]
+
+  # 健康检查模板
+  health_check:
+    method: GET
+    url: /health
+    captures:
+      status: ["jsonpath", "$.status"]
+      version: ["jsonpath", "$.version"]
+      uptime: ["jsonpath", "$.uptime"]
+      dependencies: ["jsonpath", "$.dependencies"]
+    asserts:
+      - ["status", "eq", 200]
+      - ["jsonpath", "$.status", "eq", "healthy"]
+      - ["response_time", "lt", 1000]
+
+  # 带重试的API调用模板
+  resilient_api_call:
+    method: GET
+    url: /api/unstable-endpoint
+    captures:
+      data: ["jsonpath", "$.data"]
+      retry_count: ["header", "X-Retry-Count"]
+    asserts:
+      - ["status", "eq", 200]
+      - ["jsonpath", "$.data", "exists"]
+      - ["response_time", "lt", 5000]
+    retry_assertions:
+      all: true
+      count: 5
+      interval: 2
+      specific:
+        0:  # 第一个断言（状态码）的特殊重试配置
+          count: 10
+          interval: 1
+        2:  # 第三个断言（响应时间）的特殊重试配置
+          count: 3
+          interval: 3
+
+# 全局配置
+global_settings:
+  # 默认超时时间
+  default_timeout: 30
+  
+  # 默认重试配置
+  default_retry:
+    count: 3
+    interval: 1
+    
+  # 调试模式
+  debug_mode: true
+  
+  # 日志级别
+  log_level: "INFO" 

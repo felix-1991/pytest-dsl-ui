@@ -1,0 +1,32 @@
+# 真实浏览器API测试配置文件
+
+# 浏览器HTTP客户端配置
+browser_http_clients:
+  # JSONPlaceholder测试API
+  jsonplaceholder:
+    base_url: "https://jsonplaceholder.typicode.com"
+    timeout: 30
+    headers:
+      Content-Type: "application/json"
+      User-Agent: "pytest-dsl-ui-browser-test/1.0"
+      Accept: "application/json"
+    # 浏览器环境下不需要处理HTTPS错误，浏览器会自动处理
+    ignore_https_errors: false
+
+# 浏览器配置
+browser:
+  type: "chromium"
+  headless: false
+  slow_mo: 1000  # 慢动作模式，便于观察
+  viewport:
+    width: 1920
+    height: 1080
+  args:
+    - "--start-maximized"
+  
+# pytest-dsl变量配置
+# 这些变量将在DSL文件中可用
+test_data:
+  api_base_url: "https://jsonplaceholder.typicode.com"
+  test_user_id: 1
+  test_post_id: 1 

@@ -14,6 +14,7 @@ from . import captcha_keywords
 from . import network_keywords
 from . import auth_keywords
 from . import download_keywords
+from . import browser_http_keywords
 
 __all__ = [
     'browser_keywords',
@@ -25,5 +26,6 @@ __all__ = [
     'captcha_keywords',
     'network_keywords',
     'auth_keywords',
-    'download_keywords'
+    'download_keywords',
+    'browser_http_keywords'
 ]
