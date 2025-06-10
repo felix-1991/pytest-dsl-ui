@@ -373,51 +373,6 @@ def set_default_timeout(**kwargs):
             raise
 
 
-@keyword_manager.register('等待', [
-    {'name': '时间', 'mapping': 'time', 'description': '等待时间（秒）'},
-])
-def wait(**kwargs):
-    """等待指定时间
-    
-    Args:
-        time: 等待时间（秒）
-        
-    Returns:
-        dict: 操作结果
-    """
-    wait_time = float(kwargs.get('time', 1))
-    
-    with allure.step(f"等待 {wait_time} 秒"):
-        try:
-            allure.attach(
-                f"等待时间: {wait_time}秒",
-                name="等待信息",
-                attachment_type=allure.attachment_type.TEXT
-            )
-            
-            time_module.sleep(wait_time)
-            logger.info(f"等待完成: {wait_time}秒")
-            
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "wait_time": wait_time,
-                    "operation": "wait"
-                }
-            }
-            
-        except Exception as e:
-            logger.error(f"等待失败: {str(e)}")
-            allure.attach(
-                f"错误信息: {str(e)}",
-                name="等待失败",
-                attachment_type=allure.attachment_type.TEXT
-            )
-            raise
-
-
 @keyword_manager.register('获取页面列表', [
     {'name': '变量名', 'mapping': 'variable',
      'description': '保存页面列表的变量名'},

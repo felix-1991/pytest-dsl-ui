@@ -2,12 +2,12 @@
   "summary": {
     "total_count": 106,
     "category_counts": {
-      "builtin": 18,
-      "custom": 88
+      "builtin": 19,
+      "custom": 87
     },
     "source_counts": {
-      "builtin:pytest-dsl内置": 18,
-      "custom:pytest-dsl": 88
+      "builtin:pytest-dsl内置": 19,
+      "custom:pytest-dsl": 87
     }
   },
   "keywords": [
@@ -2095,22 +2095,23 @@
     },
     {
       "name": "等待",
-      "category": "custom",
+      "category": "builtin",
       "source_info": {
-        "type": "internal",
-        "name": "pytest-dsl",
-        "display_name": "pytest-dsl",
-        "module": "pytest_dsl_ui.keywords.browser_keywords",
+        "type": "builtin",
+        "name": "pytest-dsl内置",
+        "display_name": "pytest-dsl内置",
+        "module": "pytest_dsl.keywords.system_keywords",
         "plugin_module": ""
       },
       "parameters": [
         {
-          "name": "时间",
-          "mapping": "time",
-          "description": "等待时间（秒）"
+          "name": "秒数",
+          "mapping": "seconds",
+          "description": "等待的秒数，可以是小数",
+          "default": 1
         }
       ],
-      "documentation": "等待指定时间\n    \n    Args:\n        time: 等待时间（秒）\n        \n    Returns:\n        dict: 操作结果"
+      "documentation": "等待指定的时间\n\n    Args:\n        seconds: 等待的秒数，默认为1秒"
     },
     {
       "name": "等待URL变化",
