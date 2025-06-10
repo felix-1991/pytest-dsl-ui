@@ -1,15 +1,26 @@
 {
   "summary": {
-    "total_count": 99,
+    "total_count": 106,
     "category_counts": {
       "builtin": 18,
-      "custom": 81
+      "custom": 88
+    },
+    "source_counts": {
+      "builtin:pytest-dsl内置": 18,
+      "custom:pytest-dsl": 88
     }
   },
   "keywords": [
     {
       "name": "HTTP请求",
       "category": "builtin",
+      "source_info": {
+        "type": "builtin",
+        "name": "pytest-dsl内置",
+        "display_name": "pytest-dsl内置",
+        "module": "pytest_dsl.keywords.http_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "客户端",
@@ -61,6 +72,13 @@
     {
       "name": "JSON提取",
       "category": "builtin",
+      "source_info": {
+        "type": "builtin",
+        "name": "pytest-dsl内置",
+        "display_name": "pytest-dsl内置",
+        "module": "pytest_dsl.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "JSON数据",
@@ -83,6 +101,13 @@
     {
       "name": "JSON断言",
       "category": "builtin",
+      "source_info": {
+        "type": "builtin",
+        "name": "pytest-dsl内置",
+        "display_name": "pytest-dsl内置",
+        "module": "pytest_dsl.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "JSON数据",
@@ -117,6 +142,13 @@
     {
       "name": "上传文件",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords_extended",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -139,6 +171,13 @@
     {
       "name": "保存认证状态",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.auth_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "状态名称",
@@ -167,6 +206,13 @@
     {
       "name": "停止录制",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.capture_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "变量名",
@@ -179,12 +225,26 @@
     {
       "name": "停止网络监听",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.network_keywords",
+        "plugin_module": ""
+      },
       "parameters": [],
       "documentation": "停止监听网络请求和响应\n\n    Returns:\n        dict: 操作结果"
     },
     {
       "name": "关闭浏览器",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.browser_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "浏览器ID",
@@ -195,8 +255,34 @@
       "documentation": "关闭浏览器\n\n    Args:\n        browser_id: 浏览器ID\n\n    Returns:\n        dict: 操作结果"
     },
     {
+      "name": "切换到最新页面",
+      "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.browser_keywords",
+        "plugin_module": ""
+      },
+      "parameters": [
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存最新页面ID的变量名"
+        }
+      ],
+      "documentation": "切换到最新创建的页面\n\n    Args:\n        variable: 变量名\n\n    Returns:\n        dict: 包含最新页面ID的字典"
+    },
+    {
       "name": "切换页面",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.browser_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "页面ID",
@@ -209,6 +295,13 @@
     {
       "name": "列出认证状态",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.auth_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "变量名",
@@ -221,6 +314,13 @@
     {
       "name": "删除全局变量",
       "category": "builtin",
+      "source_info": {
+        "type": "builtin",
+        "name": "pytest-dsl内置",
+        "display_name": "pytest-dsl内置",
+        "module": "pytest_dsl.keywords.global_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "变量名",
@@ -233,6 +333,13 @@
     {
       "name": "删除认证状态",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.auth_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "状态名称",
@@ -245,6 +352,13 @@
     {
       "name": "刷新页面",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.navigation_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "等待条件",
@@ -264,6 +378,13 @@
     {
       "name": "前进",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.navigation_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "等待条件",
@@ -283,6 +404,13 @@
     {
       "name": "加载认证状态",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.auth_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "状态名称",
@@ -307,6 +435,13 @@
     {
       "name": "勾选复选框",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -325,6 +460,13 @@
     {
       "name": "双击元素",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -343,6 +485,13 @@
     {
       "name": "取消勾选复选框",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -361,6 +510,13 @@
     {
       "name": "右键点击元素",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -379,6 +535,13 @@
     {
       "name": "后退",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.navigation_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "等待条件",
@@ -398,6 +561,13 @@
     {
       "name": "启动浏览器",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.browser_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "浏览器",
@@ -445,6 +615,13 @@
     {
       "name": "多条件检查",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "检查条件列表",
@@ -462,6 +639,13 @@
     {
       "name": "字符串操作",
       "category": "builtin",
+      "source_info": {
+        "type": "builtin",
+        "name": "pytest-dsl内置",
+        "display_name": "pytest-dsl内置",
+        "module": "pytest_dsl.keywords.system_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "操作",
@@ -492,6 +676,13 @@
     {
       "name": "开始录制",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.capture_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "文件名",
@@ -509,6 +700,13 @@
     {
       "name": "开始网络监听",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.network_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "变量名",
@@ -521,6 +719,13 @@
     {
       "name": "悬停元素",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -539,6 +744,13 @@
     {
       "name": "截图",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.capture_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "文件名",
@@ -567,6 +779,13 @@
     {
       "name": "打印",
       "category": "builtin",
+      "source_info": {
+        "type": "builtin",
+        "name": "pytest-dsl内置",
+        "display_name": "pytest-dsl内置",
+        "module": "pytest_dsl.keywords.system_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "内容",
@@ -578,6 +797,13 @@
     {
       "name": "打开页面",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.navigation_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "地址",
@@ -608,6 +834,13 @@
     {
       "name": "执行JavaScript",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.capture_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "脚本",
@@ -625,6 +858,13 @@
     {
       "name": "执行命令",
       "category": "builtin",
+      "source_info": {
+        "type": "builtin",
+        "name": "pytest-dsl内置",
+        "display_name": "pytest-dsl内置",
+        "module": "pytest_dsl.keywords.system_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "命令",
@@ -649,6 +889,13 @@
     {
       "name": "拖拽元素",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "源定位器",
@@ -672,6 +919,13 @@
     {
       "name": "按键操作",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -695,6 +949,13 @@
     {
       "name": "数据比较",
       "category": "builtin",
+      "source_info": {
+        "type": "builtin",
+        "name": "pytest-dsl内置",
+        "display_name": "pytest-dsl内置",
+        "module": "pytest_dsl.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "实际值",
@@ -724,6 +985,13 @@
     {
       "name": "断言",
       "category": "builtin",
+      "source_info": {
+        "type": "builtin",
+        "name": "pytest-dsl内置",
+        "display_name": "pytest-dsl内置",
+        "module": "pytest_dsl.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "条件",
@@ -742,6 +1010,13 @@
     {
       "name": "断言元素可见",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -765,6 +1040,13 @@
     {
       "name": "断言元素启用",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -787,6 +1069,13 @@
     {
       "name": "断言元素存在",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -810,6 +1099,13 @@
     {
       "name": "断言元素数量",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -837,6 +1133,13 @@
     {
       "name": "断言元素禁用",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -859,6 +1162,13 @@
     {
       "name": "断言元素隐藏",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -882,6 +1192,13 @@
     {
       "name": "断言响应内容",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.network_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "响应数据",
@@ -914,6 +1231,13 @@
     {
       "name": "断言复选框状态",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -942,6 +1266,13 @@
     {
       "name": "断言属性值",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -975,6 +1306,13 @@
     {
       "name": "断言文本内容",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -1009,6 +1347,13 @@
     {
       "name": "断言输入值",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -1037,6 +1382,13 @@
     {
       "name": "断言页面URL",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "期望URL",
@@ -1064,6 +1416,13 @@
     {
       "name": "断言页面标题",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "期望标题",
@@ -1091,6 +1450,13 @@
     {
       "name": "新建页面",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.browser_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "上下文ID",
@@ -1103,6 +1469,13 @@
     {
       "name": "日志",
       "category": "builtin",
+      "source_info": {
+        "type": "builtin",
+        "name": "pytest-dsl内置",
+        "display_name": "pytest-dsl内置",
+        "module": "pytest_dsl.keywords.system_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "级别",
@@ -1119,8 +1492,75 @@
       "documentation": "记录日志\n\n    Args:\n        level: 日志级别\n        message: 日志消息内容"
     },
     {
+      "name": "根据URL查找页面",
+      "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.browser_keywords",
+        "plugin_module": ""
+      },
+      "parameters": [
+        {
+          "name": "URL",
+          "mapping": "url",
+          "description": "页面URL（支持部分匹配）"
+        },
+        {
+          "name": "精确匹配",
+          "mapping": "exact_match",
+          "description": "是否精确匹配URL",
+          "default": false
+        },
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存找到的页面ID的变量名"
+        }
+      ],
+      "documentation": "根据页面URL查找页面ID\n\n    Args:\n        url: 要查找的页面URL\n        exact_match: 是否精确匹配\n        variable: 变量名\n\n    Returns:\n        dict: 包含找到的页面ID的字典"
+    },
+    {
+      "name": "根据标题查找页面",
+      "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.browser_keywords",
+        "plugin_module": ""
+      },
+      "parameters": [
+        {
+          "name": "标题",
+          "mapping": "title",
+          "description": "页面标题（支持部分匹配）"
+        },
+        {
+          "name": "精确匹配",
+          "mapping": "exact_match",
+          "description": "是否精确匹配标题",
+          "default": false
+        },
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存找到的页面ID的变量名"
+        }
+      ],
+      "documentation": "根据页面标题查找页面ID\n\n    Args:\n        title: 要查找的页面标题\n        exact_match: 是否精确匹配\n        variable: 变量名\n\n    Returns:\n        dict: 包含找到的页面ID的字典"
+    },
+    {
       "name": "检查元素属性值",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -1148,6 +1588,13 @@
     {
       "name": "检查元素是否可见",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -1165,6 +1612,13 @@
     {
       "name": "检查元素是否启用",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -1182,6 +1636,13 @@
     {
       "name": "检查元素是否存在",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -1199,6 +1660,13 @@
     {
       "name": "检查元素是否选中",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords_extended",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -1211,6 +1679,13 @@
     {
       "name": "检查文本是否包含",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -1233,6 +1708,13 @@
     {
       "name": "检查认证状态",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.auth_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "状态名称",
@@ -1245,6 +1727,13 @@
     {
       "name": "检查页面URL是否包含",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "期望URL片段",
@@ -1262,6 +1751,13 @@
     {
       "name": "检查页面标题是否包含",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "期望标题片段",
@@ -1277,8 +1773,73 @@
       "documentation": "检查页面标题是否包含指定片段\n\n    Args:\n        title_fragment: 期望包含的标题片段\n        timeout: 超时时间（秒）\n\n    Returns:\n        dict: 包含boolean结果的操作结果"
     },
     {
+      "name": "浏览器HTTP请求",
+      "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.browser_http_keywords",
+        "plugin_module": ""
+      },
+      "parameters": [
+        {
+          "name": "客户端",
+          "mapping": "client",
+          "description": "客户端名称，对应YAML变量文件中的客户端配置",
+          "default": "default"
+        },
+        {
+          "name": "配置",
+          "mapping": "config",
+          "description": "包含请求、捕获和断言的YAML配置"
+        },
+        {
+          "name": "会话",
+          "mapping": "session",
+          "description": "会话名称，用于在多个请求间保持会话状态（浏览器上下文自动管理）"
+        },
+        {
+          "name": "保存响应",
+          "mapping": "save_response",
+          "description": "将完整响应保存到指定变量名中"
+        },
+        {
+          "name": "禁用授权",
+          "mapping": "disable_auth",
+          "description": "禁用客户端配置中的授权机制",
+          "default": false
+        },
+        {
+          "name": "模板",
+          "mapping": "template",
+          "description": "使用YAML变量文件中定义的请求模板"
+        },
+        {
+          "name": "断言重试次数",
+          "mapping": "assert_retry_count",
+          "description": "断言失败时的重试次数",
+          "default": 0
+        },
+        {
+          "name": "断言重试间隔",
+          "mapping": "assert_retry_interval",
+          "description": "断言重试间隔时间（秒）",
+          "default": 1
+        }
+      ],
+      "documentation": "执行基于浏览器的HTTP请求\n\n    根据YAML配置发送HTTP请求，利用浏览器的会话状态和认证信息，\n    支持客户端配置、响应捕获和断言。\n\n    Args:\n        context: 测试上下文\n        client: 客户端名称\n        config: YAML配置\n        session: 会话名称（浏览器上下文自动管理）\n        save_response: 保存响应的变量名\n        disable_auth: 禁用客户端配置中的授权机制\n        template: 模板名称\n        assert_retry_count: 断言失败时的重试次数\n        assert_retry_interval: 断言重试间隔时间（秒）\n\n    Returns:\n        捕获的变量字典或响应对象"
+    },
+    {
       "name": "清理下载文件",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.download_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "下载目录",
@@ -1303,6 +1864,13 @@
     {
       "name": "清空文本",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -1321,12 +1889,26 @@
     {
       "name": "清除所有全局变量",
       "category": "builtin",
+      "source_info": {
+        "type": "builtin",
+        "name": "pytest-dsl内置",
+        "display_name": "pytest-dsl内置",
+        "module": "pytest_dsl.keywords.global_keywords",
+        "plugin_module": ""
+      },
       "parameters": [],
       "documentation": "清除所有全局变量"
     },
     {
       "name": "清除所有认证状态",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.auth_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "确认清除",
@@ -1340,6 +1922,13 @@
     {
       "name": "清除认证状态",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.auth_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "状态名称",
@@ -1352,6 +1941,13 @@
     {
       "name": "滚动元素到视野",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -1370,6 +1966,13 @@
     {
       "name": "点击元素",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -1405,6 +2008,13 @@
     {
       "name": "生成随机字符串",
       "category": "builtin",
+      "source_info": {
+        "type": "builtin",
+        "name": "pytest-dsl内置",
+        "display_name": "pytest-dsl内置",
+        "module": "pytest_dsl.keywords.system_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "长度",
@@ -1424,6 +2034,13 @@
     {
       "name": "生成随机数",
       "category": "builtin",
+      "source_info": {
+        "type": "builtin",
+        "name": "pytest-dsl内置",
+        "display_name": "pytest-dsl内置",
+        "module": "pytest_dsl.keywords.system_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "最小值",
@@ -1449,6 +2066,13 @@
     {
       "name": "监听下载",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.download_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "监听时间",
@@ -1472,6 +2096,13 @@
     {
       "name": "等待",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.browser_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "时间",
@@ -1484,6 +2115,13 @@
     {
       "name": "等待URL变化",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.network_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "URL模式",
@@ -1506,6 +2144,13 @@
     {
       "name": "等待下载",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.download_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "触发元素",
@@ -1534,6 +2179,13 @@
     {
       "name": "等待元素出现",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords_extended",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -1561,6 +2213,13 @@
     {
       "name": "等待文本出现",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords_extended",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "文本",
@@ -1581,8 +2240,40 @@
       "documentation": "等待文本在页面中出现\n\n    Args:\n        text: 要等待的文本\n        timeout: 超时时间\n        raise_on_timeout: 超时时是否抛出异常\n\n    Returns:\n        dict: 操作结果"
     },
     {
+      "name": "等待新页面",
+      "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.browser_keywords",
+        "plugin_module": ""
+      },
+      "parameters": [
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "等待超时时间（秒）",
+          "default": 30
+        },
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存新页面ID的变量名"
+        }
+      ],
+      "documentation": "等待新页面出现（用于处理新窗口/标签页）\n\n    Args:\n        timeout: 超时时间\n        variable: 变量名\n\n    Returns:\n        dict: 包含新页面ID的字典"
+    },
+    {
       "name": "等待网络响应",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.network_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "URL模式",
@@ -1610,6 +2301,13 @@
     {
       "name": "等待网络请求",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.network_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "URL模式",
@@ -1632,6 +2330,13 @@
     {
       "name": "类型断言",
       "category": "builtin",
+      "source_info": {
+        "type": "builtin",
+        "name": "pytest-dsl内置",
+        "display_name": "pytest-dsl内置",
+        "module": "pytest_dsl.keywords.assertion_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "值",
@@ -1655,6 +2360,13 @@
     {
       "name": "聚焦元素",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -1673,6 +2385,13 @@
     {
       "name": "获取元素属性",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords_extended",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -1700,6 +2419,13 @@
     {
       "name": "获取元素文本",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords_extended",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -1717,6 +2443,13 @@
     {
       "name": "获取全局变量",
       "category": "builtin",
+      "source_info": {
+        "type": "builtin",
+        "name": "pytest-dsl内置",
+        "display_name": "pytest-dsl内置",
+        "module": "pytest_dsl.keywords.global_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "变量名",
@@ -1729,12 +2462,26 @@
     {
       "name": "获取当前地址",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.navigation_keywords",
+        "plugin_module": ""
+      },
       "parameters": [],
       "documentation": "获取当前页面URL\n\n    Returns:\n        dict: 包含当前URL的字典"
     },
     {
       "name": "获取当前时间",
       "category": "builtin",
+      "source_info": {
+        "type": "builtin",
+        "name": "pytest-dsl内置",
+        "display_name": "pytest-dsl内置",
+        "module": "pytest_dsl.keywords.system_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "格式",
@@ -1754,6 +2501,13 @@
     {
       "name": "获取网络响应",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.network_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "URL模式",
@@ -1771,6 +2525,13 @@
     {
       "name": "获取网络请求",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.network_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "URL模式",
@@ -1788,6 +2549,13 @@
     {
       "name": "获取视口大小",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.capture_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "变量名",
@@ -1798,14 +2566,47 @@
       "documentation": "获取视口大小\n\n    Args:\n        variable: 变量名\n\n    Returns:\n        dict: 包含视口大小的字典"
     },
     {
+      "name": "获取页面列表",
+      "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.browser_keywords",
+        "plugin_module": ""
+      },
+      "parameters": [
+        {
+          "name": "变量名",
+          "mapping": "variable",
+          "description": "保存页面列表的变量名"
+        }
+      ],
+      "documentation": "获取页面列表\n\n    Args:\n        variable: 变量名\n\n    Returns:\n        dict: 包含页面列表的字典"
+    },
+    {
       "name": "获取页面标题",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.navigation_keywords",
+        "plugin_module": ""
+      },
       "parameters": [],
       "documentation": "获取页面标题\n\n    Returns:\n        dict: 包含页面标题的字典"
     },
     {
       "name": "设置全局变量",
       "category": "builtin",
+      "source_info": {
+        "type": "builtin",
+        "name": "pytest-dsl内置",
+        "display_name": "pytest-dsl内置",
+        "module": "pytest_dsl.keywords.global_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "变量名",
@@ -1823,6 +2624,13 @@
     {
       "name": "设置复选框状态",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -1845,8 +2653,51 @@
       "documentation": "设置复选框状态\n\n    Args:\n        selector: 复选框定位器\n        checked: 是否选中\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
     },
     {
+      "name": "设置浏览器HTTP客户端",
+      "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.browser_http_keywords",
+        "plugin_module": ""
+      },
+      "parameters": [
+        {
+          "name": "客户端名称",
+          "mapping": "client_name",
+          "description": "客户端名称",
+          "default": "default"
+        },
+        {
+          "name": "基础URL",
+          "mapping": "base_url",
+          "description": "API的基础URL地址"
+        },
+        {
+          "name": "默认头",
+          "mapping": "headers",
+          "description": "默认请求头（JSON格式）"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "默认超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "documentation": "设置浏览器HTTP客户端配置\n\n    Args:\n        context: 测试上下文\n        client_name: 客户端名称\n        base_url: 基础URL\n        headers: 默认请求头\n        timeout: 超时时间\n\n    Returns:\n        dict: 操作结果"
+    },
+    {
       "name": "设置等待超时",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.browser_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "超时时间",
@@ -1860,6 +2711,13 @@
     {
       "name": "设置视口大小",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.capture_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "宽度",
@@ -1877,6 +2735,13 @@
     {
       "name": "识别文字验证码",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.captcha_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "图片源",
@@ -1904,6 +2769,13 @@
     {
       "name": "输入文本",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -1933,6 +2805,13 @@
     {
       "name": "返回结果",
       "category": "builtin",
+      "source_info": {
+        "type": "builtin",
+        "name": "pytest-dsl内置",
+        "display_name": "pytest-dsl内置",
+        "module": "pytest_dsl.keywords.system_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "结果",
@@ -1944,6 +2823,13 @@
     {
       "name": "选择下拉选项",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -1983,6 +2869,13 @@
     {
       "name": "选择单选框",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -2001,6 +2894,13 @@
     {
       "name": "选择选项",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords_extended",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -2033,6 +2933,13 @@
     {
       "name": "逐字符输入",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "定位器",
@@ -2062,6 +2969,13 @@
     {
       "name": "验证下载文件",
       "category": "custom",
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.download_keywords",
+        "plugin_module": ""
+      },
       "parameters": [
         {
           "name": "文件路径",
