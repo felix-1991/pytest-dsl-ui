@@ -49,7 +49,7 @@ _captcha_recognizer = CaptchaRecognizer()
      'description': '保存识别结果的变量名'},
     {'name': '预处理', 'mapping': 'preprocess',
      'description': '是否进行图片预处理：去噪、二值化等'},
-])
+], category='UI/验证码')
 def recognize_text_captcha(**kwargs):
     """识别文字验证码
 

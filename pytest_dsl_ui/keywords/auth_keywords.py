@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
      'description': '是否创建新的浏览器上下文', 'default': True},
     {'name': '验证登录', 'mapping': 'verify_login',
      'description': '是否验证登录状态', 'default': True},
-])
+], category='UI/认证', tags=['加载', '状态'])
 def load_auth_state(**kwargs):
     """加载保存的认证状态
 
@@ -191,7 +191,7 @@ def load_auth_state(**kwargs):
     {'name': '描述', 'mapping': 'description', 'description': '状态描述（元数据）'},
     {'name': '包含IndexedDB', 'mapping': 'include_indexed_db',
      'description': '是否包含IndexedDB数据', 'default': True},
-])
+], category='UI/认证', tags=['保存', '状态'])
 def save_auth_state(**kwargs):
     """保存当前的认证状态
 
@@ -326,7 +326,7 @@ def save_auth_state(**kwargs):
 
 @keyword_manager.register('检查认证状态', [
     {'name': '状态名称', 'mapping': 'state_name', 'description': '要检查的认证状态名称'},
-])
+], category='UI/认证', tags=['检查', '状态'])
 def check_auth_state(**kwargs):
     """检查认证状态是否存在
 
@@ -393,7 +393,7 @@ def check_auth_state(**kwargs):
 
 @keyword_manager.register('删除认证状态', [
     {'name': '状态名称', 'mapping': 'state_name', 'description': '要删除的认证状态名称'},
-])
+], category='UI/认证', tags=['删除', '状态'])
 def delete_auth_state(**kwargs):
     """删除认证状态
 
@@ -448,7 +448,7 @@ def delete_auth_state(**kwargs):
 
 @keyword_manager.register('列出认证状态', [
     {'name': '变量名', 'mapping': 'variable', 'description': '保存状态列表的变量名'},
-])
+], category='UI/认证', tags=['列表', '状态'])
 def list_auth_states(**kwargs):
     """列出所有认证状态
 
@@ -514,7 +514,7 @@ def list_auth_states(**kwargs):
 
 @keyword_manager.register('清除认证状态', [
     {'name': '状态名称', 'mapping': 'state_name', 'description': '要清除的认证状态名称'},
-])
+], category='UI/认证', tags=['清除', '状态'])
 def clear_auth_state(**kwargs):
     """清除指定的认证状态
 
@@ -583,7 +583,7 @@ def clear_auth_state(**kwargs):
 @keyword_manager.register('清除所有认证状态', [
     {'name': '确认清除', 'mapping': 'confirm_clear',
         'description': '确认清除所有状态', 'default': False},
-])
+], category='UI/认证', tags=['清除', '全部'])
 def clear_all_auth_states(**kwargs):
     """清除所有认证状态
 

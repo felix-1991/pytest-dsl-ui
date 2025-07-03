@@ -25,7 +25,7 @@ def _get_current_locator() -> ElementLocator:
     {'name': '标签', 'mapping': 'label', 'description': '要选择的选项标签文本'},
     {'name': '索引', 'mapping': 'index', 'description': '要选择的选项索引（从0开始）'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
-])
+], category='UI/交互')
 def select_option(**kwargs):
     """选择下拉框选项
 
@@ -48,7 +48,7 @@ def select_option(**kwargs):
     if not selector:
         raise ValueError("定位器参数不能为空")
 
-    if not any([value, label, index is not None]):
+    if not any([value, label, index is not None], category='UI/元素'):
         raise ValueError("必须指定值、标签或索引中的一个")
 
     with allure.step(f"选择选项: {selector}"):
@@ -111,7 +111,7 @@ def select_option(**kwargs):
     {'name': '定位器', 'mapping': 'selector', 'description': '文件输入框元素定位器'},
     {'name': '文件路径', 'mapping': 'file_path', 'description': '要上传的文件路径'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
-])
+], category='UI/交互')
 def upload_file(**kwargs):
     """上传文件
 
@@ -186,7 +186,7 @@ def upload_file(**kwargs):
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
     {'name': '失败时抛异常', 'mapping': 'raise_on_timeout',
      'description': '等待超时时是否抛出异常，默认为false'},
-])
+], category='UI/交互')
 def wait_for_element(**kwargs):
     """等待元素出现或达到指定状态
 
@@ -263,7 +263,7 @@ def wait_for_element(**kwargs):
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
     {'name': '失败时抛异常', 'mapping': 'raise_on_timeout',
      'description': '等待超时时是否抛出异常，默认为false'},
-])
+], category='UI/交互')
 def wait_for_text(**kwargs):
     """等待文本在页面中出现
 
@@ -334,7 +334,7 @@ def wait_for_text(**kwargs):
 @keyword_manager.register('获取元素文本', [
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
     {'name': '变量名', 'mapping': 'variable', 'description': '保存文本内容的变量名'},
-])
+], category='UI/交互')
 def get_element_text(**kwargs):
     """获取元素文本内容
 
@@ -400,8 +400,9 @@ def get_element_text(**kwargs):
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
     {'name': '属性', 'mapping': 'attribute', 'description': '要获取的属性名称'},
     {'name': '变量名', 'mapping': 'variable', 'description': '保存属性值的变量名'},
-    {'name': '默认值', 'mapping': 'default_value', 'description': '当属性不存在或为None时的默认值'},
-])
+    {'name': '默认值', 'mapping': 'default_value',
+        'description': '当属性不存在或为None时的默认值'},
+], category='UI/交互')
 def get_element_attribute(**kwargs):
     """获取元素属性值
 
@@ -428,7 +429,8 @@ def get_element_attribute(**kwargs):
     with allure.step(f"获取元素属性: {selector}.{attribute}"):
         try:
             locator = _get_current_locator()
-            attribute_value = locator.get_element_attribute(selector, attribute)
+            attribute_value = locator.get_element_attribute(
+                selector, attribute)
 
             # 处理None值和特殊属性
             if attribute_value is None:
@@ -440,15 +442,16 @@ def get_element_attribute(**kwargs):
                 else:
                     # 对于其他属性，转换为字符串表示
                     attribute_value = "null"
-            
+
             # 对于布尔属性的特殊处理
             elif attribute.lower() in ['checked', 'selected', 'disabled']:
                 # 将字符串转换为布尔值
                 if isinstance(attribute_value, str):
-                    attribute_value = attribute_value.lower() in ['true', 'checked', 'selected', 'disabled', '']
+                    attribute_value = attribute_value.lower(
+                    ) in ['true', 'checked', 'selected', 'disabled', '']
                 else:
                     attribute_value = bool(attribute_value)
-            
+
             # 对于checked属性，使用is_checked方法更可靠
             if attribute.lower() == 'checked':
                 try:
@@ -456,7 +459,7 @@ def get_element_attribute(**kwargs):
                 except Exception:
                     # 如果is_checked方法失败，回退到原来的逻辑
                     pass
-            
+
             # 对于value属性，使用get_element_value方法更可靠
             if attribute.lower() == 'value':
                 try:
@@ -482,7 +485,8 @@ def get_element_attribute(**kwargs):
                 attachment_type=allure.attachment_type.TEXT
             )
 
-            logger.info(f"获取元素属性成功: {selector}.{attribute} -> {attribute_value}")
+            logger.info(
+                f"获取元素属性成功: {selector}.{attribute} -> {attribute_value}")
 
             # 统一返回格式 - 支持远程关键字模式
             return {
@@ -510,7 +514,7 @@ def get_element_attribute(**kwargs):
 
 @keyword_manager.register('检查元素是否选中', [
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
-])
+], category='UI/断言')
 def check_element_checked(**kwargs):
     """检查元素是否选中（复选框或单选框）
 

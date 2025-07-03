@@ -228,7 +228,7 @@ def _normalize_retry_config(config, assert_retry_count=None, assert_retry_interv
      'description': '断言失败时的重试次数', 'default': 0},
     {'name': '断言重试间隔', 'mapping': 'assert_retry_interval',
      'description': '断言重试间隔时间（秒）', 'default': 1}
-])
+], category='UI/接口测试', tags=['接口', '请求'])
 def browser_http_request(context, **kwargs):
     """执行基于浏览器的HTTP请求
 
@@ -640,7 +640,7 @@ def _process_assertions_with_unified_retry(browser_http_req, retry_config, disab
      'description': '默认请求头（JSON格式）'},
     {'name': '超时时间', 'mapping': 'timeout',
      'description': '默认超时时间（秒）', 'default': 30},
-])
+], category='UI/接口测试', tags=['接口', '请求'])
 def set_browser_http_client(context, **kwargs):
     """设置浏览器HTTP客户端配置
 

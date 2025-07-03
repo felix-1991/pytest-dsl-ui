@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
     {'name': '视口高度', 'mapping': 'height', 'description': '浏览器视口高度'},
     {'name': '忽略证书错误', 'mapping': 'ignore_https_errors',
      'description': '是否忽略HTTPS证书错误', 'default': True},
-])
+], category='UI/浏览器', tags=['启动', '配置'])
 def launch_browser(**kwargs):
     """启动浏览器
 
@@ -152,7 +152,7 @@ def launch_browser(**kwargs):
 @keyword_manager.register('关闭浏览器', [
     {'name': '浏览器ID', 'mapping': 'browser_id',
         'description': '要关闭的浏览器ID，如果不指定则关闭当前浏览器'},
-])
+], category='UI/浏览器', tags=['关闭'])
 def close_browser(**kwargs):
     """关闭浏览器
 
@@ -211,7 +211,7 @@ def close_browser(**kwargs):
 @keyword_manager.register('新建页面', [
     {'name': '上下文ID', 'mapping': 'context_id',
         'description': '浏览器上下文ID，如果不指定则使用当前上下文'},
-])
+], category='UI/浏览器', tags=['页面', '新建'])
 def new_page(**kwargs):
     """新建页面
 
@@ -270,7 +270,7 @@ def new_page(**kwargs):
 
 @keyword_manager.register('切换页面', [
     {'name': '页面ID', 'mapping': 'page_id', 'description': '要切换到的页面ID'},
-])
+], category='UI/浏览器', tags=['页面', '切换'])
 def switch_page(**kwargs):
     """切换页面
 
@@ -324,7 +324,7 @@ def switch_page(**kwargs):
 
 @keyword_manager.register('设置等待超时', [
     {'name': '超时时间', 'mapping': 'timeout', 'description': '默认等待超时时间（秒）', 'default': 30},
-])
+], category='UI/浏览器', tags=['配置', '超时'])
 def set_default_timeout(**kwargs):
     """设置默认等待超时时间
 
@@ -376,7 +376,7 @@ def set_default_timeout(**kwargs):
 @keyword_manager.register('获取页面列表', [
     {'name': '变量名', 'mapping': 'variable',
      'description': '保存页面列表的变量名'},
-])
+], category='UI/浏览器', tags=['页面', '查询'])
 def get_page_list(**kwargs):
     """获取页面列表
 
@@ -459,7 +459,7 @@ def get_page_list(**kwargs):
 @keyword_manager.register('等待新页面', [
     {'name': '超时时间', 'mapping': 'timeout', 'description': '等待超时时间（秒）', 'default': 30},
     {'name': '变量名', 'mapping': 'variable', 'description': '保存新页面ID的变量名'},
-])
+], category='UI/浏览器', tags=['页面', '等待'])
 def wait_for_new_page(**kwargs):
     """等待新页面出现（用于处理新窗口/标签页）
 
@@ -547,7 +547,7 @@ def wait_for_new_page(**kwargs):
 
 @keyword_manager.register('切换到最新页面', [
     {'name': '变量名', 'mapping': 'variable', 'description': '保存最新页面ID的变量名'},
-])
+], category='UI/浏览器', tags=['页面', '切换'])
 def switch_to_latest_page(**kwargs):
     """切换到最新创建的页面
 
@@ -630,7 +630,7 @@ def switch_to_latest_page(**kwargs):
     {'name': '标题', 'mapping': 'title', 'description': '页面标题（支持部分匹配）'},
     {'name': '精确匹配', 'mapping': 'exact_match', 'description': '是否精确匹配标题', 'default': False},
     {'name': '变量名', 'mapping': 'variable', 'description': '保存找到的页面ID的变量名'},
-])
+], category='UI/浏览器', tags=['页面', '查找'])
 def find_page_by_title(**kwargs):
     """根据页面标题查找页面ID
 
@@ -788,7 +788,7 @@ def find_page_by_title(**kwargs):
     {'name': 'URL', 'mapping': 'url', 'description': '页面URL（支持部分匹配）'},
     {'name': '精确匹配', 'mapping': 'exact_match', 'description': '是否精确匹配URL', 'default': False},
     {'name': '变量名', 'mapping': 'variable', 'description': '保存找到的页面ID的变量名'},
-])
+], category='UI/浏览器', tags=['页面', '查找'])
 def find_page_by_url(**kwargs):
     """根据页面URL查找页面ID
 

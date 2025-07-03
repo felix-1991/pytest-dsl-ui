@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
      'description': '等待下载超时时间（秒）', 'default': 30},
     {'name': '变量名', 'mapping': 'variable', 
      'description': '保存下载文件路径的变量名'},
-])
+], category='UI/下载')
 def wait_for_download(**kwargs):
     """等待文件下载完成
 
@@ -147,7 +147,7 @@ def wait_for_download(**kwargs):
      'description': '下载文件保存目录，不指定则使用默认下载目录'},
     {'name': '变量名', 'mapping': 'variable', 
      'description': '保存下载文件列表的变量名'},
-])
+], category='UI/下载')
 def monitor_downloads(**kwargs):
     """监听页面下载事件
 
@@ -264,7 +264,7 @@ def monitor_downloads(**kwargs):
      'description': '最大文件大小（字节）'},
     {'name': '文件扩展名', 'mapping': 'expected_extension', 
      'description': '期望的文件扩展名'},
-])
+], category='UI/下载')
 def verify_downloaded_file(**kwargs):
     """验证下载的文件
 
@@ -369,7 +369,7 @@ def verify_downloaded_file(**kwargs):
      'description': '要删除的文件模式（如 *.pdf）'},
     {'name': '保留天数', 'mapping': 'keep_days', 
      'description': '保留最近几天的文件', 'default': 0},
-])
+], category='UI/下载')
 def cleanup_downloads(**kwargs):
     """清理下载文件
 

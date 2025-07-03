@@ -31,7 +31,7 @@ def _get_current_locator() -> ElementLocator:
      'description': '元素索引（当有多个匹配元素时）'},
     {'name': '可见性', 'mapping': 'visible_only', 
      'description': '是否只点击可见元素', 'default': False},
-])
+], category='UI/交互', tags=['点击', '交互'])
 def click_element(**kwargs):
     """点击元素
 
@@ -121,7 +121,7 @@ def click_element(**kwargs):
      'description': '元素定位器（CSS选择器、XPath、文本等）'},
     {'name': '超时时间', 'mapping': 'timeout', 
      'description': '超时时间（秒）', 'default': 30},
-])
+], category='UI/交互', tags=['双击', '交互'])
 def double_click_element(**kwargs):
     """双击元素
 
@@ -180,7 +180,7 @@ def double_click_element(**kwargs):
      'description': '元素定位器（CSS选择器、XPath、文本等）'},
     {'name': '超时时间', 'mapping': 'timeout', 
      'description': '超时时间（秒）', 'default': 30},
-])
+], category='UI/交互', tags=['右键', '交互'])
 def right_click_element(**kwargs):
     """右键点击元素
 
@@ -242,7 +242,7 @@ def right_click_element(**kwargs):
      'description': '输入前是否清空输入框', 'default': True},
     {'name': '超时时间', 'mapping': 'timeout', 
      'description': '超时时间（秒）', 'default': 30},
-])
+], category='UI/交互', tags=['输入', '文本'])
 def input_text(**kwargs):
     """输入文本
 
@@ -315,7 +315,7 @@ def input_text(**kwargs):
      'description': '元素定位器（CSS选择器、XPath、文本等）'},
     {'name': '超时时间', 'mapping': 'timeout', 
      'description': '超时时间（秒）', 'default': 30},
-])
+], category='UI/交互', tags=['清空', '文本'])
 def clear_text(**kwargs):
     """清空文本
 
@@ -374,7 +374,7 @@ def clear_text(**kwargs):
      'description': '复选框元素定位器（CSS选择器、XPath、文本等）'},
     {'name': '超时时间', 'mapping': 'timeout', 
      'description': '超时时间（秒）', 'default': 30},
-])
+], category='UI/交互', tags=['复选框', '勾选'])
 def check_checkbox(**kwargs):
     """勾选复选框
 
@@ -432,7 +432,7 @@ def check_checkbox(**kwargs):
      'description': '复选框元素定位器（CSS选择器、XPath、文本等）'},
     {'name': '超时时间', 'mapping': 'timeout', 
      'description': '超时时间（秒）', 'default': 30},
-])
+], category='UI/交互', tags=['复选框', '取消'])
 def uncheck_checkbox(**kwargs):
     """取消勾选复选框
 
@@ -493,7 +493,7 @@ def uncheck_checkbox(**kwargs):
      'description': '是否选中复选框', 'default': True},
     {'name': '超时时间', 'mapping': 'timeout', 
      'description': '超时时间（秒）', 'default': 30},
-])
+], category='UI/交互', tags=['复选框', '设置'])
 def set_checkbox(**kwargs):
     """设置复选框状态
 
@@ -556,7 +556,7 @@ def set_checkbox(**kwargs):
      'description': '单选框元素定位器（CSS选择器、XPath、文本等）'},
     {'name': '超时时间', 'mapping': 'timeout', 
      'description': '超时时间（秒）', 'default': 30},
-])
+], category='UI/交互', tags=['单选框', '选择'])
 def select_radio(**kwargs):
     """选择单选框
 
@@ -623,7 +623,7 @@ def select_radio(**kwargs):
      'description': '是否多选（值用逗号分隔）', 'default': False},
     {'name': '超时时间', 'mapping': 'timeout', 
      'description': '超时时间（秒）', 'default': 30},
-])
+], category='UI/交互', tags=['下拉框', '选择'])
 def select_option(**kwargs):
     """选择下拉框选项
 
@@ -730,7 +730,7 @@ def select_option(**kwargs):
      'description': '字符间延迟时间（毫秒）', 'default': 100},
     {'name': '超时时间', 'mapping': 'timeout', 
      'description': '超时时间（秒）', 'default': 30},
-])
+], category='UI/交互', tags=['输入', '逐字符'])
 def type_text(**kwargs):
     """逐字符输入文本（适用于有特殊键盘处理的情况）
 
@@ -799,7 +799,7 @@ def type_text(**kwargs):
      'description': '按键名称或组合键（如Enter、Ctrl+A等）'},
     {'name': '超时时间', 'mapping': 'timeout', 
      'description': '超时时间（秒）', 'default': 30},
-])
+], category='UI/交互', tags=['按键', '键盘'])
 def press_key(**kwargs):
     """按键操作
 
@@ -864,7 +864,7 @@ def press_key(**kwargs):
      'description': '元素定位器（CSS选择器、XPath、文本等）'},
     {'name': '超时时间', 'mapping': 'timeout', 
      'description': '超时时间（秒）', 'default': 30},
-])
+], category='UI/交互', tags=['悬停', '鼠标'])
 def hover_element(**kwargs):
     """悬停在元素上
 
@@ -925,7 +925,7 @@ def hover_element(**kwargs):
      'description': '拖拽目标元素定位器'},
     {'name': '超时时间', 'mapping': 'timeout', 
      'description': '超时时间（秒）', 'default': 30},
-])
+], category='UI/交互', tags=['拖拽', '鼠标'])
 def drag_element(**kwargs):
     """拖拽元素到另一个元素
 
@@ -991,7 +991,7 @@ def drag_element(**kwargs):
      'description': '元素定位器（CSS选择器、XPath、文本等）'},
     {'name': '超时时间', 'mapping': 'timeout', 
      'description': '超时时间（秒）', 'default': 30},
-])
+], category='UI/交互', tags=['聚焦'])
 def focus_element(**kwargs):
     """聚焦元素
 
@@ -1050,7 +1050,7 @@ def focus_element(**kwargs):
      'description': '元素定位器（CSS选择器、XPath、文本等）'},
     {'name': '超时时间', 'mapping': 'timeout', 
      'description': '超时时间（秒）', 'default': 30},
-])
+], category='UI/交互', tags=['滚动', '视野'])
 def scroll_into_view(**kwargs):
     """滚动元素到视野中
 
@@ -1111,7 +1111,7 @@ def scroll_into_view(**kwargs):
      'description': '要上传的文件路径（单个文件或多个文件用逗号分隔）'},
     {'name': '超时时间', 'mapping': 'timeout', 
      'description': '超时时间（秒）', 'default': 30},
-])
+], category='UI/交互', tags=['上传', '文件'])
 def upload_files(**kwargs):
     """上传文件
 

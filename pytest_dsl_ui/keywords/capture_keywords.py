@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
      'description': '是否截取整个页面（包括滚动区域）', 'default': False},
     {'name': '变量名', 'mapping': 'variable', 
      'description': '保存截图路径的变量名'},
-])
+], category='UI/截图')
 def take_screenshot(**kwargs):
     """截图
 
@@ -104,7 +104,7 @@ def take_screenshot(**kwargs):
 @keyword_manager.register('开始录制', [
     {'name': '文件名', 'mapping': 'filename', 'description': '录制文件名，如果不指定则自动生成'},
     {'name': '变量名', 'mapping': 'variable', 'description': '保存录制路径的变量名'},
-])
+], category='UI/视频录制')
 def start_recording(**kwargs):
     """开始录制视频
 
@@ -165,7 +165,7 @@ def start_recording(**kwargs):
 
 @keyword_manager.register('停止录制', [
     {'name': '变量名', 'mapping': 'variable', 'description': '保存录制路径的变量名'},
-])
+], category='UI/视频录制')
 def stop_recording(**kwargs):
     """停止录制视频
 
@@ -239,7 +239,7 @@ def stop_recording(**kwargs):
 @keyword_manager.register('设置视口大小', [
     {'name': '宽度', 'mapping': 'width', 'description': '视口宽度'},
     {'name': '高度', 'mapping': 'height', 'description': '视口高度'},
-])
+], category='UI/浏览器')
 def set_viewport_size(**kwargs):
     """设置视口大小
 
@@ -296,7 +296,7 @@ def set_viewport_size(**kwargs):
 
 @keyword_manager.register('获取视口大小', [
     {'name': '变量名', 'mapping': 'variable', 'description': '保存视口大小的变量名'},
-])
+], category='UI/浏览器')
 def get_viewport_size(**kwargs):
     """获取视口大小
 
@@ -356,7 +356,7 @@ def get_viewport_size(**kwargs):
 @keyword_manager.register('执行JavaScript', [
     {'name': '脚本', 'mapping': 'script', 'description': 'JavaScript代码'},
     {'name': '变量名', 'mapping': 'variable', 'description': '保存执行结果的变量名'},
-])
+], category='UI/执行JavaScript')
 def execute_javascript(**kwargs):
     """执行JavaScript代码
 

@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 30},
     {'name': '忽略证书错误', 'mapping': 'ignore_https_errors',
      'description': '是否忽略HTTPS证书错误', 'default': True},
-])
+], category='UI/导航', tags=['打开', '跳转'])
 def open_page(**kwargs):
     """打开页面
 
@@ -110,7 +110,7 @@ def open_page(**kwargs):
     {'name': '等待条件', 'mapping': 'wait_until',
      'description': '等待条件：load, domcontentloaded, networkidle', 'default': 'load'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 30},
-])
+], category='UI/导航', tags=['刷新'])
 def refresh_page(**kwargs):
     """刷新页面
 
@@ -165,7 +165,7 @@ def refresh_page(**kwargs):
     {'name': '等待条件', 'mapping': 'wait_until',
      'description': '等待条件：load, domcontentloaded, networkidle', 'default': 'load'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 30},
-])
+], category='UI/导航', tags=['后退', '历史'])
 def go_back(**kwargs):
     """浏览器后退
 
@@ -220,7 +220,7 @@ def go_back(**kwargs):
     {'name': '等待条件', 'mapping': 'wait_until',
      'description': '等待条件：load, domcontentloaded, networkidle', 'default': 'load'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 30},
-])
+], category='UI/导航', tags=['前进', '历史'])
 def go_forward(**kwargs):
     """浏览器前进
 
@@ -271,7 +271,7 @@ def go_forward(**kwargs):
             raise
 
 
-@keyword_manager.register('获取页面标题', [])
+@keyword_manager.register('获取页面标题', [], category='UI/导航', tags=['获取', '标题'])
 def get_page_title(**kwargs):
     """获取页面标题
 
@@ -314,7 +314,7 @@ def get_page_title(**kwargs):
             raise
 
 
-@keyword_manager.register('获取当前地址', [])
+@keyword_manager.register('获取当前地址', [], category='UI/导航', tags=['获取', 'URL'])
 def get_current_url(**kwargs):
     """获取当前页面URL
 

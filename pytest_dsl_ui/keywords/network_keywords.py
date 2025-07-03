@@ -107,7 +107,7 @@ class NetworkMonitor:
             return self.requests.copy()
 
         pattern = re.compile(url_pattern)
-        return [req for req in self.requests if pattern.search(req['url'])]
+        return [req for req in self.requests if pattern.search(req['url'], category='UI/网络')]
 
     def get_responses(
         self, url_pattern: Optional[str] = None
@@ -124,7 +124,7 @@ class NetworkMonitor:
             return self.responses.copy()
 
         pattern = re.compile(url_pattern)
-        return [resp for resp in self.responses if pattern.search(resp['url'])]
+        return [resp for resp in self.responses if pattern.search(resp['url'], category='UI/网络')]
 
     def _get_timestamp(self):
         """获取当前时间戳"""
@@ -149,7 +149,7 @@ def _get_network_monitor() -> NetworkMonitor:
 @keyword_manager.register('开始网络监听', [
     {'name': '变量名', 'mapping': 'variable',
      'description': '保存监听器状态的变量名'},
-])
+], category='UI/网络')
 def start_network_monitoring(**kwargs):
     """开始监听网络请求和响应
 
@@ -201,7 +201,7 @@ def start_network_monitoring(**kwargs):
             raise
 
 
-@keyword_manager.register('停止网络监听', [])
+@keyword_manager.register('停止网络监听', [], category='UI/网络')
 def stop_network_monitoring(**kwargs):
     """停止监听网络请求和响应
 
@@ -245,7 +245,7 @@ def stop_network_monitoring(**kwargs):
      'description': '匹配URL的正则表达式模式'},
     {'name': '变量名', 'mapping': 'variable',
      'description': '保存请求列表的变量名'},
-])
+], category='UI/网络')
 def get_network_requests(**kwargs):
     """获取捕获的网络请求
 
@@ -329,7 +329,7 @@ def get_network_requests(**kwargs):
      'description': '匹配URL的正则表达式模式'},
     {'name': '变量名', 'mapping': 'variable',
      'description': '保存响应列表的变量名'},
-])
+], category='UI/网络')
 def get_network_responses(**kwargs):
     """获取捕获的网络响应
 
@@ -414,7 +414,7 @@ def get_network_responses(**kwargs):
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
     {'name': '变量名', 'mapping': 'variable',
      'description': '保存匹配请求的变量名'},
-])
+], category='UI/网络')
 def wait_for_network_request(**kwargs):
     """等待特定的网络请求
 
@@ -505,7 +505,7 @@ def wait_for_network_request(**kwargs):
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
     {'name': '变量名', 'mapping': 'variable',
      'description': '保存匹配响应的变量名'},
-])
+], category='UI/网络')
 def wait_for_network_response(**kwargs):
     """等待特定的网络响应
 
@@ -620,7 +620,7 @@ def wait_for_network_response(**kwargs):
      'description': '期望的URL模式（正则表达式）'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
     {'name': '变量名', 'mapping': 'variable', 'description': '保存新URL的变量名'},
-])
+], category='UI/网络')
 def wait_for_url_change(**kwargs):
     """等待页面URL变化到指定模式
 
@@ -701,7 +701,7 @@ def wait_for_url_change(**kwargs):
     {'name': 'JSON路径', 'mapping': 'json_path',
      'description': 'JSON路径（用于json_path断言）'},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
-])
+], category='UI/网络')
 def assert_response_content(**kwargs):
     """断言响应内容
 

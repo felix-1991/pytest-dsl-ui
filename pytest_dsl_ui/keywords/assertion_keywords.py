@@ -30,7 +30,7 @@ def _get_current_locator() -> ElementLocator:
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 5},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
-])
+], category='UI/断言')
 def assert_element_visible(**kwargs):
     """断言元素可见
 
@@ -96,7 +96,7 @@ def assert_element_visible(**kwargs):
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 5},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
-])
+], category='UI/断言')
 def assert_element_hidden(**kwargs):
     """断言元素隐藏
 
@@ -161,7 +161,7 @@ def assert_element_hidden(**kwargs):
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 5},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
-])
+], category='UI/断言')
 def assert_element_exists(**kwargs):
     """断言元素存在
 
@@ -226,7 +226,7 @@ def assert_element_exists(**kwargs):
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
-])
+], category='UI/断言')
 def assert_element_enabled(**kwargs):
     """断言元素启用
 
@@ -291,7 +291,7 @@ def assert_element_enabled(**kwargs):
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
-])
+], category='UI/断言')
 def assert_element_disabled(**kwargs):
     """断言元素禁用
 
@@ -359,7 +359,7 @@ def assert_element_disabled(**kwargs):
         'description': '完全匹配或包含匹配，匹配方式 - exact(完全匹配) 或 contains(包含匹配)', 'default': 'exact'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 5},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
-])
+], category='UI/断言')
 def assert_text_content(**kwargs):
     """断言元素文本内容
 
@@ -451,7 +451,7 @@ def assert_text_content(**kwargs):
     {'name': '期望值', 'mapping': 'expected_value', 'description': '期望的输入值'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 5},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
-])
+], category='UI/断言')
 def assert_input_value(**kwargs):
     """断言输入元素的值
 
@@ -527,7 +527,7 @@ def assert_input_value(**kwargs):
     {'name': '期望值', 'mapping': 'expected_value', 'description': '期望的属性值'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 5},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
-])
+], category='UI/断言')
 def assert_attribute_value(**kwargs):
     """断言元素属性值
 
@@ -617,7 +617,7 @@ def assert_attribute_value(**kwargs):
     {'name': '期望数量', 'mapping': 'expected_count', 'description': '期望的元素数量'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
-])
+], category='UI/断言')
 def assert_element_count(**kwargs):
     """断言元素数量
 
@@ -699,7 +699,7 @@ def assert_element_count(**kwargs):
     {'name': '匹配方式', 'mapping': 'match_type', 'description': '完全匹配或包含匹配'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
-])
+], category='UI/断言')
 def assert_page_title(**kwargs):
     """断言页面标题
 
@@ -786,7 +786,7 @@ def assert_page_title(**kwargs):
     {'name': '匹配方式', 'mapping': 'match_type', 'description': '完全匹配或包含匹配'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
-])
+], category='UI/断言')
 def assert_page_url(**kwargs):
     """断言页面URL
 
@@ -875,7 +875,7 @@ def assert_page_url(**kwargs):
 @keyword_manager.register('检查元素是否可见', [
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
-])
+], category='UI/断言')
 def check_element_visible(**kwargs):
     """检查元素是否可见
 
@@ -970,7 +970,7 @@ def check_element_visible(**kwargs):
 @keyword_manager.register('检查元素是否存在', [
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
-])
+], category='UI/断言')
 def check_element_exists(**kwargs):
     """检查元素是否存在
 
@@ -1043,7 +1043,7 @@ def check_element_exists(**kwargs):
 @keyword_manager.register('检查元素是否启用', [
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
-])
+], category='UI/断言')
 def check_element_enabled(**kwargs):
     """检查元素是否启用
 
@@ -1115,7 +1115,7 @@ def check_element_enabled(**kwargs):
     {'name': '定位器', 'mapping': 'selector', 'description': '元素定位器'},
     {'name': '期望文本', 'mapping': 'expected_text', 'description': '期望包含的文本'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
-])
+], category='UI/断言')
 def check_text_contains(**kwargs):
     """检查元素文本是否包含指定内容
 
@@ -1205,7 +1205,7 @@ def check_text_contains(**kwargs):
     {'name': '期望URL片段', 'mapping': 'url_fragment',
      'description': '期望包含的URL片段'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
-])
+], category='UI/断言')
 def check_url_contains(**kwargs):
     """检查页面URL是否包含指定片段
 
@@ -1287,7 +1287,7 @@ def check_url_contains(**kwargs):
     {'name': '期望标题片段', 'mapping': 'title_fragment',
      'description': '期望包含的标题片段'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
-])
+], category='UI/断言')
 def check_title_contains(**kwargs):
     """检查页面标题是否包含指定片段
 
@@ -1370,7 +1370,7 @@ def check_title_contains(**kwargs):
     {'name': '属性名', 'mapping': 'attribute_name', 'description': '属性名称'},
     {'name': '期望值', 'mapping': 'expected_value', 'description': '期望的属性值'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）'},
-])
+], category='UI/断言')
 def check_attribute_value(**kwargs):
     """检查元素属性值是否匹配
 
@@ -1475,7 +1475,7 @@ def check_attribute_value(**kwargs):
 @keyword_manager.register('多条件检查', [
     {'name': '检查条件列表', 'mapping': 'conditions', 'description': '包含多个检查条件的列表'},
     {'name': '逻辑关系', 'mapping': 'logic', 'description': 'AND或OR逻辑关系'},
-])
+], category='UI/断言')
 def check_multiple_conditions(**kwargs):
     """执行多个条件检查并根据逻辑关系返回结果
 
@@ -1493,7 +1493,7 @@ def check_multiple_conditions(**kwargs):
              "expected_text": "欢迎"}
         ]
     """
-    conditions = kwargs.get('conditions', [])
+    conditions = kwargs.get('conditions', [], category='UI/元素')
     logic = kwargs.get('logic', 'AND').upper()
 
     if not conditions:
@@ -1589,7 +1589,7 @@ def check_multiple_conditions(**kwargs):
     {'name': '期望状态', 'mapping': 'expected_checked', 'description': '期望的选中状态（True/False）'},
     {'name': '超时时间', 'mapping': 'timeout', 'description': '超时时间（秒）', 'default': 5},
     {'name': '消息', 'mapping': 'message', 'description': '断言失败时的错误消息'},
-])
+], category='UI/断言')
 def assert_checkbox_state(**kwargs):
     """断言复选框状态
 
