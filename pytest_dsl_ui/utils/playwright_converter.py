@@ -200,20 +200,34 @@ class PlaywrightToDSLConverter:
 
             # 处理JavaScript执行
             if '.evaluate(' in line:
-                # 提取JavaScript代码 - 处理单引号和双引号
-                js_match = re.search(r'\.evaluate\((.*?)\)(?:\s|$)', line)
-                if js_match:
-                    js_code = js_match.group(1).strip('\'"')
-                    # 去掉外层引号
-                    if js_code.startswith('"') and js_code.endswith('"'):
-                        js_code = js_code[1:-1]
-                    elif js_code.startswith("'") and js_code.endswith("'"):
-                        js_code = js_code[1:-1]
-                    dsl_lines.append(f'[执行JavaScript], 脚本: "{js_code}"')
+                # 检查是否是多行JavaScript（以三引号开始）
+                if '"""' in line or "'''" in line:
+                    # 处理多行JavaScript
+                    dsl_lines.append("[执行JavaScript], 脚本: \"<多行代码>\"")
+                    dsl_lines.append(f'# 原代码开始: {line}')
+                    i += 1
+                    # 跳过多行JavaScript内容直到结束
+                    while i < len(lines):
+                        current_line = lines[i].strip()
+                        dsl_lines.append(f'# {current_line}')
+                        if '"""' in current_line or "'''" in current_line:
+                            break
+                        i += 1
+                    dsl_lines.append('# 原代码结束')
+                    i += 1
+                    continue
                 else:
-                    # 处理复杂的JavaScript代码
-                    dsl_lines.append("[执行JavaScript], 脚本: \"<复杂代码>\"")
-                    dsl_lines.append(f'# 原代码: {line}')
+                    # 提取单行JavaScript代码
+                    js_match = re.search(r'\.evaluate\(["\']([^"\']*(?:\\.[^"\']*)*)["\']', line)
+                    if js_match:
+                        js_code = js_match.group(1)
+                        # 转义内部的双引号
+                        js_code = js_code.replace('"', '\\"')
+                        dsl_lines.append(f'[执行JavaScript], 脚本: "{js_code}"')
+                    else:
+                        # 处理复杂的JavaScript代码
+                        dsl_lines.append("[执行JavaScript], 脚本: \"<复杂代码>\"")
+                        dsl_lines.append(f'# 原代码: {line}')
                 i += 1
                 continue
 
@@ -283,7 +297,7 @@ class PlaywrightToDSLConverter:
                 i += 1
                 continue
 
-            # 处理页面断言
+            # 处理页面断言 - 移到更早的位置处理
             if 'expect(' in line:
                 self._convert_assertion(line, dsl_lines)
                 i += 1
@@ -305,10 +319,26 @@ class PlaywrightToDSLConverter:
         # page.get_by_label("日志检索", exact=True).locator("div")
         #   .filter(has_text="日志检索").click()
         # page.get_by_role("cell", name="外到内").locator("label").first.click()
+        # page.get_by_role("table").locator("tbody").get_by_role("row").first.get_by_role("cell").nth(1).click()
 
-        if not ('get_by_' in line and
-                ('filter(' in line or 'locator(' in line or '.first' in line)):
+        # 检查是否包含复杂链式调用
+        has_complex_chain = (
+            'get_by_' in line and (
+                ('filter(' in line) or
+                ('locator(' in line) or
+                ('.first' in line) or
+                ('.last' in line) or
+                ('.nth(' in line) or
+                (line.count('get_by_') > 1)  # 多个get_by_调用
+            )
+        )
+
+        if not has_complex_chain:
             return None
+
+        # 对于多重嵌套的get_by_调用，需要特殊处理
+        if line.count('get_by_') > 1:
+            return self._convert_nested_get_by_calls(line)
 
         # 提取基础定位器
         base_locator = self._extract_base_locator_with_params(line)
@@ -342,6 +372,66 @@ class PlaywrightToDSLConverter:
             if key_match:
                 key = key_match.group(1)
                 return f'[按键操作], 定位器: "{final_locator}", 按键: "{key}"'
+
+        return None
+
+    def _convert_nested_get_by_calls(self, line: str) -> Optional[str]:
+        """处理嵌套的get_by_调用，如：
+        page.get_by_role("table").locator("tbody").get_by_role("row").first.get_by_role("cell").nth(1).click()
+        """
+        # 将复杂的嵌套调用转换为简化的定位器表示
+        # 这种情况下，我们构建一个描述性的定位器字符串
+
+        # 提取所有的get_by_调用
+        get_by_matches = re.findall(r'get_by_(\w+)\([^)]+\)', line)
+
+        if len(get_by_matches) < 2:
+            return None
+
+        # 构建描述性定位器
+        locator_parts = []
+
+        # 分析整个调用链
+        parts = re.split(r'\.(?=get_by_|locator|first|last|nth)', line)
+
+        for part in parts:
+            if 'get_by_role(' in part:
+                role_match = re.search(r'get_by_role\(["\']([^"\']+)["\'](?:,\s*name=["\']([^"\']*)["\'])?\)', part)
+                if role_match:
+                    role = role_match.group(1)
+                    name = role_match.group(2) or ""
+                    if name:
+                        locator_parts.append(f"role={role}:{name}")
+                    else:
+                        locator_parts.append(f"role={role}")
+            elif 'locator(' in part:
+                locator_match = re.search(r'locator\(["\']([^"\']+)["\']', part)
+                if locator_match:
+                    selector = locator_match.group(1)
+                    locator_parts.append(f"locator={selector}")
+            elif 'first' in part:
+                locator_parts.append("first=true")
+            elif 'last' in part:
+                locator_parts.append("last=true")
+            elif 'nth(' in part:
+                nth_match = re.search(r'nth\((\d+)\)', part)
+                if nth_match:
+                    index = nth_match.group(1)
+                    locator_parts.append(f"nth={index}")
+
+        # 组合所有部分
+        final_locator = "&".join(locator_parts)
+
+        # 检查最终操作类型
+        if '.click()' in line:
+            return f'[点击元素], 定位器: "{final_locator}"'
+        elif '.fill(' in line:
+            text_match = re.search(r'\.fill\(["\']([^"\']*)["\']', line)
+            text = text_match.group(1) if text_match else ""
+            if text:
+                return f'[输入文本], 定位器: "{final_locator}", 文本: "{text}"'
+            else:
+                return f'[清空文本], 定位器: "{final_locator}"'
 
         return None
 
@@ -459,11 +549,11 @@ class PlaywrightToDSLConverter:
         elif base_locator['type'] == 'label':
             locator_str = f"label={base_locator['label']}"
             if base_locator.get('exact'):
-                locator_str += ",exact=True"
+                locator_str += ",exact=true"
         elif base_locator['type'] == 'text':
             locator_str = f"text={base_locator['text']}"
             if base_locator.get('exact'):
-                locator_str += ",exact=True"
+                locator_str += ",exact=true"
         else:
             # 其他类型
             key = base_locator['type']
@@ -483,11 +573,11 @@ class PlaywrightToDSLConverter:
             filter_text = chain_info['filter_has_text']
             modifiers.append(f"has_text={filter_text}")
 
-        # 如果有选择器
+        # 如果有选择器（修复布尔值格式）
         if chain_info['has_first']:
-            modifiers.append("first=True")
+            modifiers.append("first=true")
         elif chain_info['has_last']:
-            modifiers.append("last=True")
+            modifiers.append("last=true")
         elif chain_info['has_nth']:
             index = chain_info['nth_index']
             modifiers.append(f"nth={index}")
@@ -513,9 +603,21 @@ class PlaywrightToDSLConverter:
         elif '.context_click()' in line:  # 右键点击
             return f'[右键点击元素], 定位器: "{locator}"'
         elif '.fill(' in line:
-            text_match = re.search(r'\.fill\(["\']([^"\']*)["\']', line)
-            text = text_match.group(1) if text_match else ""
+            # 改进文本提取，支持包含特殊字符的文本
+            text_match = re.search(r'\.fill\(["\']([^"\']*(?:\\.[^"\']*)*)["\']', line)
+            if not text_match:
+                # 尝试匹配包含转义字符的文本
+                text_match = re.search(r'\.fill\((["\'])([^"\']*(?:\\.[^"\']*)*)\1', line)
+                if text_match:
+                    text = text_match.group(2)
+                else:
+                    text = ""
+            else:
+                text = text_match.group(1)
+
             if text:  # 只有非空文本才输出
+                # 处理文本中的特殊字符
+                text = text.replace('\\"', '"').replace("\\'", "'")
                 return f'[输入文本], 定位器: "{locator}", 文本: "{text}"'
             else:
                 return f'[清空文本], 定位器: "{locator}"'
@@ -611,7 +713,7 @@ class PlaywrightToDSLConverter:
             exact = (text_match.group(2) == 'True'
                      if text_match.group(2) else False)
             if exact:
-                return f"text={text},exact=True"
+                return f"text={text},exact=true"
             else:
                 return f"text={text}"
 
@@ -624,7 +726,7 @@ class PlaywrightToDSLConverter:
             exact = (label_match.group(2) == 'True'
                      if label_match.group(2) else False)
             if exact:
-                return f"label={label},exact=True"
+                return f"label={label},exact=true"
             else:
                 return f"label={label}"
 
@@ -670,12 +772,25 @@ class PlaywrightToDSLConverter:
             tag = tag_match.group(1)
             return tag
 
-        # 处理 locator
-        locator_pattern = r'locator\(["\']([^"\']+)["\']'
-        locator_match = re.search(locator_pattern, line)
+        # 处理 locator - 改进对复杂选择器的处理，包括包含引号的XPath
+        # 先尝试匹配双引号包围的内容
+        locator_pattern_double = r'locator\("([^"]*(?:\\.[^"]*)*)"\)'
+        locator_match = re.search(locator_pattern_double, line)
+
+        if not locator_match:
+            # 再尝试匹配单引号包围的内容
+            locator_pattern_single = r"locator\('([^']*(?:\\.[^']*)*)'\)"
+            locator_match = re.search(locator_pattern_single, line)
+
         if locator_match:
             selector = locator_match.group(1)
-            return selector
+            # 处理特殊的CSS和XPath前缀
+            if selector.startswith('css='):
+                return selector[4:]  # 去掉css=前缀
+            elif selector.startswith('xpath='):
+                return selector  # 保留xpath=前缀
+            else:
+                return selector
 
         return None
 
@@ -804,77 +919,137 @@ class PlaywrightToDSLConverter:
 
     def _convert_assertion(self, line: str, dsl_lines: list):
         """转换断言操作"""
-        # 简单的断言转换 - 这里可以根据需要扩展
+        # 处理各种断言类型
         if 'to_have_text(' in line:
-            text_match = re.search(r'to_have_text\(["\']([^"\']+)["\']',
-                                   line)
+            text_match = re.search(r'to_have_text\(["\']([^"\']+)["\']', line)
             if text_match:
                 text = text_match.group(1)
                 locator = self._extract_locator_from_expect(line)
                 if locator:
-                    dsl_lines.append(
-                        f'[断言文本内容], 定位器: "{locator}", '
-                        f'期望文本: "{text}"')
+                    dsl_lines.append(f'[断言文本内容], 定位器: "{locator}", 期望文本: "{text}"')
+                else:
+                    dsl_lines.append(f'# 断言文本内容: {text} (需要手动处理定位器)')
         elif 'to_contain_text(' in line:
-            text_match = re.search(r'to_contain_text\(["\']([^"\']+)["\']',
-                                   line)
+            text_match = re.search(r'to_contain_text\(["\']([^"\']+)["\']', line)
             if text_match:
                 text = text_match.group(1)
                 locator = self._extract_locator_from_expect(line)
                 if locator:
-                    dsl_lines.append(
-                        f'[断言文本内容], 定位器: "{locator}", '
-                        f'期望文本: "{text}", 匹配方式: "contains"')
+                    dsl_lines.append(f'[断言文本内容], 定位器: "{locator}", 期望文本: "{text}", 匹配方式: "contains"')
+                else:
+                    dsl_lines.append(f'# 断言文本包含: {text} (需要手动处理定位器)')
         elif 'to_be_visible()' in line:
             locator = self._extract_locator_from_expect(line)
             if locator:
                 dsl_lines.append(f'[断言元素可见], 定位器: "{locator}"')
+            else:
+                dsl_lines.append('# 断言元素可见 (需要手动处理定位器)')
         elif 'to_be_hidden()' in line:
             locator = self._extract_locator_from_expect(line)
             if locator:
                 dsl_lines.append(f'[断言元素隐藏], 定位器: "{locator}"')
+            else:
+                dsl_lines.append('# 断言元素隐藏 (需要手动处理定位器)')
         elif 'to_be_enabled()' in line:
             locator = self._extract_locator_from_expect(line)
             if locator:
                 dsl_lines.append(f'[断言元素启用], 定位器: "{locator}"')
+            else:
+                dsl_lines.append('# 断言元素启用 (需要手动处理定位器)')
         elif 'to_be_disabled()' in line:
             locator = self._extract_locator_from_expect(line)
             if locator:
                 dsl_lines.append(f'[断言元素禁用], 定位器: "{locator}"')
+            else:
+                dsl_lines.append('# 断言元素禁用 (需要手动处理定位器)')
         elif 'to_be_checked()' in line:
             locator = self._extract_locator_from_expect(line)
             if locator:
-                dsl_lines.append(f'[断言复选框状态], 定位器: "{locator}", '
-                                 f'期望状态: True')
+                dsl_lines.append(f'[断言复选框状态], 定位器: "{locator}", 期望状态: True')
+            else:
+                dsl_lines.append('# 断言复选框选中 (需要手动处理定位器)')
         elif 'to_have_value(' in line:
-            value_match = re.search(r'to_have_value\(["\']([^"\']+)["\']',
-                                    line)
+            value_match = re.search(r'to_have_value\(["\']([^"\']+)["\']', line)
             if value_match:
                 value = value_match.group(1)
                 locator = self._extract_locator_from_expect(line)
                 if locator:
-                    dsl_lines.append(f'[断言输入值], 定位器: "{locator}", '
-                                     f'期望值: "{value}"')
+                    dsl_lines.append(f'[断言输入值], 定位器: "{locator}", 期望值: "{value}"')
+                else:
+                    dsl_lines.append(f'# 断言输入值: {value} (需要手动处理定位器)')
         elif 'to_have_url(' in line:
             url_match = re.search(r'to_have_url\(["\']([^"\']+)["\']', line)
             if url_match:
                 url = url_match.group(1)
                 dsl_lines.append(f'[断言页面URL], 期望URL: "{url}"')
+            else:
+                dsl_lines.append('# 断言页面URL (需要手动处理)')
         elif 'to_have_title(' in line:
-            title_match = re.search(
-                r'to_have_title\(["\']([^"\']+)["\']', line)
+            title_match = re.search(r'to_have_title\(["\']([^"\']+)["\']', line)
             if title_match:
                 title = title_match.group(1)
                 dsl_lines.append(f'[断言页面标题], 期望标题: "{title}"')
+            else:
+                dsl_lines.append('# 断言页面标题 (需要手动处理)')
+        elif 'to_have_class(' in line:
+            class_match = re.search(r'to_have_class\(["\']([^"\']+)["\']', line)
+            if class_match:
+                class_name = class_match.group(1)
+                locator = self._extract_locator_from_expect(line)
+                if locator:
+                    # 使用获取元素属性关键字来检查class
+                    dsl_lines.append(f'# 断言元素class: {class_name} - 建议使用[获取元素属性]关键字检查')
+                    dsl_lines.append(f'[获取元素属性], 定位器: "{locator}", 属性: "class", 变量名: "element_class"')
+                else:
+                    dsl_lines.append(f'# 断言元素class: {class_name} (需要手动处理定位器)')
+        elif 'to_have_attribute(' in line:
+            attr_match = re.search(r'to_have_attribute\(["\']([^"\']+)["\'](?:,\s*["\']([^"\']*)["\'])?\)', line)
+            if attr_match:
+                attr_name = attr_match.group(1)
+                attr_value = attr_match.group(2) or ""
+                locator = self._extract_locator_from_expect(line)
+                if locator:
+                    # 使用获取元素属性关键字
+                    if attr_value:
+                        dsl_lines.append(f'# 断言元素属性: {attr_name}="{attr_value}" - 建议使用[获取元素属性]关键字检查')
+                        dsl_lines.append(f'[获取元素属性], 定位器: "{locator}", 属性: "{attr_name}", 变量名: "element_attr", 默认值: ""')
+                    else:
+                        dsl_lines.append(f'# 断言元素属性存在: {attr_name} - 建议使用[获取元素属性]关键字检查')
+                        dsl_lines.append(f'[获取元素属性], 定位器: "{locator}", 属性: "{attr_name}", 变量名: "element_attr"')
+                else:
+                    dsl_lines.append(f'# 断言元素属性: {attr_name} (需要手动处理定位器)')
+        else:
+            # 处理其他未识别的断言
+            dsl_lines.append(f'# 断言操作: {line.strip()} (需要手动转换)')
 
     def _extract_locator_from_expect(self, line: str) -> Optional[str]:
         """从expect语句中提取定位器"""
         # 从expect(page.get_by_xxx(...))中提取定位器
-        expect_match = re.search(r'expect\(page\.(.+?)\)', line)
+        # 处理复杂的expect语句，包括链式调用
+        expect_match = re.search(r'expect\(page\.(.+?)\)\.to_', line)
         if expect_match:
             locator_part = expect_match.group(1)
-            return self._extract_locator(locator_part)
+            # 如果包含复杂的链式调用，需要特殊处理
+            if 'get_by_' in locator_part and ('locator(' in locator_part or 'filter(' in locator_part):
+                return self._extract_complex_locator_from_expect(locator_part)
+            else:
+                return self._extract_locator(locator_part)
         return None
+
+    def _extract_complex_locator_from_expect(self, locator_part: str) -> Optional[str]:
+        """从复杂的expect语句中提取定位器"""
+        # 模拟完整的行来使用现有的复杂定位器提取逻辑
+        mock_line = f"page.{locator_part}.click()"
+
+        # 尝试使用复杂链式调用的提取逻辑
+        if 'get_by_' in mock_line and ('filter(' in mock_line or 'locator(' in mock_line):
+            base_locator = self._extract_base_locator_with_params(mock_line)
+            if base_locator:
+                chain_info = self._analyze_chain_operations(mock_line)
+                return self._build_final_locator(base_locator, chain_info)
+
+        # 如果复杂提取失败，尝试简单提取
+        return self._extract_locator(locator_part)
 
     def _extract_locator_from_assignment(self, line: str) -> Optional[str]:
         """从赋值语句中提取定位器"""

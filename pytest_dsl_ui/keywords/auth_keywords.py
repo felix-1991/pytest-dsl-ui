@@ -19,6 +19,8 @@ logger = logging.getLogger(__name__)
     {'name': '状态名称', 'mapping': 'state_name', 'description': '要加载的认证状态名称'},
     {'name': '创建新上下文', 'mapping': 'new_context',
      'description': '是否创建新的浏览器上下文', 'default': True},
+    {'name': '创建新页面', 'mapping': 'create_new_page',
+     'description': '是否创建新页面（仅在创建新上下文时有效）', 'default': False},
     {'name': '验证登录', 'mapping': 'verify_login',
      'description': '是否验证登录状态', 'default': True},
 ], category='UI/认证', tags=['加载', '状态'])
@@ -28,6 +30,7 @@ def load_auth_state(**kwargs):
     Args:
         state_name: 认证状态名称
         new_context: 是否创建新的浏览器上下文
+        create_new_page: 是否创建新页面（仅在创建新上下文时有效）
         verify_login: 是否验证登录状态
 
     Returns:
@@ -35,6 +38,7 @@ def load_auth_state(**kwargs):
     """
     state_name = kwargs.get('state_name')
     new_context = kwargs.get('new_context', True)
+    create_new_page = kwargs.get('create_new_page', False)
     verify_login = kwargs.get('verify_login', True)
     context = kwargs.get('context')
 
@@ -85,10 +89,30 @@ def load_auth_state(**kwargs):
                     current_browser_id, **context_config
                 )
 
-                # 创建新页面
-                page_id = browser_manager.create_page(context_id)
+                # 智能页面管理：检查是否需要创建新页面
+                page_id = None
+                if create_new_page:
+                    # 用户明确要求创建新页面
+                    page_id = browser_manager.create_page(context_id)
+                    logger.info(f"已创建新页面: {page_id}")
+                else:
+                    # 检查新上下文是否已有页面
+                    new_context_obj = browser_manager.get_context(context_id)
+                    existing_pages = new_context_obj.pages
 
-                # 切换到新页面
+                    if existing_pages:
+                        # 使用上下文中的第一个页面
+                        existing_page = existing_pages[0]
+                        # 为现有页面生成ID并注册到browser_manager
+                        page_id = f"{context_id}_page_existing"
+                        browser_manager.pages[page_id] = existing_page
+                        logger.info(f"复用上下文中的现有页面: {page_id}")
+                    else:
+                        # 上下文中没有页面，创建一个
+                        page_id = browser_manager.create_page(context_id)
+                        logger.info(f"上下文中无页面，已创建新页面: {page_id}")
+
+                # 切换到目标页面
                 browser_manager.switch_page(page_id)
 
                 # 更新测试上下文
@@ -117,7 +141,7 @@ def load_auth_state(**kwargs):
                         logger.warning(f"验证登录状态时出现警告: {str(verify_error)}")
                         # 验证失败不应该阻止整个流程
 
-                logger.info(f"已创建新上下文并加载认证状态: {state_name}")
+                logger.info(f"已创建新上下文并加载认证状态: {state_name} (页面策略: {'新建' if create_new_page else '智能复用'})")
             else:
                 logger.warning("当前不支持在现有上下文中加载认证状态")
 
@@ -145,6 +169,7 @@ def load_auth_state(**kwargs):
                 f"Cookies数量: {len(storage_state.get('cookies', []))}\n"
                 f"Origins数量: {len(storage_state.get('origins', []))}\n"
                 f"创建新上下文: {new_context}\n"
+                f"页面管理策略: {'强制创建新页面' if create_new_page else '智能复用现有页面'}\n"
                 f"验证登录: {verify_login}",
                 name="认证状态加载信息",
                 attachment_type=allure.attachment_type.TEXT
