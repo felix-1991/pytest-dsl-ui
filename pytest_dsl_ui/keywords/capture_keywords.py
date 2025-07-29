@@ -78,18 +78,12 @@ def take_screenshot(**kwargs):
 
             logger.info(f"截图成功: {screenshot_path}")
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": screenshot_path,
-                "captures": captures,
-                "session_state": {},
-                "metadata": {
-                    "screenshot_path": screenshot_path,
-                    "element_selector": element_selector,
-                    "full_page": full_page,
-                    "operation": "take_screenshot"
-                }
-            }
+            # 保存到变量
+            if variable and context:
+                context.set(variable, screenshot_path)
+
+            # 直接返回截图文件路径
+            return screenshot_path
 
         except Exception as e:
             logger.error(f"截图失败: {str(e)}")
@@ -142,16 +136,12 @@ def start_recording(**kwargs):
 
             logger.info(f"录制开始: {recording_path}")
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": recording_path,
-                "captures": captures,
-                "session_state": {},
-                "metadata": {
-                    "recording_path": recording_path,
-                    "operation": "start_recording"
-                }
-            }
+            # 保存到变量
+            if variable and context:
+                context.set(variable, recording_path)
+
+            # 直接返回录制文件路径
+            return recording_path
 
         except Exception as e:
             logger.error(f"开始录制失败: {str(e)}")
@@ -215,16 +205,12 @@ def stop_recording(**kwargs):
             else:
                 logger.warning("没有正在进行的录制")
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": recording_path,
-                "captures": captures,
-                "session_state": {},
-                "metadata": {
-                    "recording_path": recording_path,
-                    "operation": "stop_recording"
-                }
-            }
+            # 保存到变量
+            if variable and context:
+                context.set(variable, recording_path)
+
+            # 直接返回录制文件路径
+            return recording_path
 
         except Exception as e:
             logger.error(f"停止录制失败: {str(e)}")
@@ -272,17 +258,8 @@ def set_viewport_size(**kwargs):
 
             logger.info(f"视口大小设置成功: {width}x{height}")
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": {"width": int(width), "height": int(height)},
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "width": int(width),
-                    "height": int(height),
-                    "operation": "set_viewport_size"
-                }
-            }
+            # 直接返回设置的视口大小
+            return {"width": int(width), "height": int(height)}
 
         except Exception as e:
             logger.error(f"设置视口大小失败: {str(e)}")
@@ -332,16 +309,12 @@ def get_viewport_size(**kwargs):
 
             logger.info(f"获取视口大小成功: {viewport_size}")
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": viewport_size,
-                "captures": captures,
-                "session_state": {},
-                "metadata": {
-                    "viewport_size": viewport_size,
-                    "operation": "get_viewport_size"
-                }
-            }
+            # 保存到变量
+            if variable and context:
+                context.set(variable, viewport_size)
+
+            # 直接返回视口大小
+            return viewport_size
 
         except Exception as e:
             logger.error(f"获取视口大小失败: {str(e)}")
@@ -382,10 +355,8 @@ def execute_javascript(**kwargs):
             result = page_context.evaluate(script)
 
             # 保存到变量
-            captures = {}
             if variable and context:
                 context.set(variable, result)
-                captures[variable] = result
 
             allure.attach(
                 f"JavaScript代码:\n{script}\n\n"
@@ -397,17 +368,8 @@ def execute_javascript(**kwargs):
 
             logger.info(f"JavaScript执行成功: {result}")
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": result,
-                "captures": captures,
-                "session_state": {},
-                "metadata": {
-                    "script": script,
-                    "execution_result": result,
-                    "operation": "execute_javascript"
-                }
-            }
+            # 直接返回执行结果
+            return result
 
         except Exception as e:
             logger.error(f"JavaScript执行失败: {str(e)}")

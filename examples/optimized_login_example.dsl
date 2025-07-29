@@ -30,9 +30,9 @@ if has_auth == False do
         # 验证码重试逻辑
         for i in range(1, 5) do
             [打印], 内容: "第${i}次登录尝试"
-            captcha_text = [识别文字验证码], 图片源: ".uedc-ppkg-login_captcha", 源类型: "element", 变量名: "验证码文本"
+            captcha_text = [识别文字验证码], 图片源: ".uedc-ppkg-login_captcha", 源类型: "element"
             [打印], 内容: "识别到验证码: ${captcha_text}"
-            
+
             [输入文本], 定位器: "role=textbox:请按右图输入验证码", 文本: "${captcha_text}"
             [点击元素], 定位器: "role=button:立即登录"
             [等待], 秒数: 3

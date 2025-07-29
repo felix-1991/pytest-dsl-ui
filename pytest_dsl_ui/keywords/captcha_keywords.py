@@ -84,10 +84,8 @@ def recognize_text_captcha(**kwargs):
             result = _captcha_recognizer.text_ocr.classification(image_data)
 
             # 保存到变量
-            captures = {}
             if variable and context:
                 context.set(variable, result)
-                captures[variable] = result
 
             # 记录日志和报告
             allure.attach(
@@ -108,17 +106,8 @@ def recognize_text_captcha(**kwargs):
 
             logger.info(f"文字验证码识别成功: {result}")
 
-            return {
-                "result": result,
-                "captures": captures,
-                "session_state": {},
-                "metadata": {
-                    "captcha_text": result,
-                    "image_source": image_source,
-                    "source_type": source_type,
-                    "operation": "recognize_text_captcha"
-                }
-            }
+            # 直接返回识别出的文本字符串
+            return result
 
         except Exception as e:
             logger.error(f"文字验证码识别失败: {str(e)}")

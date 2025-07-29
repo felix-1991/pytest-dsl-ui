@@ -234,19 +234,8 @@ def wait_for_element(**kwargs):
                         f"超时时间: {timeout or '默认'}秒)"
                     )
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": result,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "state": state,
-                    "timeout": timeout,
-                    "raise_on_timeout": raise_on_timeout,
-                    "operation": "wait_for_element"
-                }
-            }
+            # 直接返回等待结果
+            return result
 
         except Exception as e:
             logger.error(f"元素等待失败: {str(e)}")
@@ -308,18 +297,8 @@ def wait_for_text(**kwargs):
                         f"(超时时间: {timeout or '默认'}秒)"
                     )
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": result,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "text": text,
-                    "timeout": timeout,
-                    "raise_on_timeout": raise_on_timeout,
-                    "operation": "wait_for_text"
-                }
-            }
+            # 直接返回等待结果
+            return result
 
         except Exception as e:
             logger.error(f"文本等待失败: {str(e)}")
@@ -373,18 +352,12 @@ def get_element_text(**kwargs):
 
             logger.info(f"获取元素文本成功: {selector} -> {text}")
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": text,
-                "captures": captures,
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "text": text,
-                    "variable": variable,
-                    "operation": "get_element_text"
-                }
-            }
+            # 保存到变量
+            if variable and context:
+                context.set(variable, text)
+
+            # 直接返回元素文本
+            return text
 
         except Exception as e:
             logger.error(f"获取元素文本失败: {str(e)}")
@@ -488,19 +461,12 @@ def get_element_attribute(**kwargs):
             logger.info(
                 f"获取元素属性成功: {selector}.{attribute} -> {attribute_value}")
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": attribute_value,
-                "captures": captures,
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "attribute": attribute,
-                    "attribute_value": attribute_value,
-                    "variable": variable,
-                    "operation": "get_element_attribute"
-                }
-            }
+            # 保存到变量
+            if variable and context:
+                context.set(variable, attribute_value)
+
+            # 直接返回属性值
+            return attribute_value
 
         except Exception as e:
             logger.error(f"获取元素属性失败: {str(e)}")

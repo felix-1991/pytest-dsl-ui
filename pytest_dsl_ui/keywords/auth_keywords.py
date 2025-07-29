@@ -364,22 +364,8 @@ def check_auth_state(**kwargs):
 
             logger.info(f"认证状态检查完成: {state_name} -> {exists}")
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": exists,
-                "captures": {
-                    "state_exists": exists,
-                    "state_name": state_name,
-                    "metadata": metadata
-                },
-                "session_state": {},
-                "metadata": {
-                    "state_name": state_name,
-                    "exists": exists,
-                    "metadata": metadata,
-                    "operation": "check_auth_state"
-                }
-            }
+            # 直接返回检查结果
+            return exists
 
         except Exception as e:
             logger.error(f"检查认证状态失败: {str(e)}")

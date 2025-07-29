@@ -87,17 +87,8 @@ def click_element(**kwargs):
                 f"(索引: {index}, 可见性: {visible_only})"
             )
 
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "index": index,
-                    "visible_only": visible_only,
-                    "operation": "click_element"
-                }
-            }
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             error_msg = f"元素点击失败: {str(e)}"
@@ -155,15 +146,8 @@ def double_click_element(**kwargs):
 
             logger.info(f"元素双击成功: {selector}")
 
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "operation": "double_click_element"
-                }
-            }
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             logger.error(f"元素双击失败: {str(e)}")
@@ -214,15 +198,8 @@ def right_click_element(**kwargs):
 
             logger.info(f"元素右键点击成功: {selector}")
 
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "operation": "right_click_element"
-                }
-            }
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             logger.error(f"元素右键点击失败: {str(e)}")
@@ -289,16 +266,8 @@ def input_text(**kwargs):
 
             logger.info(f"文本输入成功: {selector} -> {text}")
 
-            return {
-                "result": text,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "text": text,
-                    "operation": "input_text"
-                }
-            }
+            # 直接返回输入的文本
+            return text
 
         except Exception as e:
             logger.error(f"文本输入失败: {str(e)}")
@@ -349,15 +318,8 @@ def clear_text(**kwargs):
 
             logger.info(f"文本清空成功: {selector}")
 
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "operation": "clear_text"
-                }
-            }
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             logger.error(f"文本清空失败: {str(e)}")
@@ -408,15 +370,8 @@ def check_checkbox(**kwargs):
 
             logger.info(f"复选框勾选成功: {selector}")
 
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "operation": "check_checkbox"
-                }
-            }
+            # 直接返回成功状态
+            return True
         except Exception as e:
             logger.error(f"复选框勾选失败: {str(e)}")
             allure.attach(
@@ -466,15 +421,8 @@ def uncheck_checkbox(**kwargs):
 
             logger.info(f"复选框取消勾选成功: {selector}")
 
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "operation": "uncheck_checkbox"
-                }
-            }
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             logger.error(f"复选框取消勾选失败: {str(e)}")
@@ -530,16 +478,8 @@ def set_checkbox(**kwargs):
 
             logger.info(f"复选框状态设置成功: {selector} -> {checked}")
 
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "checked": checked,
-                    "operation": "set_checkbox"
-                }
-            }
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             logger.error(f"复选框状态设置失败: {str(e)}")
@@ -590,15 +530,8 @@ def select_radio(**kwargs):
 
             logger.info(f"单选框选择成功: {selector}")
 
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "operation": "select_radio"
-                }
-            }
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             logger.error(f"单选框选择失败: {str(e)}")
@@ -698,19 +631,8 @@ def select_option(**kwargs):
 
             logger.info(f"下拉选项选择成功: {selector}")
 
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "value": value,
-                    "label": label,
-                    "index": index,
-                    "multiple": multiple,
-                    "operation": "select_option"
-                }
-            }
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             logger.error(f"下拉选项选择失败: {str(e)}")
@@ -770,17 +692,8 @@ def type_text(**kwargs):
 
             logger.info(f"逐字符输入成功: {selector} -> {text}")
 
-            return {
-                "result": text,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "text": text,
-                    "delay": delay,
-                    "operation": "type_text"
-                }
-            }
+            # 直接返回输入的文本
+            return text
 
         except Exception as e:
             logger.error(f"逐字符输入失败: {str(e)}")
@@ -838,16 +751,8 @@ def press_key(**kwargs):
 
             logger.info(f"按键操作成功: {selector} -> {key}")
 
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "key": key,
-                    "operation": "press_key"
-                }
-            }
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             logger.error(f"按键操作失败: {str(e)}")
@@ -898,15 +803,8 @@ def hover_element(**kwargs):
 
             logger.info(f"元素悬停成功: {selector}")
 
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "operation": "hover_element"
-                }
-            }
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             logger.error(f"元素悬停失败: {str(e)}")
@@ -965,16 +863,8 @@ def drag_element(**kwargs):
 
             logger.info(f"元素拖拽成功: {source_selector} -> {target_selector}")
 
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "source_selector": source_selector,
-                    "target_selector": target_selector,
-                    "operation": "drag_element"
-                }
-            }
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             logger.error(f"元素拖拽失败: {str(e)}")
@@ -1025,15 +915,8 @@ def focus_element(**kwargs):
 
             logger.info(f"元素聚焦成功: {selector}")
 
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "operation": "focus_element"
-                }
-            }
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             logger.error(f"元素聚焦失败: {str(e)}")
@@ -1084,15 +967,8 @@ def scroll_into_view(**kwargs):
 
             logger.info(f"元素滚动成功: {selector}")
 
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "operation": "scroll_into_view"
-                }
-            }
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             logger.error(f"元素滚动失败: {str(e)}")
@@ -1159,16 +1035,8 @@ def upload_files(**kwargs):
 
             logger.info(f"文件上传成功: {selector} -> {paths}")
 
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "file_paths": paths,
-                    "operation": "upload_files"
-                }
-            }
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             logger.error(f"文件上传失败: {str(e)}")

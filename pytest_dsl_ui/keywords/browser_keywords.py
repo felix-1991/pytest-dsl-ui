@@ -122,21 +122,17 @@ def launch_browser(**kwargs):
 
             logger.info(f"浏览器启动成功: {browser_type} (ID: {browser_id})")
 
-            # 统一返回格式 - 支持远程关键字模式
+            # 保存重要信息到上下文
+            if context:
+                context.set('current_browser_id', browser_id)
+                context.set('current_context_id', context_id)
+                context.set('current_page_id', page_id)
+
+            # 直接返回浏览器信息
             return {
-                "result": result,
-                "captures": {
-                    'current_browser_id': browser_id,
-                    'current_context_id': context_id,
-                    'current_page_id': page_id
-                },
-                "session_state": {},
-                "metadata": {
-                    "browser_type": browser_type,
-                    "browser_id": browser_id,
-                    "ignore_https_errors": ignore_https_errors,
-                    "operation": "launch_browser"
-                }
+                "browser_id": browser_id,
+                "context_id": context_id,
+                "page_id": page_id
             }
 
         except Exception as e:
@@ -187,16 +183,8 @@ def close_browser(**kwargs):
 
             logger.info(f"浏览器关闭成功: {browser_id or '当前浏览器'}")
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "browser_id": browser_id,
-                    "operation": "close_browser"
-                }
-            }
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             logger.error(f"关闭浏览器失败: {str(e)}")
@@ -244,19 +232,12 @@ def new_page(**kwargs):
 
             logger.info(f"新建页面成功: {page_id}")
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": page_id,
-                "captures": {
-                    'current_page_id': page_id
-                },
-                "session_state": {},
-                "metadata": {
-                    "page_id": page_id,
-                    "context_id": context_id,
-                    "operation": "new_page"
-                }
-            }
+            # 保存页面ID到上下文
+            if test_context:
+                test_context.set('current_page_id', page_id)
+
+            # 直接返回页面ID
+            return page_id
 
         except Exception as e:
             logger.error(f"新建页面失败: {str(e)}")

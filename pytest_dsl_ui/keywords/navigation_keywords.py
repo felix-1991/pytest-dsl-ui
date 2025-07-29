@@ -77,24 +77,8 @@ def open_page(**kwargs):
 
             logger.info(f"页面打开成功: {url}")
 
-            # 获取当前页面ID
-            current_page_id = browser_manager.get_current_page_id()
-
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": url,
-                "captures": {
-                    'current_page_id': current_page_id
-                },
-                "session_state": {},
-                "metadata": {
-                    "url": url,
-                    "page_id": current_page_id,
-                    "wait_until": wait_until,
-                    "ignore_https_errors": ignore_https_errors,
-                    "operation": "open_page"
-                }
-            }
+            # 直接返回访问的URL
+            return url
 
         except Exception as e:
             logger.error(f"打开页面失败: {str(e)}")
@@ -140,16 +124,8 @@ def refresh_page(**kwargs):
 
             logger.info("页面刷新成功")
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "wait_until": wait_until,
-                    "operation": "refresh_page"
-                }
-            }
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             logger.error(f"刷新页面失败: {str(e)}")
@@ -195,16 +171,8 @@ def go_back(**kwargs):
 
             logger.info("浏览器后退成功")
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "wait_until": wait_until,
-                    "operation": "go_back"
-                }
-            }
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             logger.error(f"浏览器后退失败: {str(e)}")
@@ -250,16 +218,8 @@ def go_forward(**kwargs):
 
             logger.info("浏览器前进成功")
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "wait_until": wait_until,
-                    "operation": "go_forward"
-                }
-            }
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             logger.error(f"浏览器前进失败: {str(e)}")
@@ -293,16 +253,8 @@ def get_page_title(**kwargs):
 
             logger.info(f"获取页面标题成功: {title}")
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": title,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "title": title,
-                    "operation": "get_page_title"
-                }
-            }
+            # 直接返回页面标题
+            return title
 
         except Exception as e:
             logger.error(f"获取页面标题失败: {str(e)}")
@@ -336,16 +288,8 @@ def get_current_url(**kwargs):
 
             logger.info(f"获取当前地址成功: {url}")
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": url,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "url": url,
-                    "operation": "get_current_url"
-                }
-            }
+            # 直接返回当前URL
+            return url
 
         except Exception as e:
             logger.error(f"获取当前地址失败: {str(e)}")

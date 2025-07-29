@@ -409,20 +409,16 @@ def browser_http_request(context, **kwargs):
                 logger.warning(f"准备响应数据失败: {str(e)}")
                 response_data = {"error": str(e)}
 
-        # 统一返回格式 - 支持远程关键字模式
-        return {
-            "result": captured_values,  # 主要返回值保持兼容
-            "captures": captured_values,  # 明确的捕获变量
-            "session_state": ({session_name or "default": session_state}
-                              if session_state else {}),
-            "response": response_data,  # 完整响应（如果需要）
-            "metadata": {
-                "response_time": getattr(response, '_elapsed_ms', 0.0),
-                "status_code": response.status_code,
-                "url": response.url,
-                "browser_context_id": id(browser_context)
-            }
-        }
+        # 保存捕获的变量到上下文
+        if context:
+            for key, value in captured_values.items():
+                context.set(key, value)
+
+        # 直接返回捕获的变量（如果有的话），否则返回True
+        if captured_values:
+            return captured_values
+        else:
+            return True
 
 
 def _deep_merge(dict1, dict2):
@@ -688,13 +684,5 @@ def set_browser_http_client(context, **kwargs):
             attachment_type=allure.attachment_type.TEXT
         )
 
-        return {
-            "result": True,
-            "captures": {},
-            "session_state": {client_name: client_config},
-            "metadata": {
-                "client_name": client_name,
-                "base_url": base_url,
-                "operation": "set_browser_http_client"
-            }
-        } 
+        # 直接返回成功状态
+        return True

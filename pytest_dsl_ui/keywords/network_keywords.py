@@ -182,14 +182,12 @@ def start_network_monitoring(**kwargs):
 
             logger.info("网络监听开始成功")
 
-            return {
-                "result": True,
-                "captures": captures,
-                "session_state": {},
-                "metadata": {
-                    "operation": "start_network_monitoring"
-                }
-            }
+            # 保存到变量
+            if variable and context:
+                context.set(variable, True)
+
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             logger.error(f"开始网络监听失败: {str(e)}")
@@ -221,14 +219,8 @@ def stop_network_monitoring(**kwargs):
 
             logger.info("网络监听停止成功")
 
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "operation": "stop_network_monitoring"
-                }
-            }
+            # 直接返回成功状态
+            return True
 
         except Exception as e:
             logger.error(f"停止网络监听失败: {str(e)}")
@@ -302,17 +294,12 @@ def get_network_requests(**kwargs):
 
             logger.info(f"获取网络请求成功: {len(requests)} 个")
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": requests,
-                "captures": captures,
-                "session_state": {},
-                "metadata": {
-                    "url_pattern": url_pattern,
-                    "request_count": len(requests),
-                    "operation": "get_network_requests"
-                }
-            }
+            # 保存到变量
+            if variable and context:
+                context.set(variable, requests)
+
+            # 直接返回请求列表
+            return requests
 
         except Exception as e:
             logger.error(f"获取网络请求失败: {str(e)}")
@@ -386,17 +373,12 @@ def get_network_responses(**kwargs):
 
             logger.info(f"获取网络响应成功: {len(responses)} 个")
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": responses,
-                "captures": captures,
-                "session_state": {},
-                "metadata": {
-                    "url_pattern": url_pattern,
-                    "response_count": len(responses),
-                    "operation": "get_network_responses"
-                }
-            }
+            # 保存到变量
+            if variable and context:
+                context.set(variable, responses)
+
+            # 直接返回响应列表
+            return responses
 
         except Exception as e:
             logger.error(f"获取网络响应失败: {str(e)}")
@@ -476,16 +458,12 @@ def wait_for_network_request(**kwargs):
 
             logger.info(f"等待网络请求成功: {request.url}")
 
-            return {
-                "result": request_data,
-                "captures": captures,
-                "session_state": {},
-                "metadata": {
-                    "url_pattern": url_pattern,
-                    "matched_url": request.url,
-                    "operation": "wait_for_network_request"
-                }
-            }
+            # 保存到变量
+            if variable and context:
+                context.set(variable, request_data)
+
+            # 直接返回请求数据
+            return request_data
 
         except Exception as e:
             logger.error(f"等待网络请求失败: {str(e)}")
@@ -591,17 +569,12 @@ def wait_for_network_response(**kwargs):
 
             logger.info(f"等待网络响应成功: {response.url}")
 
-            return {
-                "result": response_data,
-                "captures": captures,
-                "session_state": {},
-                "metadata": {
-                    "url_pattern": url_pattern,
-                    "matched_url": response.url,
-                    "status_code": response.status,
-                    "operation": "wait_for_network_response"
-                }
-            }
+            # 保存到变量
+            if variable and context:
+                context.set(variable, response_data)
+
+            # 直接返回响应数据
+            return response_data
 
         except Exception as e:
             logger.error(f"等待网络响应失败: {str(e)}")
@@ -669,17 +642,12 @@ def wait_for_url_change(**kwargs):
 
             logger.info(f"URL变化等待成功: {current_url} -> {new_url}")
 
-            return {
-                "result": new_url,
-                "captures": captures,
-                "session_state": {},
-                "metadata": {
-                    "url_pattern": url_pattern,
-                    "old_url": current_url,
-                    "new_url": new_url,
-                    "operation": "wait_for_url_change"
-                }
-            }
+            # 保存到变量
+            if variable and context:
+                context.set(variable, new_url)
+
+            # 直接返回新URL
+            return new_url
 
         except Exception as e:
             logger.error(f"等待URL变化失败: {str(e)}")
@@ -788,17 +756,8 @@ def assert_response_content(**kwargs):
 
             logger.info(f"响应内容断言通过: {assertion_type}")
 
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "assertion_type": assertion_type,
-                    "expected_value": expected_value,
-                    "actual_value": actual_value,
-                    "operation": "assert_response_content"
-                }
-            }
+            # 直接返回断言结果
+            return True
 
         except Exception as e:
             logger.error(f"响应内容断言失败: {str(e)}")

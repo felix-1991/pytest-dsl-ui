@@ -67,16 +67,8 @@ def assert_element_visible(**kwargs):
 
             logger.info(f"元素可见断言通过: {selector}")
 
-            return {
-                "result": True,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "assertion": "element_visible",
-                    "operation": "assert_element_visible"
-                }
-            }
+            # 直接返回断言结果
+            return True
 
         except Exception as e:
             logger.error(f"元素可见断言失败: {selector} - {str(e)}")
@@ -923,16 +915,8 @@ def check_element_visible(**kwargs):
 
             logger.info(f"元素可见性检查: {selector} -> {'可见' if result else '不可见'}")
 
-            return {
-                "result": result,
-                "captures": {"is_visible": result},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "check_type": "element_visible",
-                    "operation": "check_element_visible"
-                }
-            }
+            # 直接返回检查结果
+            return result
 
         except Exception as e:
             logger.error(f"元素可见性检查异常: {selector} - {str(e)}")

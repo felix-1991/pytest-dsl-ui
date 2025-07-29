@@ -116,19 +116,12 @@ def wait_for_download(**kwargs):
 
             logger.info(f"文件下载成功: {download_path} ({file_size} 字节)")
 
-            # 统一返回格式 - 支持远程关键字模式
-            return {
-                "result": download_path,
-                "captures": captures,
-                "session_state": {},
-                "metadata": {
-                    "trigger_selector": trigger_selector,
-                    "file_path": download_path,
-                    "file_size": file_size,
-                    "suggested_filename": download.suggested_filename,
-                    "operation": "wait_for_download"
-                }
-            }
+            # 保存到变量
+            if variable and context:
+                context.set(variable, download_path)
+
+            # 直接返回下载文件路径
+            return download_path
 
         except Exception as e:
             logger.error(f"文件下载失败: {str(e)}")

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pytest-dsl-ui"
-version = "0.4.1"
+version = "0.4.2"
 description = "Playwright-based UI automation keywords for pytest-dsl framework"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -22,7 +22,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "pytest-dsl>=0.7.0",
+    "pytest-dsl>=0.16.4",
     "playwright>=1.40.0",
     "allure-pytest>=2.9.0",
     "Pillow>=9.0.0",  # 用于截图处理
