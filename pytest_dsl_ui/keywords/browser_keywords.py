@@ -266,7 +266,12 @@ def switch_page(**kwargs):
 
     with allure.step(f"切换页面: {page_id}"):
         try:
+            # 切换内部焦点
             browser_manager.switch_page(page_id)
+
+            # 获取页面实例并激活到前台（视觉切换）
+            page = browser_manager.get_page(page_id)
+            page.bring_to_front()
 
             # 更新测试上下文中的当前页面
             if context:
@@ -480,7 +485,9 @@ def wait_for_new_page(**kwargs):
             
             # 切换到新页面
             browser_manager.switch_page(page_id)
-            
+            page = browser_manager.get_page(page_id)
+            page.bring_to_front()
+
             # 更新测试上下文
             if context:
                 context.set('current_page_id', page_id)
@@ -556,7 +563,9 @@ def switch_to_latest_page(**kwargs):
             
             # 切换到最新页面
             browser_manager.switch_page(latest_page_id)
-            
+            page = browser_manager.get_page(page_id)
+            page.bring_to_front()
+
             # 更新测试上下文
             if context:
                 context.set('current_page_id', latest_page_id)
