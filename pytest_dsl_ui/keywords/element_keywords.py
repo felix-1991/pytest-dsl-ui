@@ -5,6 +5,7 @@
 """
 
 import logging
+import time
 import allure
 
 from pytest_dsl.core.keyword_manager import keyword_manager
@@ -933,16 +934,29 @@ def focus_element(**kwargs):
      'description': '元素定位器（CSS选择器、XPath、文本等）'},
     {'name': '超时时间', 'mapping': 'timeout', 
      'description': '超时时间（秒）', 'default': 30},
+    {'name': '滚动容器', 'mapping': 'scroll_container', 
+     'description': '可选，指定滚动容器的定位器'},
+    {'name': '像素数', 'mapping': 'scroll_step', 
+     'description': '可选，每次滚动的像素数', 'default': 10},
+    {'name': '最大滚动次数', 'mapping': 'max_attempts', 
+     'description': '可选，最大滚动次数', 'default': 20},
 ], category='UI/交互', tags=['滚动', '视野'])
 def scroll_into_view(**kwargs):
     """滚动元素到视野中
 
     Args:
-        selector: 元素定位器
-        timeout: 超时时间
+        selector (str): 元素定位器（必填）
+        timeout (int): 超时时间（秒）
+        scroll_container (str): 可选，滚动容器的定位器
+        scroll_step (int): 每次滚动的像素数
+        max_attempts (int): 最大滚动次数
 
     Returns:
-        dict: 操作结果
+        bool: 是否滚动成功
+
+    Raises:
+        ValueError: 当必要参数缺失时
+        Exception: 当滚动操作失败时
     """
     selector = kwargs.get('selector')
     timeout = kwargs.get('timeout')
@@ -950,13 +964,38 @@ def scroll_into_view(**kwargs):
     if not selector:
         raise ValueError("定位器参数不能为空")
 
+    scroll_container = kwargs.get('scroll_container')
+    scroll_step = kwargs.get('scroll_step', 10)
+    max_attempts = kwargs.get('max_attempts', 20)
+
     with allure.step(f"滚动元素到视野: {selector}"):
         try:
             locator = _get_current_locator()
             element = locator.locate(selector)
 
             timeout_ms = int(timeout * 1000) if timeout else 30000
-            element.scroll_into_view_if_needed(timeout=timeout_ms)
+            page = browser_manager.get_current_page()
+
+            if scroll_container:
+                # 容器内滚动模式
+                scroll_container_element = locator.locate(scroll_container)
+                
+                for attempt in range(1, max_attempts + 1):
+                    if element.is_visible():
+                        logger.info(f"元素已在视野中(第{attempt}次检查)")
+                        return True
+                    
+                    # 滚动容器
+                    scroll_container_element.hover(timeout=timeout_ms)
+                    page.mouse.wheel(0, scroll_step)
+                    logger.debug(f"滚动容器[{scroll_container}] 第{attempt}次滚动")
+                    time.sleep(0.5)
+                
+                # 达到最大尝试次数仍未找到
+                raise TimeoutError(f"经过{max_attempts}次滚动后元素仍未可见")
+            else:
+                # 直接滚动到元素
+                element.scroll_into_view_if_needed(timeout=timeout_ms)
 
             allure.attach(
                 f"定位器: {selector}\n"
