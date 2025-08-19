@@ -247,9 +247,12 @@ class PlaywrightToDSLConverter:
                     locator = self._extract_locator(line)
 
                 if locator:
-                    dsl_lines.append(
-                        f'[获取元素文本], 定位器: "{locator}", '
-                        f'变量名: "element_text"')
+                    # 尝试提取变量名
+                    var_name = self._extract_variable_name(line)
+                    if var_name:
+                        dsl_lines.append(f'{var_name} = [获取元素文本], 定位器: "{locator}"')
+                    else:
+                        dsl_lines.append(f'[获取元素文本], 定位器: "{locator}"')
                 else:
                     dsl_lines.append("# 获取文本 - 需要手动转换")
                 i += 1
@@ -265,9 +268,12 @@ class PlaywrightToDSLConverter:
 
                 if locator and attr_match:
                     attr = attr_match.group(1)
-                    dsl_lines.append(
-                        f'[获取元素属性], 定位器: "{locator}", '
-                        f'属性: "{attr}", 变量名: "element_attr"')
+                    # 尝试提取变量名
+                    var_name = self._extract_variable_name(line)
+                    if var_name:
+                        dsl_lines.append(f'{var_name} = [获取元素属性], 定位器: "{locator}", 属性: "{attr}"')
+                    else:
+                        dsl_lines.append(f'[获取元素属性], 定位器: "{locator}", 属性: "{attr}"')
                 else:
                     dsl_lines.append("# 获取属性 - 需要手动转换")
                 i += 1
@@ -590,8 +596,16 @@ class PlaywrightToDSLConverter:
 
     def _convert_chained_call(self, line: str) -> Optional[str]:
         """转换简单的链式调用"""
-        # 提取get_by方法和参数
-        locator = self._extract_locator(line)
+        # 对于 inner_text() 和 get_attribute() 调用，使用更智能的定位器提取
+        if '.inner_text()' in line or '.get_attribute(' in line:
+            locator = self._extract_locator_from_assignment(line)
+            if not locator:
+                # 回退到简单提取
+                locator = self._extract_locator(line)
+        else:
+            # 对于其他操作，使用简单提取
+            locator = self._extract_locator(line)
+
         if not locator:
             return None
 
@@ -678,15 +692,23 @@ class PlaywrightToDSLConverter:
                         f'文件路径: "{file_path}"')
         elif '.inner_text()' in line:
             # 获取文本内容，转换为DSL格式
-            return (f'[获取元素文本], 定位器: "{locator}", '
-                    f'变量名: "element_text"')
+            # 尝试提取变量名
+            var_name = self._extract_variable_name(line)
+            if var_name:
+                return f'{var_name} = [获取元素文本], 定位器: "{locator}"'
+            else:
+                return f'[获取元素文本], 定位器: "{locator}"'
         elif '.get_attribute(' in line:
             attr_match = re.search(
                 r'\.get_attribute\(["\']([^"\']+)["\']', line)
             if attr_match:
                 attr = attr_match.group(1)
-                return (f'[获取元素属性], 定位器: "{locator}", '
-                        f'属性: "{attr}", 变量名: "element_attr"')
+                # 尝试提取变量名
+                var_name = self._extract_variable_name(line)
+                if var_name:
+                    return f'{var_name} = [获取元素属性], 定位器: "{locator}", 属性: "{attr}"'
+                else:
+                    return f'[获取元素属性], 定位器: "{locator}", 属性: "{attr}"'
 
         return None
 
@@ -1053,21 +1075,75 @@ class PlaywrightToDSLConverter:
 
     def _extract_locator_from_assignment(self, line: str) -> Optional[str]:
         """从赋值语句中提取定位器"""
-        # 匹配如：text = page.get_by_xxx(...).inner_text()
-        # 或：attr = page.get_by_xxx(...).get_attribute(...)
+        # 匹配如：text = page.get_by_xxx(...).nth(1).inner_text()
+        # 或：attr = page.get_by_xxx(...).nth(0).get_attribute(...)
+
+        # 更精确的正则表达式，匹配从page.到方法调用之前的所有内容
         assignment_match = re.search(
-            r'=\s*page\.(.+?)\.(inner_text|text_content|get_attribute)', line)
+            r'=\s*page\.(.+?)\.(inner_text|text_content|get_attribute)\([^)]*\)', line)
         if assignment_match:
             locator_part = assignment_match.group(1)
-            return self._extract_locator(locator_part)
+            return self._parse_complex_locator_chain(locator_part)
 
         # 匹配简单的定位器调用：page.get_by_xxx(...).method()
         page_match = re.search(
-            r'page\.(.+?)\.(inner_text|text_content|get_attribute)', line)
+            r'page\.(.+?)\.(inner_text|text_content|get_attribute)\([^)]*\)', line)
         if page_match:
             locator_part = page_match.group(1)
-            return self._extract_locator(locator_part)
+            return self._parse_complex_locator_chain(locator_part)
 
+        return None
+
+    def _parse_complex_locator_chain(self, locator_part: str) -> Optional[str]:
+        """解析复杂的定位器链，支持 nth(), first, last 等"""
+        # 直接分析定位器链并构建DSL格式
+        if 'get_by_' in locator_part:
+            # 提取基础定位器
+            base_locator = self._extract_locator(locator_part)
+            if not base_locator:
+                return None
+
+            # 分析链式操作
+            chain_info = self._analyze_chain_operations(f"page.{locator_part}.click()")
+
+            # 构建完整的定位器字符串
+            modifiers = []
+
+            # 如果有locator子选择器
+            if chain_info['has_locator']:
+                selector = chain_info['locator_selector']
+                modifiers.append(f"locator={selector}")
+
+            # 如果有filter
+            if chain_info['has_filter']:
+                filter_text = chain_info['filter_has_text']
+                modifiers.append(f"has_text={filter_text}")
+
+            # 如果有选择器
+            if chain_info['has_first']:
+                modifiers.append("first=true")
+            elif chain_info['has_last']:
+                modifiers.append("last=true")
+            elif chain_info['has_nth']:
+                index = chain_info['nth_index']
+                modifiers.append(f"nth={index}")
+
+            # 组合所有修饰符
+            if modifiers:
+                return base_locator + "&" + "&".join(modifiers)
+            else:
+                return base_locator
+
+        # 如果不是get_by_调用，使用简单提取
+        return self._extract_locator(locator_part)
+
+    def _extract_variable_name(self, line: str) -> Optional[str]:
+        """从赋值语句中提取变量名"""
+        # 匹配如：var_name = page.get_by_xxx(...).inner_text()
+        # 或：attr = page.get_by_xxx(...).get_attribute(...)
+        var_match = re.search(r'^\s*(\w+)\s*=\s*page\.', line.strip())
+        if var_match:
+            return var_match.group(1)
         return None
 
 
