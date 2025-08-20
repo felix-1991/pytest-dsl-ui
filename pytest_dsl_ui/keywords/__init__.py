@@ -11,6 +11,7 @@ from . import element_keywords_extended
 from . import assertion_keywords
 from . import capture_keywords
 from . import captcha_keywords
+from . import clipboard_keywords
 from . import network_keywords
 from . import auth_keywords
 from . import download_keywords
@@ -24,6 +25,7 @@ __all__ = [
     'assertion_keywords',
     'capture_keywords',
     'captcha_keywords',
+    'clipboard_keywords',
     'network_keywords',
     'auth_keywords',
     'download_keywords',
