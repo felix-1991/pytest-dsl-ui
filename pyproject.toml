@@ -27,6 +27,7 @@ dependencies = [
     "allure-pytest>=2.9.0",
     "Pillow>=9.0.0",  # 用于截图处理
     "ddddocr>=1.4.11",  # 用于验证码识别
+    "pyperclip>=1.8.0",  # 用于剪贴板操作
 ]
 
 # 声明entry_points，让pytest-dsl自动发现这个插件
