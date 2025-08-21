@@ -1085,3 +1085,282 @@ def upload_files(**kwargs):
                 attachment_type=allure.attachment_type.TEXT
             )
             raise
+
+@keyword_manager.register('检查导航栏是否为空', [
+    {'name': '定位器', 'mapping': 'selector', 
+     'description': '容器定位器（CSS选择器、XPath等）'},
+    {'name': '内容类型', 'mapping': 'content_type', 
+     'description': '内容类型：auto-自动检测，menu-菜单，page_tree-页面树', 'default': 'auto'},
+    {'name': '超时时间', 'mapping': 'timeout', 
+     'description': '超时时间（秒）', 'default': 30},
+], category='UI/检查', tags=['导航栏', '空检查', '菜单', '页面树'])
+def check_navigation_empty(**kwargs):
+    """检查导航栏是否为空（支持菜单和页面树）
+
+    Args:
+        selector: 容器定位器
+        content_type: 内容类型（auto/menu/page_tree）
+        timeout: 超时时间
+
+    Returns:
+        bool: 如果导航栏为空返回True，否则返回False
+    """
+    selector = kwargs.get('selector')
+    content_type = kwargs.get('content_type', 'auto')
+    timeout = kwargs.get('timeout')
+
+    if not selector:
+        raise ValueError("定位器参数不能为空")
+
+    if content_type not in ['auto', 'menu', 'page_tree']:
+        raise ValueError("内容类型必须是 'auto', 'menu' 或 'page_tree'")
+
+    with allure.step(f"检查导航栏是否为空: {selector}"):
+        try:
+            # 调试日志：函数开始执行
+            logger.debug(f"[导航栏检查] 开始执行函数，参数: selector={selector}, content_type={content_type}, timeout={timeout}")
+            
+            locator = _get_current_locator()
+            container = locator.locate(selector)
+            
+            # 调试日志：容器定位成功
+            logger.debug(f"[导航栏检查] 成功定位容器: {selector}")
+
+            timeout_ms = int(timeout * 1000) if timeout else 30000
+            
+            # 等待容器可见
+            logger.debug(f"[导航栏检查] 等待容器可见，超时: {timeout_ms}ms")
+            container.wait_for(state='visible', timeout=timeout_ms)
+            logger.debug(f"[导航栏检查] 容器可见")
+            
+            # 自动检测内容类型
+            if content_type == 'auto':
+                logger.debug(f"[导航栏检查] 自动检测内容类型")
+                
+                # 检查是否包含菜单项
+                menu_items = container.locator('.ix-menu-item[aria-label]')
+                menu_count = menu_items.count()
+                logger.debug(f"[导航栏检查] 检测到菜单项数量: {menu_count}")
+                
+                # 检查是否包含页面树节点
+                page_nodes = container.locator('.plugin_pagetree_children_span a')
+                page_count = page_nodes.count()
+                logger.debug(f"[导航栏检查] 检测到页面树节点数量: {page_count}")
+                
+                # 根据元素数量决定类型
+                if menu_count > 0 and menu_count >= page_count:
+                    content_type = 'menu'
+                    logger.info(f"[导航栏检查] 自动检测结果：菜单类型，元素数量: {menu_count}")
+                elif page_count > 0:
+                    content_type = 'page_tree'
+                    logger.info(f"[导航栏检查] 自动检测结果：页面树类型，元素数量: {page_count}")
+                else:
+                    logger.warning(f"[导航栏检查] 自动检测失败：未找到菜单项或页面树节点")
+                    # 如果没有找到任何元素，默认使用菜单类型
+                    content_type = 'menu'
+                    logger.info(f"[导航栏检查] 默认使用菜单类型进行空检查")
+            
+            # 根据内容类型获取元素和容器
+            if content_type == 'menu':
+                logger.debug(f"[导航栏检查] 使用菜单容器选择器: .ix-menu-inline")
+                submenu_container = container.locator('.ix-menu-inline')
+                items = submenu_container.locator('.ix-menu-item[aria-label]')
+                content_name = '菜单'
+            else:  # page_tree
+                logger.debug(f"[导航栏检查] 使用页面树容器选择器")
+                submenu_container = container  # 页面树直接使用主容器
+                items = container.locator('.plugin_pagetree_children_span a')
+                content_name = '页面树'
+            
+            # 获取元素数量
+            item_count = items.count()
+            logger.info(f"[导航栏检查] 找到 {item_count} 个{content_name}项")
+            
+            # 检查容器内容
+            inner_html = submenu_container.inner_html()
+            
+            # 综合判断是否为空
+            is_empty = item_count == 0 or not inner_html.strip()
+            
+            # 创建详细的输出信息
+            output_info = f"导航栏检查结果:\n"
+            output_info += f"定位器: {selector}\n"
+            output_info += f"内容类型: {content_name}\n"
+            output_info += f"超时时间: {timeout or '默认'}秒\n"
+            output_info += f"元素数量: {item_count}\n"
+            output_info += f"容器HTML内容: {inner_html[:100]}{'...' if len(inner_html) > 100 else ''}\n"
+            output_info += f"是否为空: {is_empty}\n"
+            
+            # 添加调试信息
+            output_info += f"\n调试信息:\n"
+            output_info += f"使用的容器选择器: {'.ix-menu-inline' if content_type == 'menu' else '主容器'}\n"
+            output_info += f"使用的项选择器: {'.ix-menu-item[aria-label]' if content_type == 'menu' else '.plugin_pagetree_children_span a'}\n"
+
+            allure.attach(
+                output_info,
+                name=f"{content_name}空检查结果",
+                attachment_type=allure.attachment_type.TEXT
+            )
+
+            logger.info(f"{content_name}空检查完成: {selector}, 是否为空: {is_empty}")
+
+            # 返回检查结果
+            return is_empty
+
+        except Exception as e:
+            logger.error(f"导航栏检查失败: {str(e)}")
+            allure.attach(
+                f"错误信息: {str(e)}",
+                name="导航栏检查失败",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            raise
+        
+@keyword_manager.register('输出导航栏内容', [
+    {'name': '定位器', 'mapping': 'selector', 
+     'description': '容器定位器（CSS选择器、XPath等）'},
+    {'name': '内容类型', 'mapping': 'content_type', 
+     'description': '内容类型：auto-自动检测，menu-菜单，page_tree-页面树', 'default': 'auto'},
+    {'name': '超时时间', 'mapping': 'timeout', 
+     'description': '超时时间（秒）', 'default': 30},
+], category='UI/检查', tags=['导航栏', '内容输出', '菜单', '页面树'])
+def output_navigation_content(**kwargs):
+    """输出导航栏内容（支持菜单和页面树）
+
+    Args:
+        selector: 容器定位器
+        content_type: 内容类型（auto/menu/page_tree）
+        timeout: 超时时间
+
+    Returns:
+        list: 导航栏列表
+    """
+    selector = kwargs.get('selector')
+    content_type = kwargs.get('content_type', 'auto')
+    timeout = kwargs.get('timeout')
+
+    if not selector:
+        raise ValueError("定位器参数不能为空")
+
+    if content_type not in ['auto', 'menu', 'page_tree']:
+        raise ValueError("内容类型必须是 'auto', 'menu' 或 'page_tree'")
+
+    with allure.step(f"输出导航栏内容: {selector}"):
+        try:
+            # 调试日志：函数开始执行
+            logger.debug(f"[导航栏内容输出] 开始执行函数，参数: selector={selector}, content_type={content_type}, timeout={timeout}")
+            
+            locator = _get_current_locator()
+            container = locator.locate(selector)
+            
+            # 调试日志：容器定位成功
+            logger.debug(f"[导航栏内容输出] 成功定位容器: {selector}")
+
+            timeout_ms = int(timeout * 1000) if timeout else 30000
+            
+            # 等待容器可见
+            logger.debug(f"[导航栏内容输出] 等待容器可见，超时: {timeout_ms}ms")
+            container.wait_for(state='visible', timeout=timeout_ms)
+            logger.debug(f"[导航栏内容输出] 容器可见")
+            
+            # 自动检测内容类型
+            if content_type == 'auto':
+                logger.debug(f"[导航栏内容输出] 自动检测内容类型")
+                
+                # 检查是否包含菜单项
+                menu_items = container.locator('.ix-menu-item[aria-label]')
+                menu_count = menu_items.count()
+                logger.debug(f"[导航栏内容输出] 检测到菜单项数量: {menu_count}")
+                
+                # 检查是否包含页面树节点
+                page_nodes = container.locator('.plugin_pagetree_children_span a')
+                page_count = page_nodes.count()
+                logger.debug(f"[导航栏内容输出] 检测到页面树节点数量: {page_count}")
+                
+                # 根据元素数量决定类型
+                if menu_count > 0 and menu_count >= page_count:
+                    content_type = 'menu'
+                    logger.info(f"[导航栏内容输出] 自动检测结果：菜单类型，元素数量: {menu_count}")
+                elif page_count > 0:
+                    content_type = 'page_tree'
+                    logger.info(f"[导航栏内容输出] 自动检测结果：页面树类型，元素数量: {page_count}")
+                else:
+                    logger.warning(f"[导航栏内容输出] 自动检测失败：未找到菜单项或页面树节点")
+                    raise Exception("无法自动检测内容类型，请手动指定")
+            
+            # 根据内容类型获取元素
+            if content_type == 'menu':
+                logger.debug(f"[导航栏内容输出] 使用菜单选择器: .ix-menu-item[aria-label]")
+                items = container.locator('.ix-menu-item[aria-label]')
+                attr_name = 'aria-label'
+                content_name = '菜单'
+            else:  # page_tree
+                logger.debug(f"[导航栏内容输出] 使用页面树选择器: .plugin_pagetree_children_span a")
+                items = container.locator('.plugin_pagetree_children_span a')
+                attr_name = 'text'  # 页面树使用文本内容
+                content_name = '页面树'
+            
+            # 获取元素数量
+            count = items.count()
+            logger.info(f"[导航栏内容输出] 找到 {count} 个{content_name}项")
+            
+            # 收集内容
+            content_list = []
+            for i in range(count):
+                logger.debug(f"[导航栏内容输出] 处理第 {i+1}/{count} 个{content_name}项")
+                item = items.nth(i)
+                
+                try:
+                    if attr_name == 'aria-label':
+                        # 菜单项：获取 aria-label 属性
+                        item_value = item.get_attribute(attr_name)
+                    else:
+                        # 页面树：获取文本内容
+                        item_value = item.inner_text().strip()
+                    
+                    if item_value:
+                        content_list.append(item_value)
+                        logger.debug(f"[导航栏内容输出] {content_name}项 {i}: {item_value}")
+                    else:
+                        logger.warning(f"[导航栏内容输出] {content_name}项 {i}: 值为空")
+                        
+                except Exception as e:
+                    logger.error(f"[导航栏内容输出] 处理{content_name}项 {i} 失败: {str(e)}")
+                    continue
+            
+            # 创建详细的输出信息
+            output_info = f"导航栏内容输出结果:\n"
+            output_info += f"定位器: {selector}\n"
+            output_info += f"内容类型: {content_name}\n"
+            output_info += f"超时时间: {timeout or '默认'}秒\n"
+            output_info += f"元素数量: {count}\n"
+            output_info += f"有效内容数量: {len(content_list)}\n"
+            output_info += f"内容列表:\n"
+            
+            for i, item in enumerate(content_list):
+                output_info += f"  {i+1}. {item}\n"
+            
+            # 添加调试信息
+            output_info += f"\n调试信息:\n"
+            output_info += f"选择的属性/内容: {attr_name}\n"
+            output_info += f"检测到的选择器: {'.ix-menu-item[aria-label]' if content_type == 'menu' else '.plugin_pagetree_children_span a'}\n"
+
+            allure.attach(
+                output_info,
+                name=f"{content_name}内容输出结果",
+                attachment_type=allure.attachment_type.TEXT
+            )
+
+            logger.info(f"{content_name}内容输出完成: {selector}, 元素数量: {len(content_list)}")
+
+            # 返回内容列表
+            return content_list
+
+        except Exception as e:
+            logger.error(f"导航栏内容输出失败: {str(e)}")
+            allure.attach(
+                f"错误信息: {str(e)}",
+                name="导航栏内容输出失败",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            raise
