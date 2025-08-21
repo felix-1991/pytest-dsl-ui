@@ -3001,6 +3001,84 @@
         }
       ],
       "documentation": "验证下载的文件\n\n    Args:\n        file_path: 文件路径\n        min_size: 最小文件大小\n        max_size: 最大文件大小\n        expected_extension: 期望的文件扩展名\n\n    Returns:\n        dict: 验证结果"
+    },
+    {
+      "name": "检查导航栏是否为空",
+      "category": "custom",
+      "category_name": "UI/检查",
+      "tags": [
+        "导航栏",
+        "空检查",
+        "菜单",
+        "页面树"
+      ],
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords",
+        "plugin_module": ""
+      },
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "容器定位器（CSS选择器、XPath等）"
+        },
+        {
+          "name": "内容类型",
+          "mapping": "content_type",
+          "description": "内容类型：auto-自动检测，menu-菜单，page_tree-页面树",
+          "default": "auto"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "source": "pytest-dsl",
+      "documentation": "检查导航栏是否为空（支持菜单和页面树）\n\n    Args:\n        selector: 容器定位器\n        content_type: 内容类型（auto/menu/page_tree）\n        timeout: 超时时间\n\n    Returns:\n        bool: 如果导航栏为空返回True，否则返回False"
+    },
+    {
+      "name": "输出导航栏内容",
+      "category": "custom",
+      "category_name": "UI/检查",
+      "tags": [
+        "导航栏",
+        "内容输出",
+        "菜单",
+        "页面树"
+      ],
+      "source_info": {
+        "type": "internal",
+        "name": "pytest-dsl",
+        "display_name": "pytest-dsl",
+        "module": "pytest_dsl_ui.keywords.element_keywords",
+        "plugin_module": ""
+      },
+      "parameters": [
+        {
+          "name": "定位器",
+          "mapping": "selector",
+          "description": "容器定位器（CSS选择器、XPath等）"
+        },
+        {
+          "name": "内容类型",
+          "mapping": "content_type",
+          "description": "内容类型：auto-自动检测，menu-菜单，page_tree-页面树",
+          "default": "auto"
+        },
+        {
+          "name": "超时时间",
+          "mapping": "timeout",
+          "description": "超时时间（秒）",
+          "default": 30
+        }
+      ],
+      "source": "pytest-dsl",
+      "documentation": "输出导航栏内容（支持菜单和页面树）\n\n    Args:\n        selector: 容器定位器\n        content_type: 内容类型（auto/menu/page_tree）\n        timeout: 超时时间\n\n    Returns:\n        list: 导航栏项列表"
     }
   ]
 }
