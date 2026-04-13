@@ -11,11 +11,7 @@ from pytest_dsl.core.keyword_manager import keyword_manager
 from ..core.browser_manager import browser_manager
 from ..core.element_locator import ElementLocator
 
-# 导入Playwright的expect API
-try:
-    from playwright.sync_api import expect
-except ImportError:
-    expect = None
+expect = browser_manager.expect
 
 logger = logging.getLogger(__name__)
 
