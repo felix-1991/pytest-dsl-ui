@@ -5,6 +5,7 @@
 """
 
 import logging
+import re
 import allure
 
 from pytest_dsl.core.keyword_manager import keyword_manager
@@ -20,6 +21,11 @@ def _get_current_locator() -> ElementLocator:
     """获取当前页面的元素定位器"""
     page = browser_manager.get_current_page()
     return ElementLocator(page)
+
+
+def _timeout_ms(timeout: float) -> int:
+    """把秒级超时转换为 Playwright 需要的毫秒。"""
+    return int(timeout * 1000)
 
 
 @keyword_manager.register('断言元素可见', [
@@ -51,7 +57,7 @@ def assert_element_visible(**kwargs):
             element = locator.locate(selector)
 
             # 使用Playwright的expect API进行断言
-            expect(element).to_be_visible(timeout=int(timeout * 1000))
+            expect(element).to_be_visible(timeout=_timeout_ms(timeout))
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -108,7 +114,7 @@ def assert_element_hidden(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            expect(element).to_be_hidden(timeout=int(timeout * 1000))
+            expect(element).to_be_hidden(timeout=_timeout_ms(timeout))
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -173,7 +179,7 @@ def assert_element_exists(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            expect(element).to_be_attached(timeout=int(timeout * 1000))
+            expect(element).to_be_attached(timeout=_timeout_ms(timeout))
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -238,7 +244,7 @@ def assert_element_enabled(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            expect(element).to_be_enabled(timeout=int(timeout * 1000))
+            expect(element).to_be_enabled(timeout=_timeout_ms(timeout))
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -303,7 +309,7 @@ def assert_element_disabled(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            expect(element).to_be_disabled(timeout=int(timeout * 1000))
+            expect(element).to_be_disabled(timeout=_timeout_ms(timeout))
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -386,11 +392,11 @@ def assert_text_content(**kwargs):
             # 根据匹配方式选择不同的断言方法
             if match_type == 'contains':
                 expect(element).to_contain_text(
-                    expected_text, timeout=int(timeout * 1000)
+                    expected_text, timeout=_timeout_ms(timeout)
                 )
             else:  # exact
                 expect(element).to_have_text(
-                    expected_text, timeout=int(timeout * 1000)
+                    expected_text, timeout=_timeout_ms(timeout)
                 )
 
             allure.attach(
@@ -468,7 +474,7 @@ def assert_input_value(**kwargs):
             element = locator.locate(selector)
 
             expect(element).to_have_value(
-                expected_value, timeout=int(timeout * 1000)
+                expected_value, timeout=_timeout_ms(timeout)
             )
 
             allure.attach(
@@ -551,7 +557,7 @@ def assert_attribute_value(**kwargs):
             element = locator.locate(selector)
 
             expect(element).to_have_attribute(
-                attribute_name, expected_value, timeout=int(timeout * 1000)
+                attribute_name, expected_value, timeout=_timeout_ms(timeout)
             )
 
             allure.attach(
@@ -639,7 +645,7 @@ def assert_element_count(**kwargs):
             element = locator.locate(selector)
 
             expect(element).to_have_count(
-                expected_count, timeout=int(timeout * 1000)
+                expected_count, timeout=_timeout_ms(timeout)
             )
 
             allure.attach(
@@ -721,14 +727,13 @@ def assert_page_title(**kwargs):
             # 根据匹配方式选择不同的断言方法
             if match_type == 'contains':
                 # 使用正则表达式实现包含匹配
-                import re
                 title_pattern = re.compile(f".*{re.escape(expected_title)}.*")
                 expect(page).to_have_title(
-                    title_pattern, timeout=int(timeout * 1000)
+                    title_pattern, timeout=_timeout_ms(timeout)
                 )
             else:  # exact
                 expect(page).to_have_title(
-                    expected_title, timeout=int(timeout * 1000)
+                    expected_title, timeout=_timeout_ms(timeout)
                 )
 
             allure.attach(
@@ -808,14 +813,13 @@ def assert_page_url(**kwargs):
             # 根据匹配方式选择不同的断言方法
             if match_type == 'contains':
                 # 使用正则表达式实现包含匹配
-                import re
                 url_pattern = re.compile(f".*{re.escape(expected_url)}.*")
                 expect(page).to_have_url(
-                    url_pattern, timeout=int(timeout * 1000)
+                    url_pattern, timeout=_timeout_ms(timeout)
                 )
             else:  # exact
                 expect(page).to_have_url(
-                    expected_url, timeout=int(timeout * 1000)
+                    expected_url, timeout=_timeout_ms(timeout)
                 )
 
             allure.attach(
@@ -872,7 +876,7 @@ def check_element_visible(**kwargs):
         timeout: 超时时间（秒）
 
     Returns:
-        dict: 包含boolean结果的操作结果
+        bool: 检查结果
     """
     selector = kwargs.get('selector')
     timeout = kwargs.get('timeout', 3.0)
@@ -883,23 +887,7 @@ def check_element_visible(**kwargs):
     with allure.step(f"检查元素是否可见: {selector}"):
         try:
             locator = _get_current_locator()
-            element = locator.locate(selector)
-
-            # 使用is_visible()方法检查，不会抛出异常
-            is_visible = element.is_visible()
-
-            if is_visible:
-                # 再次确认元素真的可见（有时需要等待）
-                # 使用与断言相同的逻辑确保一致性
-                try:
-                    expect(element).to_be_visible(timeout=int(timeout * 1000))
-                    result = True
-                except Exception:
-                    # 如果expect失败，但is_visible为True，说明元素可见但可能不稳定
-                    # 使用is_element_visible方法再次检查（支持智能定位器）
-                    result = locator.is_element_visible(selector)
-            else:
-                result = False
+            result = locator.wait_for_element(selector, "visible", timeout)
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -935,16 +923,7 @@ def check_element_visible(**kwargs):
                 attachment_type=allure.attachment_type.TEXT
             )
 
-            return {
-                "result": result,
-                "captures": {"is_visible": result, "error": str(e)},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "check_type": "element_visible",
-                    "operation": "check_element_visible"
-                }
-            }
+            return result
 
 
 @keyword_manager.register('检查元素是否存在', [
@@ -959,7 +938,7 @@ def check_element_exists(**kwargs):
         timeout: 超时时间（秒）
 
     Returns:
-        dict: 包含boolean结果的操作结果
+        bool: 检查结果
     """
     selector = kwargs.get('selector')
     timeout = kwargs.get('timeout', 3.0)
@@ -970,11 +949,8 @@ def check_element_exists(**kwargs):
     with allure.step(f"检查元素是否存在: {selector}"):
         try:
             locator = _get_current_locator()
-            element = locator.locate(selector)
-
-            # 使用count()方法检查元素数量
-            count = element.count()
-            result = count > 0
+            result = locator.wait_for_element(selector, "attached", timeout)
+            count = locator.get_element_count(selector)
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -987,16 +963,7 @@ def check_element_exists(**kwargs):
 
             logger.info(f"元素存在性检查: {selector} -> {'存在' if result else '不存在'}")
 
-            return {
-                "result": result,
-                "captures": {"exists": result, "count": count},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "check_type": "element_exists",
-                    "operation": "check_element_exists"
-                }
-            }
+            return result
 
         except Exception as e:
             logger.error(f"元素存在性检查异常: {selector} - {str(e)}")
@@ -1008,16 +975,7 @@ def check_element_exists(**kwargs):
                 attachment_type=allure.attachment_type.TEXT
             )
 
-            return {
-                "result": False,
-                "captures": {"exists": False, "error": str(e)},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "check_type": "element_exists",
-                    "operation": "check_element_exists"
-                }
-            }
+            return False
 
 
 @keyword_manager.register('检查元素是否启用', [
@@ -1032,7 +990,7 @@ def check_element_enabled(**kwargs):
         timeout: 超时时间（秒）
 
     Returns:
-        dict: 包含boolean结果的操作结果
+        bool: 检查结果
     """
     selector = kwargs.get('selector')
     timeout = kwargs.get('timeout', 3.0)
@@ -1045,8 +1003,11 @@ def check_element_enabled(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            # 使用is_enabled()方法检查
-            result = element.is_enabled()
+            try:
+                expect(element).to_be_enabled(timeout=_timeout_ms(timeout))
+                result = True
+            except Exception:
+                result = False
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -1058,16 +1019,7 @@ def check_element_enabled(**kwargs):
 
             logger.info(f"元素启用状态检查: {selector} -> {'启用' if result else '禁用'}")
 
-            return {
-                "result": result,
-                "captures": {"is_enabled": result},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "check_type": "element_enabled",
-                    "operation": "check_element_enabled"
-                }
-            }
+            return result
 
         except Exception as e:
             logger.error(f"元素启用状态检查异常: {selector} - {str(e)}")
@@ -1079,16 +1031,7 @@ def check_element_enabled(**kwargs):
                 attachment_type=allure.attachment_type.TEXT
             )
 
-            return {
-                "result": False,
-                "captures": {"is_enabled": False, "error": str(e)},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "check_type": "element_enabled",
-                    "operation": "check_element_enabled"
-                }
-            }
+            return False
 
 
 @keyword_manager.register('检查文本是否包含', [
@@ -1105,7 +1048,7 @@ def check_text_contains(**kwargs):
         timeout: 超时时间（秒）
 
     Returns:
-        dict: 包含boolean结果的操作结果
+        bool: 检查结果
     """
     selector = kwargs.get('selector')
     expected_text = kwargs.get('expected_text')
@@ -1121,9 +1064,15 @@ def check_text_contains(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            # 获取元素文本内容
-            actual_text = element.text_content()
-            result = expected_text in (actual_text or "")
+            try:
+                expect(element).to_contain_text(
+                    expected_text, timeout=_timeout_ms(timeout)
+                )
+                result = True
+            except Exception:
+                result = False
+
+            actual_text = element.text_content(timeout=0)
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -1137,21 +1086,7 @@ def check_text_contains(**kwargs):
 
             logger.info(f"文本包含检查: {selector} -> {'包含' if result else '不包含'}")
 
-            return {
-                "result": result,
-                "captures": {
-                    "contains_text": result,
-                    "actual_text": actual_text,
-                    "expected_text": expected_text
-                },
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "expected_text": expected_text,
-                    "check_type": "text_contains",
-                    "operation": "check_text_contains"
-                }
-            }
+            return result
 
         except Exception as e:
             logger.error(f"文本包含检查异常: {selector} -> {expected_text} - {str(e)}")
@@ -1164,21 +1099,7 @@ def check_text_contains(**kwargs):
                 attachment_type=allure.attachment_type.TEXT
             )
 
-            return {
-                "result": False,
-                "captures": {
-                    "contains_text": False,
-                    "expected_text": expected_text,
-                    "error": str(e)
-                },
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "expected_text": expected_text,
-                    "check_type": "text_contains",
-                    "operation": "check_text_contains"
-                }
-            }
+            return False
 
 
 @keyword_manager.register('检查页面URL是否包含', [
@@ -1194,7 +1115,7 @@ def check_url_contains(**kwargs):
         timeout: 超时时间（秒）
 
     Returns:
-        dict: 包含boolean结果的操作结果
+        bool: 检查结果
     """
     url_fragment = kwargs.get('url_fragment')
     timeout = kwargs.get('timeout', 3.0)
@@ -1205,8 +1126,17 @@ def check_url_contains(**kwargs):
     with allure.step(f"检查页面URL是否包含: {url_fragment}"):
         try:
             page = browser_manager.get_current_page()
+
+            try:
+                url_pattern = re.compile(f".*{re.escape(url_fragment)}.*")
+                expect(page).to_have_url(
+                    url_pattern, timeout=_timeout_ms(timeout)
+                )
+                result = True
+            except Exception:
+                result = False
+
             current_url = page.url
-            result = url_fragment in current_url
 
             allure.attach(
                 f"期望URL片段: {url_fragment}\n"
@@ -1222,20 +1152,7 @@ def check_url_contains(**kwargs):
                 f"{'包含' if result else '不包含'}"
             )
 
-            return {
-                "result": result,
-                "captures": {
-                    "contains_url": result,
-                    "current_url": current_url,
-                    "url_fragment": url_fragment
-                },
-                "session_state": {},
-                "metadata": {
-                    "url_fragment": url_fragment,
-                    "check_type": "url_contains",
-                    "operation": "check_url_contains"
-                }
-            }
+            return result
 
         except Exception as e:
             logger.error(f"URL包含检查异常: {url_fragment} - {str(e)}")
@@ -1247,20 +1164,7 @@ def check_url_contains(**kwargs):
                 attachment_type=allure.attachment_type.TEXT
             )
 
-            return {
-                "result": False,
-                "captures": {
-                    "contains_url": False,
-                    "url_fragment": url_fragment,
-                    "error": str(e)
-                },
-                "session_state": {},
-                "metadata": {
-                    "url_fragment": url_fragment,
-                    "check_type": "url_contains",
-                    "operation": "check_url_contains"
-                }
-            }
+            return False
 
 
 @keyword_manager.register('检查页面标题是否包含', [
@@ -1276,7 +1180,7 @@ def check_title_contains(**kwargs):
         timeout: 超时时间（秒）
 
     Returns:
-        dict: 包含boolean结果的操作结果
+        bool: 检查结果
     """
     title_fragment = kwargs.get('title_fragment')
     timeout = kwargs.get('timeout', 3.0)
@@ -1287,8 +1191,19 @@ def check_title_contains(**kwargs):
     with allure.step(f"检查页面标题是否包含: {title_fragment}"):
         try:
             page = browser_manager.get_current_page()
+
+            try:
+                title_pattern = re.compile(
+                    f".*{re.escape(title_fragment)}.*"
+                )
+                expect(page).to_have_title(
+                    title_pattern, timeout=_timeout_ms(timeout)
+                )
+                result = True
+            except Exception:
+                result = False
+
             current_title = page.title()
-            result = title_fragment in current_title
 
             allure.attach(
                 f"期望标题片段: {title_fragment}\n"
@@ -1304,20 +1219,7 @@ def check_title_contains(**kwargs):
                 f"{'包含' if result else '不包含'}"
             )
 
-            return {
-                "result": result,
-                "captures": {
-                    "contains_title": result,
-                    "current_title": current_title,
-                    "title_fragment": title_fragment
-                },
-                "session_state": {},
-                "metadata": {
-                    "title_fragment": title_fragment,
-                    "check_type": "title_contains",
-                    "operation": "check_title_contains"
-                }
-            }
+            return result
 
         except Exception as e:
             logger.error(f"标题包含检查异常: {title_fragment} - {str(e)}")
@@ -1329,20 +1231,7 @@ def check_title_contains(**kwargs):
                 attachment_type=allure.attachment_type.TEXT
             )
 
-            return {
-                "result": False,
-                "captures": {
-                    "contains_title": False,
-                    "title_fragment": title_fragment,
-                    "error": str(e)
-                },
-                "session_state": {},
-                "metadata": {
-                    "title_fragment": title_fragment,
-                    "check_type": "title_contains",
-                    "operation": "check_title_contains"
-                }
-            }
+            return False
 
 
 @keyword_manager.register('检查元素属性值', [
@@ -1361,7 +1250,7 @@ def check_attribute_value(**kwargs):
         timeout: 超时时间（秒）
 
     Returns:
-        dict: 包含boolean结果的操作结果
+        bool: 检查结果
     """
     selector = kwargs.get('selector')
     attribute_name = kwargs.get('attribute_name')
@@ -1380,11 +1269,22 @@ def check_attribute_value(**kwargs):
             locator = _get_current_locator()
             element = locator.locate(selector)
 
-            # 获取属性值
-            actual_value = element.get_attribute(attribute_name)
-            result = (str(actual_value) == str(expected_value)
-                      if actual_value is not None
-                      else expected_value is None)
+            if expected_value is None:
+                result = locator.wait_for_element(selector, "attached", timeout)
+            else:
+                try:
+                    expect(element).to_have_attribute(
+                        attribute_name,
+                        str(expected_value),
+                        timeout=_timeout_ms(timeout),
+                    )
+                    result = True
+                except Exception:
+                    result = False
+
+            actual_value = element.get_attribute(attribute_name, timeout=0)
+            if expected_value is None:
+                result = result and actual_value is None
 
             allure.attach(
                 f"定位器: {selector}\n"
@@ -1402,22 +1302,7 @@ def check_attribute_value(**kwargs):
                 f"{'匹配' if result else '不匹配'}"
             )
 
-            return {
-                "result": result,
-                "captures": {
-                    "attribute_matches": result,
-                    "actual_value": actual_value,
-                    "expected_value": expected_value
-                },
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "attribute_name": attribute_name,
-                    "expected_value": expected_value,
-                    "check_type": "attribute_value",
-                    "operation": "check_attribute_value"
-                }
-            }
+            return result
 
         except Exception as e:
             error_msg = (
@@ -1434,22 +1319,7 @@ def check_attribute_value(**kwargs):
                 attachment_type=allure.attachment_type.TEXT
             )
 
-            return {
-                "result": False,
-                "captures": {
-                    "attribute_matches": False,
-                    "expected_value": expected_value,
-                    "error": str(e)
-                },
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "attribute_name": attribute_name,
-                    "expected_value": expected_value,
-                    "check_type": "attribute_value",
-                    "operation": "check_attribute_value"
-                }
-            }
+            return False
 
 
 @keyword_manager.register('多条件检查', [
@@ -1464,7 +1334,7 @@ def check_multiple_conditions(**kwargs):
         logic: 逻辑关系，'AND'或'OR'
 
     Returns:
-        dict: 包含boolean结果的操作结果
+        bool: 检查结果
 
     示例:
         conditions = [
@@ -1473,7 +1343,7 @@ def check_multiple_conditions(**kwargs):
              "expected_text": "欢迎"}
         ]
     """
-    conditions = kwargs.get('conditions', [], category='UI/元素')
+    conditions = kwargs.get('conditions', [])
     logic = kwargs.get('logic', 'AND').upper()
 
     if not conditions:
@@ -1505,12 +1375,11 @@ def check_multiple_conditions(**kwargs):
                 else:
                     raise ValueError(f"不支持的检查类型: {condition_type}")
 
-                condition_result = result.get('result', False)
+                condition_result = bool(result)
                 results.append(condition_result)
                 details.append({
                     "condition": condition,
                     "result": condition_result,
-                    "details": result.get('captures', {})
                 })
 
             except Exception as e:
@@ -1546,22 +1415,7 @@ def check_multiple_conditions(**kwargs):
             f"{'通过' if final_result else '失败'}"
         )
 
-        return {
-            "result": final_result,
-            "captures": {
-                "final_result": final_result,
-                "passed_count": passed_count,
-                "total_count": total_count,
-                "details": details
-            },
-            "session_state": {},
-            "metadata": {
-                "logic": logic,
-                "conditions_count": total_count,
-                "check_type": "multiple_conditions",
-                "operation": "check_multiple_conditions"
-            }
-        }
+        return final_result
 
 
 @keyword_manager.register('断言复选框状态', [
@@ -1599,9 +1453,9 @@ def assert_checkbox_state(**kwargs):
             element = locator.locate(selector)
 
             if expected_checked:
-                expect(element).to_be_checked(timeout=int(timeout * 1000))
+                expect(element).to_be_checked(timeout=_timeout_ms(timeout))
             else:
-                expect(element).not_to_be_checked(timeout=int(timeout * 1000))
+                expect(element).not_to_be_checked(timeout=_timeout_ms(timeout))
 
             allure.attach(
                 f"定位器: {selector}\n"
