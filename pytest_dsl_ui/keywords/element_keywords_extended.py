@@ -488,7 +488,7 @@ def check_element_checked(**kwargs):
         selector: 元素定位器
 
     Returns:
-        dict: 包含布尔值结果的字典
+        bool: 检查结果
     """
     selector = kwargs.get('selector')
 
@@ -509,16 +509,7 @@ def check_element_checked(**kwargs):
 
             logger.info(f"元素选中状态检查完成: {selector} -> {is_checked}")
 
-            return {
-                "result": is_checked,
-                "captures": {},
-                "session_state": {},
-                "metadata": {
-                    "selector": selector,
-                    "checked": is_checked,
-                    "operation": "check_element_checked"
-                }
-            }
+            return is_checked
 
         except Exception as e:
             logger.error(f"检查元素选中状态失败: {str(e)}")
@@ -527,4 +518,4 @@ def check_element_checked(**kwargs):
                 name="元素选中状态检查失败",
                 attachment_type=allure.attachment_type.TEXT
             )
-            raise
+            return False

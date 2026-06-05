@@ -634,7 +634,7 @@
           "description": "AND或OR逻辑关系"
         }
       ],
-      "documentation": "执行多个条件检查并根据逻辑关系返回结果\n\n    Args:\n        conditions: 检查条件列表，每个条件包含type和参数\n        logic: 逻辑关系，'AND'或'OR'\n\n    Returns:\n        dict: 包含boolean结果的操作结果\n\n    示例:\n        conditions = [\n            {\"type\": \"element_visible\", \"selector\": \"#login-button\"},\n            {\"type\": \"text_contains\", \"selector\": \"#message\", \n             \"expected_text\": \"欢迎\"}\n        ]"
+      "documentation": "执行多个条件检查并根据逻辑关系返回结果\n\n    Args:\n        conditions: 检查条件列表，每个条件包含type和参数\n        logic: 逻辑关系，'AND'或'OR'\n\n    Returns:\n        bool: 检查结果\n\n    示例:\n        conditions = [\n            {\"type\": \"element_visible\", \"selector\": \"#login-button\"},\n            {\"type\": \"text_contains\", \"selector\": \"#message\", \n             \"expected_text\": \"欢迎\"}\n        ]"
     },
     {
       "name": "字符串操作",
@@ -1583,7 +1583,7 @@
           "description": "超时时间（秒）"
         }
       ],
-      "documentation": "检查元素属性值是否匹配\n\n    Args:\n        selector: 元素定位器\n        attribute_name: 属性名称\n        expected_value: 期望的属性值\n        timeout: 超时时间（秒）\n\n    Returns:\n        dict: 包含boolean结果的操作结果"
+      "documentation": "检查元素属性值是否匹配\n\n    Args:\n        selector: 元素定位器\n        attribute_name: 属性名称\n        expected_value: 期望的属性值\n        timeout: 超时时间（秒）\n\n    Returns:\n        bool: 检查结果"
     },
     {
       "name": "检查元素是否可见",
@@ -1607,7 +1607,7 @@
           "description": "超时时间（秒）"
         }
       ],
-      "documentation": "检查元素是否可见\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间（秒）\n\n    Returns:\n        dict: 包含boolean结果的操作结果"
+      "documentation": "检查元素是否可见\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间（秒）\n\n    Returns:\n        bool: 检查结果"
     },
     {
       "name": "检查元素是否启用",
@@ -1631,7 +1631,7 @@
           "description": "超时时间（秒）"
         }
       ],
-      "documentation": "检查元素是否启用\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间（秒）\n\n    Returns:\n        dict: 包含boolean结果的操作结果"
+      "documentation": "检查元素是否启用\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间（秒）\n\n    Returns:\n        bool: 检查结果"
     },
     {
       "name": "检查元素是否存在",
@@ -1655,7 +1655,7 @@
           "description": "超时时间（秒）"
         }
       ],
-      "documentation": "检查元素是否存在\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间（秒）\n\n    Returns:\n        dict: 包含boolean结果的操作结果"
+      "documentation": "检查元素是否存在\n\n    Args:\n        selector: 元素定位器\n        timeout: 超时时间（秒）\n\n    Returns:\n        bool: 检查结果"
     },
     {
       "name": "检查元素是否选中",
@@ -1674,7 +1674,7 @@
           "description": "元素定位器"
         }
       ],
-      "documentation": "检查元素是否选中（复选框或单选框）\n\n    Args:\n        selector: 元素定位器\n\n    Returns:\n        dict: 包含布尔值结果的字典"
+      "documentation": "检查元素是否选中（复选框或单选框）\n\n    Args:\n        selector: 元素定位器\n\n    Returns:\n        bool: 检查结果"
     },
     {
       "name": "检查文本是否包含",
@@ -1703,7 +1703,7 @@
           "description": "超时时间（秒）"
         }
       ],
-      "documentation": "检查元素文本是否包含指定内容\n\n    Args:\n        selector: 元素定位器\n        expected_text: 期望包含的文本\n        timeout: 超时时间（秒）\n\n    Returns:\n        dict: 包含boolean结果的操作结果"
+      "documentation": "检查元素文本是否包含指定内容\n\n    Args:\n        selector: 元素定位器\n        expected_text: 期望包含的文本\n        timeout: 超时时间（秒）\n\n    Returns:\n        bool: 检查结果"
     },
     {
       "name": "检查认证状态",
@@ -1746,7 +1746,7 @@
           "description": "超时时间（秒）"
         }
       ],
-      "documentation": "检查页面URL是否包含指定片段\n\n    Args:\n        url_fragment: 期望包含的URL片段\n        timeout: 超时时间（秒）\n\n    Returns:\n        dict: 包含boolean结果的操作结果"
+      "documentation": "检查页面URL是否包含指定片段\n\n    Args:\n        url_fragment: 期望包含的URL片段\n        timeout: 超时时间（秒）\n\n    Returns:\n        bool: 检查结果"
     },
     {
       "name": "检查页面标题是否包含",
@@ -1770,7 +1770,7 @@
           "description": "超时时间（秒）"
         }
       ],
-      "documentation": "检查页面标题是否包含指定片段\n\n    Args:\n        title_fragment: 期望包含的标题片段\n        timeout: 超时时间（秒）\n\n    Returns:\n        dict: 包含boolean结果的操作结果"
+      "documentation": "检查页面标题是否包含指定片段\n\n    Args:\n        title_fragment: 期望包含的标题片段\n        timeout: 超时时间（秒）\n\n    Returns:\n        bool: 检查结果"
     },
     {
       "name": "浏览器HTTP请求",
